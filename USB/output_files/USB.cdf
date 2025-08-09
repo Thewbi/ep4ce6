@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE6E22) Path("C:/Users/lapto/dev/ep4ec6/USB/output_files/") File("USB.sof") MfrSpec(OpMask(1));
+		Device PartName(EP4CE6E22) Path("C:/Users/lapto/dev/fpga/ep4ce6/USB/output_files/") File("USB.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

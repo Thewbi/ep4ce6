@@ -1,4 +1,4 @@
-Analysis & Synthesis Status : Successful - Sat Aug 09 09:24:55 2025
+Analysis & Synthesis Status : Successful - Sat Aug 09 12:40:52 2025
 Quartus II 64-Bit Version : 13.1.0 Build 162 10/23/2013 SJ Web Edition
 Revision Name : USB
 Top-level Entity Name : LED_4
@@ -7,7 +7,7 @@ Total logic elements : 58
     Total combinational functions : 58
     Dedicated logic registers : 36
 Total registers : 36
-Total pins : 7
+Total pins : 9
 Total virtual pins : 0
 Total memory bits : 0
 Embedded Multiplier 9-bit elements : 0

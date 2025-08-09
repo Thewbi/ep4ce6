@@ -1,5 +1,5 @@
 Analysis & Synthesis report for USB
-Sat Aug 09 09:24:56 2025
+Sat Aug 09 12:40:52 2025
 Quartus II 64-Bit Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
 
 
@@ -13,10 +13,11 @@ Quartus II 64-Bit Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
   5. Analysis & Synthesis Source Files Read
   6. Analysis & Synthesis Resource Usage Summary
   7. Analysis & Synthesis Resource Utilization by Entity
-  8. General Register Statistics
-  9. Multiplexer Restructuring Statistics (Restructuring Performed)
- 10. Elapsed Time Per Partition
- 11. Analysis & Synthesis Messages
+  8. Registers Removed During Synthesis
+  9. General Register Statistics
+ 10. Multiplexer Restructuring Statistics (Restructuring Performed)
+ 11. Elapsed Time Per Partition
+ 12. Analysis & Synthesis Messages
 
 
 
@@ -42,7 +43,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                    ;
 +------------------------------------+--------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Sat Aug 09 09:24:55 2025      ;
+; Analysis & Synthesis Status        ; Successful - Sat Aug 09 12:40:52 2025      ;
 ; Quartus II 64-Bit Version          ; 13.1.0 Build 162 10/23/2013 SJ Web Edition ;
 ; Revision Name                      ; USB                                        ;
 ; Top-level Entity Name              ; LED_4                                      ;
@@ -51,7 +52,7 @@ applicable agreement for further details.
 ;     Total combinational functions  ; 58                                         ;
 ;     Dedicated logic registers      ; 36                                         ;
 ; Total registers                    ; 36                                         ;
-; Total pins                         ; 7                                          ;
+; Total pins                         ; 9                                          ;
 ; Total virtual pins                 ; 0                                          ;
 ; Total memory bits                  ; 0                                          ;
 ; Embedded Multiplier 9-bit elements ; 0                                          ;
@@ -172,34 +173,34 @@ applicable agreement for further details.
 +----------------------------------+-----------------+------------------------+--------------------------------------------+---------+
 
 
-+------------------------------------------------------------------+
-; Analysis & Synthesis Resource Usage Summary                      ;
-+---------------------------------------------+--------------------+
-; Resource                                    ; Usage              ;
-+---------------------------------------------+--------------------+
-; Estimated Total logic elements              ; 58                 ;
-;                                             ;                    ;
-; Total combinational functions               ; 58                 ;
-; Logic element usage by number of LUT inputs ;                    ;
-;     -- 4 input functions                    ; 10                 ;
-;     -- 3 input functions                    ; 4                  ;
-;     -- <=2 input functions                  ; 44                 ;
-;                                             ;                    ;
-; Logic elements by mode                      ;                    ;
-;     -- normal mode                          ; 27                 ;
-;     -- arithmetic mode                      ; 31                 ;
-;                                             ;                    ;
-; Total registers                             ; 36                 ;
-;     -- Dedicated logic registers            ; 36                 ;
-;     -- I/O registers                        ; 0                  ;
-;                                             ;                    ;
-; I/O pins                                    ; 7                  ;
-; Embedded Multiplier 9-bit elements          ; 0                  ;
-; Maximum fan-out node                        ; pin16IOs_1_8~input ;
-; Maximum fan-out                             ; 36                 ;
-; Total fan-out                               ; 226                ;
-; Average fan-out                             ; 2.02               ;
-+---------------------------------------------+--------------------+
++------------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary                ;
++---------------------------------------------+--------------+
+; Resource                                    ; Usage        ;
++---------------------------------------------+--------------+
+; Estimated Total logic elements              ; 58           ;
+;                                             ;              ;
+; Total combinational functions               ; 58           ;
+; Logic element usage by number of LUT inputs ;              ;
+;     -- 4 input functions                    ; 11           ;
+;     -- 3 input functions                    ; 2            ;
+;     -- <=2 input functions                  ; 45           ;
+;                                             ;              ;
+; Logic elements by mode                      ;              ;
+;     -- normal mode                          ; 27           ;
+;     -- arithmetic mode                      ; 31           ;
+;                                             ;              ;
+; Total registers                             ; 36           ;
+;     -- Dedicated logic registers            ; 36           ;
+;     -- I/O registers                        ; 0            ;
+;                                             ;              ;
+; I/O pins                                    ; 9            ;
+; Embedded Multiplier 9-bit elements          ; 0            ;
+; Maximum fan-out node                        ; clkout~input ;
+; Maximum fan-out                             ; 36           ;
+; Total fan-out                               ; 227          ;
+; Average fan-out                             ; 1.96         ;
++---------------------------------------------+--------------+
 
 
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -207,9 +208,20 @@ applicable agreement for further details.
 +----------------------------+-------------------+--------------+-------------+--------------+---------+-----------+------+--------------+---------------------+--------------+
 ; Compilation Hierarchy Node ; LC Combinationals ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name ; Library Name ;
 +----------------------------+-------------------+--------------+-------------+--------------+---------+-----------+------+--------------+---------------------+--------------+
-; |LED_4                     ; 58 (58)           ; 36 (36)      ; 0           ; 0            ; 0       ; 0         ; 7    ; 0            ; |LED_4              ; work         ;
+; |LED_4                     ; 58 (58)           ; 36 (36)      ; 0           ; 0            ; 0       ; 0         ; 9    ; 0            ; |LED_4              ; work         ;
 +----------------------------+-------------------+--------------+-------------+--------------+---------+-----------+------+--------------+---------------------+--------------+
 Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
++--------------------------------------------------------------------------------+
+; Registers Removed During Synthesis                                             ;
++---------------------------------------+----------------------------------------+
+; Register name                         ; Reason for Removal                     ;
++---------------------------------------+----------------------------------------+
+; led[2]~reg0                           ; Stuck at VCC due to stuck port data_in ;
+; led[3]~reg0                           ; Stuck at VCC due to stuck port data_in ;
+; Total Number of Removed Registers = 2 ;                                        ;
++---------------------------------------+----------------------------------------+
 
 
 +------------------------------------------------------+
@@ -232,7 +244,7 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +--------------------+-----------+---------------+----------------------+------------------------+------------+----------------------------+
 ; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+----------------------------+
-; 3:1                ; 4 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; Yes        ; |LED_4|led[1]~reg0         ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |LED_4|reset_performed     ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+----------------------------+
 
 
@@ -251,7 +263,7 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
-    Info: Processing started: Sat Aug 09 09:24:54 2025
+    Info: Processing started: Sat Aug 09 12:40:51 2025
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off USB -c USB
 Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
 Info (12021): Found 1 design units, including 1 entities, in source file led_4.v
@@ -264,7 +276,6 @@ Warning (13034): The following nodes have both tri-state and non-tri-state drive
     Warning (13035): Inserted always-enabled tri-state buffer between "led[3]" and its non-tri-state driver.
 Info (13060): One or more bidirs are fed by always enabled tri-state buffers
     Info (13061): Fan-out of permanently enabled tri-state buffer feeding bidir "led[0]" is moved to its source
-    Info (13061): Fan-out of permanently enabled tri-state buffer feeding bidir "led[1]" is moved to its source
     Info (13061): Fan-out of permanently enabled tri-state buffer feeding bidir "led[2]" is moved to its source
     Info (13061): Fan-out of permanently enabled tri-state buffer feeding bidir "led[3]" is moved to its source
 Warning (13009): TRI or OPNDRN buffers permanently enabled
@@ -277,15 +288,15 @@ Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
 Warning (21074): Design contains 1 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "clk"
-Info (21057): Implemented 65 device resources after synthesis - the final resource count might be different
-    Info (21058): Implemented 3 input pins
-    Info (21059): Implemented 0 output pins
+Info (21057): Implemented 67 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 4 input pins
+    Info (21059): Implemented 1 output pins
     Info (21060): Implemented 4 bidirectional pins
     Info (21061): Implemented 58 logic cells
 Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 12 warnings
     Info: Peak virtual memory: 4668 megabytes
-    Info: Processing ended: Sat Aug 09 09:24:56 2025
-    Info: Elapsed time: 00:00:02
+    Info: Processing ended: Sat Aug 09 12:40:52 2025
+    Info: Elapsed time: 00:00:01
     Info: Total CPU time (on all processors): 00:00:01
 
 

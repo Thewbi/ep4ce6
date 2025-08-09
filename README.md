@@ -286,6 +286,250 @@ endmodule
 
 
 
+# Test #2 - Reseting the PHY using the RST pin
+
+In order to perform any register interaction, the link must wait for DIR to be deasserted by the PHY.
+For me, DIR never deasserted until I tested the RST pin. Asserting RST (HIGH) will cause the PHY 
+to reset. Deasserting RST (LOW) causes the PHY to begin operation. After going through a one second
+reset phase, clkout kept running and also DIR was deasserted. Now the PHY is ready to receive register
+commands.
+
+Here is the code:
+
+```
+module LED_4(
+
+	// clock and reset
+	input nrst,
+	input clk,
+	
+	// LEDs
+	inout reg [3:0]led,
+	
+	// ULPI
+	input wire clkout,
+	input wire DIR, // PIN 52
+	
+	output wire RST // PIN 46
+	);
+	
+	reg [31:0] counter;	
+	reg [31:0] counter2;
+	reg clk2;
+	reg [7:0] i;	
+	reg [3:0] led_reg;
+	
+	// when reset is asserted, the phy resets
+	reg [31:0] reset_counter;
+	reg reset_performed;
+	reg RST_reg;
+	assign RST = RST_reg;
+	
+	always @(posedge clkout)
+	begin
+		if(!nrst) 
+		begin
+			led[1] <= 1; // LED 3 (L3) (1 = off, 0 == on)
+		end
+		else
+		begin		
+			led[1] <= DIR; // LED 3 (L3) (1 = off, 0 == on). When the LED is off, DIR is 1 (HIGH)
+		end
+	end
+	
+	always @(posedge clkout)
+	//always @(posedge clk)
+	begin
+	
+		if(!nrst) 
+		begin
+			counter <= 32'd0;
+			led[0] <= 1; // L4 (1 = off, 0 == on)
+			//led[1] <= 1; // L3 (1 = off, 0 == on)
+			led[2] <= 1; // L2 (1 = off, 0 == on)
+			led[3] <= 1; // L1 (1 = off, 0 == on)
+			
+			reset_performed <= 0; // no reset performed yet
+			RST_reg <= 1; // assert the reset pin to trigger a reset
+		end
+		
+		if (counter == 60000000)
+		begin
+			counter <= 0;
+			//led <= ~led;
+			led[0] <= ~led[0];
+			//RST_reg <= ~RST_reg;
+			
+			if (reset_performed == 0)
+			begin
+				reset_performed <= 1;
+				RST_reg <= 0;
+			end
+			
+		end
+		else
+		begin			
+			counter <= counter + 32'd1;
+		end		
+		
+	end
+	
+	/* PIN Tester command */
+	always @(posedge clk)
+	begin
+	
+		if(!nrst) 
+		begin
+			counter2 <= 32'd0;
+		end
+			
+		if (counter2 == 30000000)
+		begin
+			counter2 <= 0;
+			RST_reg <= ~RST_reg;
+		end
+		else
+		begin			
+			counter2 <= counter2 + 32'd1;
+		end
+		
+	end
+	*/
+	
+endmodule
+```
+
+
+
+# Test #3 - Hard and Soft Reset
+
+## Hard Reset via the Reset Pin
+
+The datasheet (https://www.waveshare.com/wiki/File:USB3300-USB-HS-Board-Datasheets.pdf) says the following about the Reset pin.
+
+```
+6.1.11
+Reset Pin
+The reset input of the USB3300 may be asynchronously asserted and de-asserted so long as it is held
+in the asserted state continuously for a duration greater than one clkout clock cycle. The reset input
+may be asserted when the USB3300 clkout signal is not active (i.e. in the suspend state caused by
+asserting the SuspendM bit) but reset must only be de-asserted when the USB3300 clkout signal is
+active and the reset has been held asserted for a duration greater than one clkout clock cycle. No
+other PHY digital input signals may change state for two clkout clock cycles after the de-assertion of
+the reset signal.
+```
+
+Question: does the RST pin count as a power-cycle, in other words, does it make the PHY reset the 
+registers to their default states or not?
+
+And also
+
+```
+6.4.2
+Power On Reset (POR)
+The USB3300 provides an internal POR circuit that generates a reset pulse once the PHY supplies
+are stable. This reset will set all of the ULPI registers to their default values and start the PHY in normal
+operation. Cycling the 3.3 volt power supply is the only method for the PHY to reset the ULPI registers
+to their default states. The Link can write the registers to their default states at any time in normal
+operation.
+The RESET pin has the same functionality as the RESET register in the Function Control Register.
+```
+
+And also
+
+```
+The RESET bit in the Function Control Register does not reset the bits of the ULPI register array.
+```
+
+## Softreset via Registers
+
+3.5 Power On and Reset
+
+First perform a hard reset using the 
+
+From the Link (FPGA) perspective:
+1. Wait for the 60Hz clock to appear
+2. Set the Reset pin in the Function Control register.
+3. Wait for DIR to assert and then wait for it to de-assert which is when the PHY has reset
+4. Now the PHY will assert DIR again and then it will send a RX CMD. Be ready to receive RX CMD.
+
+## Setting a bit in the Function Control register
+Perform a 04h (WRITE) with the bit 5 HIGH
+
+1. [Register Write 10b][Address==0x05] == [10][000101] == 0x85  ---> The link writes this byte to the data pins
+2. Send bit 5 for RESET 00100000 = 0x20
+
+See 6.1.5.1 ULPI Register Write
+
+To write to a register, the Link will wait until DIR is low, and at T0, drive the TXD CMD on the databus.
+At T2 the PHY will drive NXT high. 
+On the next rising clock edge, T3, the Link will write the register data. 
+At T4 the PHY will accept the register data and the Link will drive an Idle on the bus and drive STP high to signal the end of the data packet. 
+Finally, at T5, the PHY will latch the data into the register and drive NXT low. The Link will pull STP low.
+
+
+
+
+
+# Test #4 - Interacting with Registers
+
+The ULPI 1.1 specification dictates that a ULPI device has to have a set of 8 bit registers.
+
+To interact with registers, there are four operations defined
+
+- READ
+- WRITE
+- SET
+- CLEAR
+
+According to the table 6.3 ULPI Register Map (page 23) not all registers support all operations.
+For example Vendor ID only supports READ.
+
+Each operation for each register has a unique address assigned. For example 
+Vendor ID Low, READ has the address 0x00.
+
+## READ
+
+To perform Vendor ID Low, READ go through the following steps
+
+Prerequisits: clkout produces the 60 Mhz clock. All interaction is clocked on the posedge of said
+60Mhz clock!
+
+```
+A command from the Link begins a ULPI transfer from the Link to the USB3300. Anytime the Link
+wants to write or read a ULPI register, the Link will need to wait until DIR is low, and then send a
+Transmit Command Byte (TXD CMD) to the PHY. The TXD CMD byte informs the PHY of the type of
+data being sent. The TXD CMD is followed by the a data transfer to or from the PHY. Table 6.4, "ULPI
+TXD CMD Byte Encoding" gives the TXD command byte (TXD CMD) encoding for the USB3300. The
+upper two bits of the TX CMD instruct the PHY as to what type of packet the Link is transmitting.
+```
+
+1. Link wait until DIR is low.
+2. Link send a Transmit Command Byte (TXD CMD) to the PHY.
+3. The TXD CMD is followed by the a data transfer to or from the PHY. For a READ, the PHY will send data.
+
+The TXD CMD describes several operations. The operation is selected using the upper-most two bits called CMD BITS.
+
+A READ is described by 11xxxxxx in binary. The xxxxxx contains the address. To read Vendor ID Low, the address
+is 0x00. So combining the CMD BITS with the address 0x00 yields 11000000b = 0xC0.
+
+## Reading Vendor ID and Product ID
+A good test would be to read the Vendor ID and the Product ID because the datasheet specifies
+well-defined, fixed values for these registers.
+
+
+
+
+
+
+
+
+
+
+New project:
+
+Cyclone  
+
 
 # Forum Posts
 
