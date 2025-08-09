@@ -1,5 +1,5 @@
 TimeQuest Timing Analyzer report for USB
-Fri Aug 08 20:23:31 2025
+Sat Aug 09 09:25:07 2025
 Quartus II 64-Bit Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
 
 
@@ -111,12 +111,12 @@ applicable agreement for further details.
 ; Number detected on machine ; 16          ;
 ; Maximum allowed            ; 16          ;
 ;                            ;             ;
-; Average used               ; 1.00        ;
+; Average used               ; 4.00        ;
 ; Maximum used               ; 16          ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
-;     Processor 1            ; 100.0%      ;
-;     Processors 2-16        ; < 0.1%      ;
+;     Processors 1-4         ; 100.0%      ;
+;     Processors 5-16        ; < 0.1%      ;
 +----------------------------+-------------+
 
 
@@ -297,10 +297,10 @@ No paths to report.
 +-------+-------------+-------------+--------------+--------------+--------------+------------+------------+
 ; Slack ; From Node   ; To Node     ; Launch Clock ; Latch Clock  ; Relationship ; Clock Skew ; Data Delay ;
 +-------+-------------+-------------+--------------+--------------+--------------+------------+------------+
-; 0.485 ; led[1]~reg0 ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 0.746      ;
 ; 0.485 ; led[0]~reg0 ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 0.746      ;
-; 0.485 ; led[3]~reg0 ; led[3]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; led[1]~reg0 ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 0.746      ;
 ; 0.485 ; led[2]~reg0 ; led[2]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; led[3]~reg0 ; led[3]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 0.746      ;
 ; 0.792 ; counter[3]  ; counter[3]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 1.053      ;
 ; 0.792 ; counter[13] ; counter[13] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 1.053      ;
 ; 0.793 ; counter[1]  ; counter[1]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.049      ; 1.054      ;
@@ -721,9 +721,9 @@ No paths to report.
 ; Slack ; From Node   ; To Node     ; Launch Clock ; Latch Clock  ; Relationship ; Clock Skew ; Data Delay ;
 +-------+-------------+-------------+--------------+--------------+--------------+------------+------------+
 ; 0.430 ; led[0]~reg0 ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; led[1]~reg0 ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.669      ;
 ; 0.430 ; led[2]~reg0 ; led[2]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.669      ;
 ; 0.430 ; led[3]~reg0 ; led[3]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.669      ;
-; 0.430 ; led[1]~reg0 ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.669      ;
 ; 0.733 ; counter[3]  ; counter[3]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.972      ;
 ; 0.733 ; counter[5]  ; counter[5]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.972      ;
 ; 0.733 ; counter[11] ; counter[11] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.972      ;
@@ -743,8 +743,8 @@ No paths to report.
 ; 0.739 ; counter[12] ; counter[12] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.978      ;
 ; 0.739 ; counter[18] ; counter[18] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.978      ;
 ; 0.740 ; counter[26] ; counter[26] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.979      ;
-; 0.740 ; counter[30] ; counter[30] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.979      ;
 ; 0.740 ; counter[28] ; counter[28] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.979      ;
+; 0.740 ; counter[30] ; counter[30] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.044      ; 0.979      ;
 ; 1.046 ; counter[6]  ; counter[7]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.293      ;
 ; 1.047 ; counter[3]  ; counter[4]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.294      ;
 ; 1.047 ; counter[5]  ; counter[6]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.294      ;
@@ -759,8 +759,8 @@ No paths to report.
 ; 1.051 ; counter[1]  ; counter[2]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.298      ;
 ; 1.051 ; counter[27] ; counter[28] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.050      ; 1.296      ;
 ; 1.052 ; counter[26] ; counter[27] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.050      ; 1.297      ;
-; 1.052 ; counter[30] ; counter[31] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.050      ; 1.297      ;
 ; 1.052 ; counter[28] ; counter[29] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.050      ; 1.297      ;
+; 1.052 ; counter[30] ; counter[31] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.050      ; 1.297      ;
 ; 1.064 ; counter[2]  ; counter[4]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.311      ;
 ; 1.065 ; counter[4]  ; counter[6]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.312      ;
 ; 1.065 ; counter[12] ; counter[14] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.052      ; 1.312      ;
@@ -1044,9 +1044,9 @@ No paths to report.
 ; -0.879 ; counter[1]  ; counter[24] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.052     ; 1.834      ;
 ; -0.878 ; counter[0]  ; counter[27] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.025     ; 1.860      ;
 ; -0.871 ; counter[10] ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.045     ; 1.833      ;
-; -0.870 ; counter[0]  ; counter[26] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.025     ; 1.852      ;
 ; -0.870 ; counter[10] ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.069     ; 1.808      ;
 ; -0.870 ; counter[10] ; led[3]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.069     ; 1.808      ;
+; -0.870 ; counter[0]  ; counter[26] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.025     ; 1.852      ;
 ; -0.868 ; counter[10] ; led[2]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.045     ; 1.830      ;
 ; -0.861 ; counter[17] ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.045     ; 1.823      ;
 ; -0.861 ; counter[15] ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.045     ; 1.823      ;
@@ -1073,8 +1073,8 @@ No paths to report.
 ; -0.829 ; counter[8]  ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.069     ; 1.767      ;
 ; -0.829 ; counter[8]  ; led[3]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.069     ; 1.767      ;
 ; -0.827 ; counter[8]  ; led[2]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.045     ; 1.789      ;
-; -0.826 ; counter[3]  ; counter[25] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.052     ; 1.781      ;
 ; -0.826 ; counter[2]  ; counter[23] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.052     ; 1.781      ;
+; -0.826 ; counter[3]  ; counter[25] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.052     ; 1.781      ;
 ; -0.825 ; counter[0]  ; counter[15] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.037     ; 1.795      ;
 ; -0.822 ; counter[7]  ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.056     ; 1.773      ;
 ; -0.821 ; counter[7]  ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 1.000        ; -0.080     ; 1.748      ;
@@ -1133,18 +1133,18 @@ No paths to report.
 +-------+-------------+-------------+--------------+--------------+--------------+------------+------------+
 ; Slack ; From Node   ; To Node     ; Launch Clock ; Latch Clock  ; Relationship ; Clock Skew ; Data Delay ;
 +-------+-------------+-------------+--------------+--------------+--------------+------------+------------+
-; 0.201 ; led[0]~reg0 ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.307      ;
 ; 0.201 ; led[1]~reg0 ; led[1]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.307      ;
-; 0.201 ; led[2]~reg0 ; led[2]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.307      ;
 ; 0.201 ; led[3]~reg0 ; led[3]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; led[2]~reg0 ; led[2]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; led[0]~reg0 ; led[0]~reg0 ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.307      ;
 ; 0.318 ; counter[3]  ; counter[3]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.424      ;
 ; 0.318 ; counter[5]  ; counter[5]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.424      ;
 ; 0.318 ; counter[13] ; counter[13] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.424      ;
 ; 0.318 ; counter[31] ; counter[31] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.424      ;
 ; 0.319 ; counter[1]  ; counter[1]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
-; 0.319 ; counter[6]  ; counter[6]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
 ; 0.319 ; counter[7]  ; counter[7]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
 ; 0.319 ; counter[11] ; counter[11] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
+; 0.319 ; counter[6]  ; counter[6]  ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
 ; 0.319 ; counter[19] ; counter[19] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
 ; 0.319 ; counter[21] ; counter[21] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
 ; 0.319 ; counter[27] ; counter[27] ; pin16IOs_1_8 ; pin16IOs_1_8 ; 0.000        ; 0.022      ; 0.425      ;
@@ -1576,7 +1576,7 @@ No non-DPA dedicated SERDES Receiver circuitry present in device or used in desi
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
     Info: Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
-    Info: Processing started: Fri Aug 08 20:23:29 2025
+    Info: Processing started: Sat Aug 09 09:25:05 2025
 Info: Command: quartus_sta USB -c USB
 Info: qsta_default_script.tcl version: #1
 Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
@@ -1647,8 +1647,8 @@ Info (332146): Worst-case minimum pulse width slack is -3.000
 Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 4 warnings
-    Info: Peak virtual memory: 4775 megabytes
-    Info: Processing ended: Fri Aug 08 20:23:31 2025
+    Info: Peak virtual memory: 4784 megabytes
+    Info: Processing ended: Sat Aug 09 09:25:07 2025
     Info: Elapsed time: 00:00:02
     Info: Total CPU time (on all processors): 00:00:02
 

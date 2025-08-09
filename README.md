@@ -57,7 +57,7 @@ They are currently stored here: C:\Users\lapto\Downloads\EP4CE6-Verilog-VHDL
 
 
 
-# Create a new Project
+# Creating a new Project
 
 Family: Cyclone IV E 
 PinCount: 144
@@ -103,8 +103,22 @@ Connecting 5V to a FPGA is the FPGA's sure death or irreparable damage is caused
 your FPGA useless. Therefore I suggest to not connect these 5V pins to the FPGA at all
 unless you know exactly what you are doing! (I have just bent the pins to the side so that they
 do not plug into the female header of the motherboard!).
+
 According to this discussion: https://electronics.stackexchange.com/questions/177871/waveshare-usb3300-board-with-stm32f429
 the 5V pins are there to power the USB port which means that it will provide 5V to the device connected to the USB port.
+The voltage on the USB port is called VBUS in USB-speak. After talking to an FPGA expert, there is a chance, that the
+5V pins are used to supply VBUS from an external power supply and that the 5V are routed through the USB3300 but not
+to the FPGA. This might also means that the USB3300 sinks the voltage into the ground plane without the FPGA getting
+into contact with the 5V. I am not sure if this theory is correct or not.
+
+I asked a question on stack overflow: https://electronics.stackexchange.com/questions/753447/can-the-waveshare-usb3300-5v-pins-damage-an-fpga
+A nice user answered. The USB3300 extension board contains extended power switches for VBUS. When running the
+USB3300 over the USB-A connector it acts as a perihperhal. The switches are then blocking the 5V going out the ULPI side
+and therefore the FPGA should not get in contact with 5V. I have bent the 5V pins and not connected them to the FPGA for
+extended safety. I have not tested the OTG scenario but the perihperal scenario does not damage the FPGA with bend / not connected
+5V pins while being powered by a Microsoft Windows Laptop!
+
+![image info](res/1754727452126.jpg)
 
 For the following, we first need to understand how the I/O ports are labeled!
 
@@ -115,10 +129,12 @@ on the header one by one and noted down, which pins have which Pin on the FPGA E
 turn the USB3300 ULPI board around and look at the silk screen of the PCB. The silk screen has the pin function
 printed next to each pin. Here is the mapping I uncovered for the 16I/Os_1 header.
 
+```
 PIN49 - Data4
 PIN50 - clkout
 PIN51 - Data5
 PIN52 - DIR
+```
 
 Locking at the schematic of the Motherboard DVK601 (https://www.waveshare.com/w/upload/3/3c/DVK601-Schematic.pdf),
 we can see that the two 16I/Os_1 and 16I/Os_2 do have 20 pins in total of which only 16 carry signals that
@@ -128,6 +144,7 @@ the 16 signal pins to have names on the traces!
 
 Here is the list of names and the respective pin numbers on the pin socket 16I/Os_1:
 
+```
  6 - I/O1_1
  8 - I/O1_2
 10 - I/O1_3
@@ -145,9 +162,11 @@ Here is the list of names and the respective pin numbers on the pin socket 16I/O
 15 - I/O2_6
 17 - I/O2_7
 19 - I/O2_8
+```
 
 Here is the list of names and the respective pin numbers on the pin socket 16I/Os_2:
 
+```
  6 - I/O1_13
  8 - I/O1_14
 10 - I/O1_15
@@ -165,6 +184,7 @@ Here is the list of names and the respective pin numbers on the pin socket 16I/O
 15 - I/O2_18
 17 - I/O2_19
 19 - I/O2_20
+```
 
 Clockout - pin 12 (PA5) on the breakout - on the Motherboard DVK601: Bank: 16I/0s_1, pin 11 (I/O2_4)
 
@@ -195,8 +215,9 @@ set_location_assignment	PIN_34	-to	16I/Os_1_15
 set_location_assignment	PIN_33	-to	16I/Os_1_16
 ```
 
-
 #16I/Os_2
+
+```
 set_location_assignment	PIN_2	-to	16I/Os_2_1	   
 set_location_assignment	PIN_1	-to	16I/Os_2_2
 set_location_assignment	PIN_144	-to	16I/Os_2_3
@@ -213,8 +234,7 @@ set_location_assignment	PIN_129	-to	16I/Os_2_13
 set_location_assignment	PIN_128	-to	16I/Os_2_14
 set_location_assignment	PIN_127	-to	16I/Os_2_15
 set_location_assignment	PIN_126	-to	16I/Os_2_16
-
-
+```
 
 # Test #1 - 60 Mhz Clock
 
@@ -267,6 +287,8 @@ endmodule
 
 
 
+# Forum Posts
+
 https://forum.microchip.com/s/topic/a5C3l000000MVVKEA4/t351162
 
 
@@ -276,19 +298,31 @@ I am currently implementing a FGPA-based USB High-Speed controller using an USB3
 
 Everything seems to work well when using Full-Speed (12Mbit), but things are looking weird at High-Speed.
 
-Just to give a glimpse of the initial setup, the USB3300 module is hard-reset using the external reset line, then logically reset using the Function Control register, Suspend is disabled, OTG register is cleared and all other bits are set up for Peripheral Full-Speed.
-Upon host connection, the usual High-Speed negotiation is performed (and I have confirmed it using a scope, I can see clearly the reset, Peripheral Chirp, Host Chirp and the terminators enabling) and we configure it as per ULPI spec.
+Just to give a glimpse of the initial setup, the USB3300 module is hard-reset using the external reset line, 
+then logically reset using the Function Control register, Suspend is disabled, OTG register is cleared and 
+all other bits are set up for Peripheral Full-Speed.
 
-When I receive the first DATA0 packet, after the SETUP packet, something odd happens (see attached figure). I have used the FPGA itself to capture all ULPI signals.
+Upon host connection, the usual High-Speed negotiation is performed 
+(and I have confirmed it using a scope, I can see clearly the reset, Peripheral Chirp, Host Chirp and the terminators enabling) 
+and we configure it as per ULPI spec.
+
+When I receive the first DATA0 packet, after the SETUP packet, something odd happens (see attached figure). 
+I have used the FPGA itself to capture all ULPI signals.
 
 http://www.alvie.com/zpui...00_rxcmd_oddities1.jpg
-The DATA0 packet is 10 bytes in lenght (GET_DESCRIPTOR), but only 9 are sent by the PHY (the lasy CRC byte is missing). After the 1st CRC byte (0xDD), the NXT line goes down, and at this point I'd expect to receive an RXCMD, but I get all zeroes, which do not make sense at all. Plus, I seem to receive three of them. There is no RXERROR indication coming from the PHY.
+The DATA0 packet is 10 bytes in lenght (GET_DESCRIPTOR), but only 9 are sent by the PHY (the lasy CRC byte is missing). 
+After the 1st CRC byte (0xDD), the NXT line goes down, and at this point I'd expect to receive an RXCMD, but I get 
+all zeroes, which do not make sense at all. Plus, I seem to receive three of them. 
+There is no RXERROR indication coming from the PHY.
 
-If I ignore the packet lenght, the CRC check and proceed, it all seems to go well - I then get the IN packet from the host, and I can NAK it without any issue:
+If I ignore the packet lenght, the CRC check and proceed, it all seems to go well - I then get the IN packet from the host, 
+and I can NAK it without any issue:
 
 http://www.alvie.com/zpui...ges/usb3300_in_nak.jpg
 
-Some packets seem to be well received, some others do not - I sometimes get (for a 10-byte request) 7 bytes, 8 bytes, 9 bytes. I never seem to receive any RXERROR indication at all. If I do have the CRC checks in place, I am completely unable to enumerate the device at HS - It does enumerate perfectly at FS, with the same PHY.
+Some packets seem to be well received, some others do not - I sometimes get (for a 10-byte request) 7 bytes, 8 bytes, 9 bytes. 
+I never seem to receive any RXERROR indication at all. If I do have the CRC checks in place, 
+I am completely unable to enumerate the device at HS - It does enumerate perfectly at FS, with the same PHY.
 
 Any clues about what might be going on ?
 
