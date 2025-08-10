@@ -258,6 +258,8 @@ makes the UART work!
 
 The sample code is available inside the UART subfolder.
 
+![image info](res/1754808647030.jpg)
+
 # Test #1 - 60 Mhz Clock
 
 The first test is to check if the 60Mhz clock is in fact produced by the extension board on pin clkout.
