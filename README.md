@@ -1,10 +1,18 @@
-# EP4EC6
+# Table of contents
+1. [EP4EC6](#EP4EC6)
+	1. [Install Quartus II](#Install_Quartus_II)
+    2. [LED Example](#LED_Example)
+	3. [Flashing the bitstream](#Flashin_The_Bitstream)
+2. [Creating a new Project](#paragraph2)
 
-## Install Quartus II
 
-## LED Example
+# EP4EC6 <a name="EP4EC6"></a>
 
-## Flashing the bitstream
+## Install Quartus II <a name="Install_Quartus_II"></a>
+
+## LED Example <a name="LED_Example"></a>
+
+## Flashing the bitstream <a name="Creating_a_new_Project"></a>
 
 First you have to install a driver for the USB Blaster.
 Once Quartus II is installed, the driver is available in the folder C:\altera\13.1\quartus\drivers\usb-blaster
@@ -57,7 +65,7 @@ They are currently stored here: C:\Users\lapto\Downloads\EP4CE6-Verilog-VHDL
 
 
 
-# Creating a new Project
+# Creating a new Project <a name="Creating_a_new_Project"></a>
 
 Family: Cyclone IV E 
 PinCount: 144
@@ -235,6 +243,20 @@ set_location_assignment	PIN_128	-to	16I/Os_2_14
 set_location_assignment	PIN_127	-to	16I/Os_2_15
 set_location_assignment	PIN_126	-to	16I/Os_2_16
 ```
+
+# Test #0 - UART
+
+If found that the UART works with samples found on the internet only if a clock lower than 50 Mhz is used!
+Most samples from the internet allow to compute a CLOCKS_PER_BIT value. This value is computed from the
+clock frequency and the target baud rate. For the 50 Mhz clock and a target baudrate of 115200 baud, this
+value is 50000000 / 115200 = 434. When using this value with the UART designs from the internet, the UART
+does not work!
+
+The solution I found was to use a ClockDivider design which has the 50Mhz hardware clock as input and
+produces a 10Mhz output "software" clock as output. This 10Mhz clock using a baudrate of 10000000 / 115200 = 87
+makes the UART work!
+
+The sample code is available inside the UART subfolder.
 
 # Test #1 - 60 Mhz Clock
 
