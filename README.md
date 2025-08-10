@@ -358,8 +358,8 @@ module LED_4(
 			counter <= 0;
 			//led <= ~led;
 			led[0] <= ~led[0];
-			//RST_reg <= ~RST_reg;
 			
+			// YORO - you only reset once
 			if (reset_performed == 0)
 			begin
 				reset_performed <= 1;
@@ -374,7 +374,7 @@ module LED_4(
 		
 	end
 	
-	/* PIN Tester command */
+	/* PIN Tester command
 	always @(posedge clk)
 	begin
 	
@@ -490,6 +490,8 @@ Vendor ID Low, READ has the address 0x00.
 
 ## READ
 
+6.1.5.2 ULPI Register Read
+
 To perform Vendor ID Low, READ go through the following steps
 
 Prerequisits: clkout produces the 60 Mhz clock. All interaction is clocked on the posedge of said
@@ -504,18 +506,31 @@ TXD CMD Byte Encoding" gives the TXD command byte (TXD CMD) encoding for the USB
 upper two bits of the TX CMD instruct the PHY as to what type of packet the Link is transmitting.
 ```
 
-1. Link wait until DIR is low.
+1. Link waits until DIR is low.
 2. Link send a Transmit Command Byte (TXD CMD) to the PHY.
 3. The TXD CMD is followed by the a data transfer to or from the PHY. For a READ, the PHY will send data.
 
 The TXD CMD describes several operations. The operation is selected using the upper-most two bits called CMD BITS.
 
-A READ is described by 11xxxxxx in binary. The xxxxxx contains the address. To read Vendor ID Low, the address
-is 0x00. So combining the CMD BITS with the address 0x00 yields 11000000b = 0xC0.
+A READ is described by 11xxxxxx in binary. The xxxxxx contains the address. 
+To read Vendor ID Low, the address is 0x00. So combining the CMD BITS with the address 0x00 yields 11000000b = 0xC0.
 
 ## Reading Vendor ID and Product ID
+
 A good test would be to read the Vendor ID and the Product ID because the datasheet specifies
 well-defined, fixed values for these registers.
+
+The detailed signal diagram is given on page 26 in https://ww1.microchip.com/downloads/en/DeviceDoc/00001783C.pdf
+
+0. The Link drives a ULPI idle command. WHich is defined on page 24 by [00][000000]
+1. Link waits until DIR is low. 
+2. Link places the command byte on to the eight data pins. (This means write the bytes to the data pins)
+3. When NXT is driven high by the PHY this means that the PHY has latched the command and starts processing.
+4. The PHY will now deassert NXT and assert DIR
+5. When the PHY sees an asserted DIR it will stop driving the command on the data pins because the PHI has taken control over the bus. 
+read incoming data from the data pins
+6. At the next rising edge of clkout, the Link reads the data pins to receive the result.
+7. When DIR goes low, the LINK will drive the ULPI idle command on the pin.
 
 
 
