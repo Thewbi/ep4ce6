@@ -253,8 +253,8 @@ value is 50000000 / 115200 = 434. When using this value with the UART designs fr
 does not work!
 
 The solution I found was to use a ClockDivider design which has the 50Mhz hardware clock as input and
-produces a 10Mhz output "software" clock as output. This 10Mhz clock using a baudrate of 10000000 / 115200 = 87
-makes the UART work!
+produces a 10Mhz output "software" clock as output. This 10Mhz clock using a baudrate of 115200 and
+a CLOCKS_PER_BIT vaue of 10000000 / 115200 = 87 makes the UART work!
 
 The sample code is available inside the UART subfolder.
 
@@ -483,7 +483,7 @@ Perform a 04h (WRITE) with the bit 5 HIGH
 1. [Register Write 10b][Address==0x05] == [10][000101] == 0x85  ---> The link writes this byte to the data pins
 2. Send bit 5 for RESET 00100000 = 0x20
 
-See 6.1.5.1 ULPI Register Write
+See 6.1.5.1 ULPI Register Write (doc/00001783C.pdf)
 
 To write to a register, the Link will wait until DIR is low, and at T0, drive the TXD CMD on the databus.
 At T2 the PHY will drive NXT high. 
@@ -514,7 +514,7 @@ Vendor ID Low, READ has the address 0x00.
 
 ## READ
 
-6.1.5.2 ULPI Register Read
+6.1.5.2 ULPI Register Read (doc/00001783C.pdf)
 
 To perform Vendor ID Low, READ go through the following steps
 
@@ -538,6 +538,15 @@ The TXD CMD describes several operations. The operation is selected using the up
 
 A READ is described by 11xxxxxx in binary. The xxxxxx contains the address. 
 To read Vendor ID Low, the address is 0x00. So combining the CMD BITS with the address 0x00 yields 11000000b = 0xC0.
+
+Figure 6-5, page 26, (doc/00001783C.pdf)
+
+* At T0, the Link will place the TXD CMD on the databus. 
+* At T2, the PHY will bring NXT high, signaling to the Link that it is ready to accept the data transfer. (It will NOT latch the data yet!). 
+* At T3, the PHY reads the TXD CMD, determines it is a register read, and asserts DIR to gain control of the bus. The PHY will also de-assert NXT. 
+* At T4, the bus ownership has transferred back to the PHY and the PHY drives the requested register onto the databus. 
+* At T5, the Link will read the databus and the PHY will drop DIR low returning control of the bus back to the Link. 
+* At T6, After the turn around cycle, the Link must drive a ULPI Idle command at T6.
 
 ## Reading Vendor ID and Product ID
 
