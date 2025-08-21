@@ -577,13 +577,13 @@ read incoming data from the data pins
 Using a logic analyzer (which has to be plenty fast for the 60 Mhz USB clock!) the signals can be captured.
 Here is the captured register read of the Vendor Id (LOW)
 
-![VendorIdLow](LogicAnalyzer_ReadRegister_VendorIdLow.png)
+![VendorIdLow](res/LogicAnalyzer_ReadRegister_VendorIdLow.png)
 
 According to the datasheet the Vendor Id (LOW) is 0x24.
 
 Here is the captured register read of the Vendor Id (HIGH)
 
-![VendorIdHigh](LogicAnalyzer_ReadRegister_VendorIdHigh.png)
+![VendorIdHigh](res/LogicAnalyzer_ReadRegister_VendorIdHigh.png)
 
 According to the datasheet the Vendor Id (HIGH) is 0x04.
 
