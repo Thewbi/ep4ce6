@@ -555,7 +555,16 @@ well-defined, fixed values for these registers.
 
 The detailed signal diagram is given on page 26 in https://ww1.microchip.com/downloads/en/DeviceDoc/00001783C.pdf
 
-0. The Link drives a ULPI idle command. WHich is defined on page 24 by [00][000000]
+IMPORTANT HINT: It seems that this fact is not very well documented in the datasheet but it is documented in the
+signal diagrams. The fact is: the STP signal is a signal that the link outputs and the PHY reads! The Link has to 
+set STP to a low signal in order for the PHY to even react to register reads! When STP is not pulled low, the NXT 
+signal will never go high and the register read will not be exected! As a general tip, when a signal diagram in the
+datasheet shows a signal and that signal is output by the Link, make sure to set it to the exact value shown in the
+diagram! For the data lines which are inout and therefore both read and written by both the PHY and the LINK, 
+I am not sure yet how to deal with those lines.
+
+0. The Link pulls STP low.
+0. The Link drives a ULPI idle command. Which is defined on page 24 by [00][000000]
 1. Link waits until DIR is low. 
 2. Link places the command byte on to the eight data pins. (This means write the bytes to the data pins)
 3. When NXT is driven high by the PHY this means that the PHY has latched the command and starts processing.
@@ -565,6 +574,18 @@ read incoming data from the data pins
 6. At the next rising edge of clkout, the Link reads the data pins to receive the result.
 7. When DIR goes low, the LINK will drive the ULPI idle command on the pin.
 
+Using a logic analyzer (which has to be plenty fast for the 60 Mhz USB clock!) the signals can be captured.
+Here is the captured register read of the Vendor Id (LOW)
+
+![VendorIdLow](LogicAnalyzer_ReadRegister_VendorIdLow.png)
+
+According to the datasheet the Vendor Id (LOW) is 0x24.
+
+Here is the captured register read of the Vendor Id (HIGH)
+
+![VendorIdHigh](LogicAnalyzer_ReadRegister_VendorIdHigh.png)
+
+According to the datasheet the Vendor Id (HIGH) is 0x04.
 
 
 
