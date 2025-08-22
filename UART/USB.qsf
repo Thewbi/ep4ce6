@@ -103,6 +103,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[4]
 set_location_assignment PIN_126 -to uart_tx_pin
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_tx_pin
+set_global_assignment -name VERILOG_FILE debounce.v
 set_global_assignment -name VERILOG_FILE clk_divider.v
 set_global_assignment -name VERILOG_FILE UART_TX.v
 set_global_assignment -name VERILOG_FILE UARTTransmitter.v

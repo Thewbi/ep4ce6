@@ -1,5 +1,5 @@
 *.flock
-# ignore Quartus II generated folders
+
 **/db
 **/incremental_db
 **/simulation
@@ -10,3 +10,14 @@ incremental_db
 db
 _output_files
 PLLJ_PLLSPE_INFO.txt
+**/incremental_db
+**/output_files
+**/simulation
+*.asm.rpt
+*.cdf
+*.done
+*.fit.rpt
+*.fit.summary
+*.flow.rpt
+*.jdi
+*.map.rpt
