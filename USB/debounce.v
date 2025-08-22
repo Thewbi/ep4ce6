@@ -6,7 +6,7 @@ module debounce (
 	// The Go Board runs at a clock frequency of 25 MHz, and I have set the bouncing threshold to be 10 ms
 	// Therefore, 1ms / (1 / 25MHz) = 250,000 clock cycles:
 	//parameter c_COUNT_LIMIT = 250000;
-	parameter c_COUNT_LIMIT = 500000;
+	parameter c_COUNT_LIMIT = 600000;
 	reg [17:0] r_counter =0; // 18 bit does the job as 2^18 > 250,000
 	reg r_filtered_data = 1'b0;
 

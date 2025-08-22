@@ -76,6 +76,13 @@ module LED_4(
 		.o_Tx_Done(uart_tx_done)
 	);
 	
+	wire reset_debounced;
+	debounce db(
+		.i_Clk(CLKOUT),
+		.i_data(reset),
+		.o_data(reset_debounced)
+	);
+	
 	reg [31:0] counter;	
 	reg [31:0] counter2;
 	reg clk2;
@@ -112,7 +119,8 @@ module LED_4(
 	always @(posedge CLKOUT)
 	begin
 	
-		if (!reset) 
+		if (!reset)
+		//if (!reset_debounced)
 		begin
 			counter <= 32'd0;
 			
@@ -269,8 +277,12 @@ module LED_4(
 					// To read Vendor ID Low, the address is 0x00. So combining the CMD BITS with the address 
 					// 0x00 yields 11000000b = 0xC0.
 					// 11000000bin = 0xC0
-					//data = 8'hC0; // vendor id low (ULPI register READ: address 0x00)
-					data = 8'hC1; // vendor id high (ULPI register READ: address 0x01)
+					
+					//data = 8'hC0; 	// vendor id low  	(0x24, 00100100) (ULPI register READ: address 0x00)
+					//data = 8'hC1; 	// vendor id high 	(0x04, 00000100) (ULPI register READ: address 0x01)
+					
+					//data = 8'hC2; 		// product id low  	(0x04, 00000100) (ULPI register READ: address 0x02)
+					data = 8'hC3; 	// product id high 	(0x00, 00000000) (ULPI register READ: address 0x03)
 					
 					// next state
 					next_state = STATE_1;
@@ -301,7 +313,7 @@ module LED_4(
 				led_reg = ~4'h02;
 				led = led_reg;
 				
-				data = 8'h00;
+				//data = 8'h00;
 				
 				// next state
 				next_state = STATE_3;
@@ -314,39 +326,42 @@ module LED_4(
 				led_reg = ~4'h03;
 				led = led_reg;
 				
-				// next state
-				if (DIR == 1)
-				begin
-					next_state = STATE_4;
-				end
-				else
-				begin
-					next_state = STATE_3;
-				end
+				next_state = STATE_4;
 			end
 			
 			STATE_4:
 			begin
-				return_value = data;
 				
-				// UART
-				uart_tx_data = data;
-				uart_tx_data_valid_reg = 0;
 				
 				led_reg = ~4'h04;
 				led = led_reg;
 			
 				// next state
-				next_state = STATE_5;
+				//next_state = STATE_5;
+				// next state
+				if (DIR == 1)
+				begin
+					next_state = STATE_5;
+				end
+				else
+				begin
+					next_state = STATE_4;
+				end
 			end
 			
 			STATE_5:
 			begin			
 				//uart_tx_data_valid_reg = 0;
+				
+				return_value = data;
+				
+				// UART
+				uart_tx_data = data;
+				uart_tx_data_valid_reg = 1;
 			
 				// UART
-				uart_tx_data = return_value;
-				uart_tx_data_valid_reg = 1;
+				//uart_tx_data = return_value;
+				//uart_tx_data_valid_reg = 1;
 			
 				led_reg = ~4'h05;
 				led = led_reg;
@@ -372,7 +387,7 @@ module LED_4(
 					uart_tx_data_valid_reg = 0;
 				end
 				
-				// drive ULPI idle
+				// drive ULPI idle, otherwise buffers are still filled with last command
 				data = 8'h00;
 			
 				// next state
