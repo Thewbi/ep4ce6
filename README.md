@@ -588,6 +588,12 @@ Here is the captured register read of the Vendor Id (HIGH)
 According to the datasheet the Vendor Id (HIGH) is 0x04.
 
 
+Looking at the timestamp +40 ns, the PHY will place the loaded register value on the data lines.
+The value 0x24 for Vendor Id (LOW) has the bit pattern 00100100. Looking at Channel 0 to Channel 7,
+we can see that exact bit pattern. The same goes for the value 0x04 for Vendor Id (HIGH)
+on Channel 0 to Channel 7 at timestamp +40 ns. Here, we can see the bit pattern 00000100 which is
+the value 0x04.
+
 
 
 
