@@ -187,6 +187,7 @@ module write_register(
 				led_reg = ~4'h02;
 				led = led_reg;
 				
+				// write to the OTG register
 				data = 8'h8a; // [10][0x0A]
 				
 				next_state = STATE_3; // next state
@@ -207,6 +208,7 @@ module write_register(
 				led_reg = ~4'h04;
 				led = led_reg;
 				
+				// write 0x00 to the OTG register to disable OTG and enable peripheral mode
 				data = 8'h00;
 				stp_reg = 8'h01;
 			
@@ -229,6 +231,7 @@ module write_register(
 				led_reg = ~4'h06;
 				led = led_reg;
 				
+				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				data = 8'h84; // [10][0x04] write the function control register
 					
 				next_state = STATE_7; // next state
@@ -239,6 +242,7 @@ module write_register(
 				led_reg = ~4'h07;
 				led = led_reg;
 				
+				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				data = 8'h84; // [10][0x04] write the function control register
 					
 				next_state = STATE_8; // next state
@@ -249,6 +253,7 @@ module write_register(
 				led_reg = ~4'h08;
 				led = led_reg;
 				
+				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				data = 8'h84; // [10][0x04] write the function control register
 					
 				next_state = STATE_9; // next state
@@ -259,6 +264,7 @@ module write_register(
 				led_reg = ~4'h09;
 				led = led_reg;
 				
+				// write the value 0x45 into the FUNC_CTRL register to enable Fast Speed (FS) mode.
 				data = 8'h45; // data byte to write into the register (0100 0101)
 					
 				next_state = STATE_10; // next state
