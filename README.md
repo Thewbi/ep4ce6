@@ -587,14 +587,133 @@ Here is the captured register read of the Vendor Id (HIGH)
 
 According to the datasheet the Vendor Id (HIGH) is 0x04.
 
-
 Looking at the timestamp +40 ns, the PHY will place the loaded register value on the data lines.
 The value 0x24 for Vendor Id (LOW) has the bit pattern 00100100. Looking at Channel 0 to Channel 7,
 we can see that exact bit pattern. The same goes for the value 0x04 for Vendor Id (HIGH)
 on Channel 0 to Channel 7 at timestamp +40 ns. Here, we can see the bit pattern 00000100 which is
 the value 0x04.
 
+## Reading the FunctionControl Register (0x04)
 
+6.1.4.5 page 21 of 00001783C.pdf
+
+Reading the FunctionControl Register using the command 0xC4 yields the default value of 0x41 as 
+stated in the datasheet of the USB3300.
+
+![FunctionControlDefault](res/LogicAnalyzer_ReadRegister_FunctionControl.png)
+
+0x41 translates to (see page 24 of doc/0900766b811a5521.pdf):
+
+0x41 == 0100 0001 
+
+From LSB (right) to HSB (left):
+
+* 01 - Enables FS transceiver (FS = FullSpeed)
+* 0 - ??? controls termination through pull-up and pull-down resistors
+* 00 - OperationMode is set to normal operation
+* 0 - Reset is cleared. Meaning the transceiver has moved out of reset (active high signal, high during reset)
+* 1 - Not in Suspended State. Active Low Signal, means currently disabled. This value shows if the Phy is in suspended state (true == LOW)
+* 0 - Reserved and drive low (no information)
+
+
+
+## Reading USB Interrupt Enable Rising (0x0D)
+
+Reading the Interrupt Enable for Rising signals register. See section 6.1.4.8 on page 26 in doc/0900766b811a5521.pdf.
+
+![USB_Interrupt_Enable_Rising](res/LogicAnalyzer_ReadRegister_USB_Interrupt_Enable_Rising.png)
+
+Default Value: 11111000
+
+From LSB (right) to HSB (left):
+
+* HostDisconnect Rise - Generate an interrupt event notification when Hostdisconnect changes from low to high. !!! Applicable only in host mode. !!!
+* VbusValid Rise - Generate an interrupt event notification when Vbusvalid changes from low to high.
+* SessValid Rise
+* SessEnd Rise
+* IdGnd Rise
+* Reserved
+* Reserved
+* Reserved
+
+## USB Interrupt Status Register (0x13)
+
+See 6.1.4.10 on page 27 in doc/0900766b811a5521.pdf.
+
+11000000 + 00010011 = 11010011 = 0xD3
+
+
+11 00 10 11
+
+
+
+
+
+## Setup Packet
+
+https://www.beyondlogic.org/usbnutshell/usb6.shtml
+
+8'h2d - 00101101
+[0][01][01101]
+
+[0] - Host to Device
+[01] - Class
+[01101] - 
+
+
+
+
+## Plugin in USB cable into the peripheral USB port
+
+A packet 0x48 arrives when the USB cable is either plugged in or out a windows PC.
+
+0x48
+
+This packet is sent from the PHY to the Link when the cable is plugged in or out.
+
+According to table 6.4 on page 28, this might be a "Transmit" command.
+But I think this is a table for commands that the Link sends to the PHY.
+
+Decoding according to Table 6.6 on page 31:
+
+0x48 == 01 00 10 00
+
+0  - Reserved
+1  - State of ID pin
+00 - RX Event Encoding
+10 - encoded VBUS state
+00 - Linestate
+
+
+
+https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+
+" 
+When the DIR signal is asserted and the NXT signal stays low a RXCMD byte is received that generally represents the PHY status.
+This is useful to determine the state of the D- and D+ lines to determine if the peripheral has been connected to a host.
+"
+
+Table 6.5 ULPI RX CMD Encoding, page 31.
+
+00 01 00 10
+
+00 - Linestate
+01 - ENCODED VBUS VOLTAGE STATES
+00 - ENCODED UTMI EVENT SIGNALS
+1  - State of ID pin
+0  - Reserved
+
+
+
+10 00 10 10 
+
+10 - Linestate (10 == 10 K (LS idle))
+00 - ENCODED VBUS VOLTAGE STATES
+10 - ENCODED UTMI EVENT SIGNALS
+0  - State of ID pin
+1  - Reserved
+
+10 00 10 10 
 
 
 

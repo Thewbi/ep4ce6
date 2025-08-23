@@ -24,7 +24,9 @@ module LED_4(
 	inout wire DATA_6, // PIN 53
 	inout wire DATA_7, // PIN 55
 	*/
+	
 	inout reg[7:0] data,
+	//inout wire[7:0] data,
 	
 	// UART
 	output wire uart_tx_pin, // PIN 
@@ -37,6 +39,10 @@ module LED_4(
 	wire uart_tx_data_valid;
 	reg uart_tx_data_valid_reg;
 	assign uart_tx_data_valid = uart_tx_data_valid_reg;
+	
+	
+	//reg[7:0] data_reg;
+	//assign data = data_reg;
 	
 	reg stp_reg;
 	assign STP = stp_reg;
@@ -76,6 +82,7 @@ module LED_4(
 		.o_Tx_Done(uart_tx_done)
 	);
 	
+	/*
 	wire reset_debounced;
 	debounce db(
 		.i_Clk(CLKOUT),
@@ -83,8 +90,30 @@ module LED_4(
 		.o_data(reset_debounced)
 	);
 	
+	reg SYSTEM_READY_reg;
+	
+	usbModule(
+	
+		// output
+		.STP(STP),
+		.USB_RST(RST),
+		
+		// inout
+		.DATA_OUT_PORT(data),
+		
+		// input
+		.CLK_USB(CLKOUT),
+		.DIR(DIR),
+		.NXT(NXT),
+		.SYS_RST(!reset_debounced),
+		.SYSTEM_READY(SYSTEM_READY_reg)
+	);
+	*/
+	
 	reg [31:0] counter;	
 	reg [31:0] counter2;
+	reg [31:0] counter3;
+	
 	reg clk2;
 	reg [7:0] i;	
 	reg [3:0] led_reg;
@@ -92,6 +121,7 @@ module LED_4(
 	// when reset is asserted, the phy resets
 	reg [31:0] reset_counter;
 	reg reset_performed;
+	
 	reg RST_reg;
 	assign RST = RST_reg;
 	
@@ -113,9 +143,30 @@ module LED_4(
 	end
 	*/
 	
+	/*
+	always @(posedge CLKOUT)
+	begin
+		if (!reset_debounced)
+		begin
+			counter <= 32'd0;
+			SYSTEM_READY_reg = 0;			
+		end
+		
+		if (counter == 60000000)
+		begin
+			SYSTEM_READY_reg = 1;
+		end
+		else
+		begin			
+			counter <= counter + 32'd1;
+		end
+	end
+	*/
+	
+/**/
 	reg ulpi_register_read_reg;
 	
-	/* UPLI, Perform RESET */
+	// UPLI, Perform RESET
 	always @(posedge CLKOUT)
 	begin
 	
@@ -123,6 +174,8 @@ module LED_4(
 		//if (!reset_debounced)
 		begin
 			counter <= 32'd0;
+			//counter2 <= 32'd0;
+			//counter3 <= 32'd0;
 			
 			//led[0] <= 1; // L4 (1 = off, 0 == on)
 			//led[1] <= 1; // L3 (1 = off, 0 == on)
@@ -137,7 +190,7 @@ module LED_4(
 			
 			ulpi_register_read_reg = 0;
 			
-			stp_reg = 0;
+			//stp_reg = 0;
 			
 //			// UART
 //			uart_tx_data_valid_reg <= 0;
@@ -186,44 +239,24 @@ module LED_4(
 	end
 	
 	
-	/* PIN Tester command 
-	always @(posedge clk)
-	begin
 	
-		if(!nrst) 
-		begin
-			counter2 <= 32'd0;
-		end
-			
-		if (counter2 == 50000000)
-		begin
-			counter2 <= 0;
-			
-			// toggle the pin
-			testpin_reg <= ~testpin_reg;
-			
-			// blink the LED
-			led[0] <= ~led[0];
-		end
-		else
-		begin			
-			counter2 <= counter2 + 32'd1;
-		end
-		
-	end
-	*/
 	
-	/**/
-	reg [2:0] cur_state;
-	reg [2:0] next_state;
-	localparam STATE_0 		= 3'b000;
-	localparam STATE_1 		= 3'b001;
-	localparam STATE_2 		= 3'b010;
-	localparam STATE_3 		= 3'b011;
-	localparam STATE_4 		= 3'b100;
-	localparam STATE_5 		= 3'b101;
-	localparam STATE_6 		= 3'b110;
-	localparam IDLE 			= 3'b111;
+	
+	reg [3:0] cur_state;
+	reg [3:0] next_state;
+	localparam STATE_0 		= 4'b0000;
+	localparam STATE_1 		= 4'b0001;
+	localparam STATE_2 		= 4'b0010;
+	localparam STATE_3 		= 4'b0011;
+	localparam STATE_4 		= 4'b0100;
+	localparam STATE_5 		= 4'b0101;
+	localparam STATE_6 		= 4'b0110;
+	localparam STATE_7 		= 4'b0111;
+	localparam STATE_8 		= 4'b1000;
+	localparam STATE_9 		= 4'b1001;
+	localparam STATE_10 		= 4'b1010;
+	localparam STATE_11		= 4'b1011;
+	localparam IDLE 			= 4'b1111;
 	
 	reg ss_started;
 	reg [7:0] return_value;
@@ -234,11 +267,31 @@ module LED_4(
 		if (!reset) 
 		begin
 			cur_state = IDLE;
-			//ss_started = 0;
+			//ss_started = 0;			
+			//counter3 = 32'h00;
 		end
 		else 
 		begin
 			cur_state = next_state;
+		end
+	end
+	
+	always @(posedge CLKOUT)
+	begin
+		if (cur_state == STATE_6)
+		begin
+			if (counter3 == 60000001)
+			begin
+				counter3 = 0;
+			end
+			else
+			begin
+				counter3 = counter3 + 1;
+			end
+		end
+		else
+		begin
+			counter3 = 0;
 		end
 	end
 	
@@ -263,6 +316,7 @@ module LED_4(
 //				led_reg[2] = 1;
 //				led_reg[3] = 1;
 
+				stp_reg = 0;
 
 				if (DIR == 1)
 				begin
@@ -278,11 +332,17 @@ module LED_4(
 					// 0x00 yields 11000000b = 0xC0.
 					// 11000000bin = 0xC0
 					
-					//data = 8'hC0; 	// vendor id low  	(0x24, 00100100) (ULPI register READ: address 0x00)
+					data = 8'hC0; 	// vendor id low  	(0x24, 00100100) (ULPI register READ: address 0x00)
 					//data = 8'hC1; 	// vendor id high 	(0x04, 00000100) (ULPI register READ: address 0x01)
 					
 					//data = 8'hC2; 		// product id low  	(0x04, 00000100) (ULPI register READ: address 0x02)
-					data = 8'hC3; 	// product id high 	(0x00, 00000000) (ULPI register READ: address 0x03)
+					//data = 8'hC3; 	// product id high 	(0x00, 00000000) (ULPI register READ: address 0x03)
+					
+					//data = 8'hC4; // function control
+					
+					//data = 8'hCD; // USB Interrupt Enable Rising
+					
+					//data = 8'hD3;
 					
 					// next state
 					next_state = STATE_1;
@@ -331,8 +391,6 @@ module LED_4(
 			
 			STATE_4:
 			begin
-				
-				
 				led_reg = ~4'h04;
 				led = led_reg;
 			
@@ -368,6 +426,8 @@ module LED_4(
 				
 				// next state
 				next_state = STATE_6;
+				
+				//counter3 = 32'h00;
 			end
 			
 			STATE_6:
@@ -390,10 +450,94 @@ module LED_4(
 				// drive ULPI idle, otherwise buffers are still filled with last command
 				data = 8'h00;
 			
-				// next state
-				next_state = STATE_6;
+				if (counter3 >= 60000000)
+				begin
+					// next state
+					next_state = STATE_7;
+					
+					//counter3 = 32'h00;
+				end
+				else
+				begin
+					next_state = STATE_6;
+					
+					//counter3 = counter3 + 32'h01;
+				end
 				
-				//ss_started = 0;
+				//ss_started = 0;				
+				
+			end
+			
+			STATE_7:
+			begin
+				// https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+				// First we must disable OTG features by writing x"00" to the OTG_CTRL (x"0a") register.
+				// A TXCMD byte of x"8a" is sent then a data byte of x"00" as per Figure 1.
+				
+				led_reg = ~4'h07;
+				led = led_reg;
+				
+				data = 8'h8a; // [10][001010] = 10b = Register Write, 0x0A = OTG Control Write
+				
+				if (NXT == 1)
+				begin
+					next_state = STATE_8;
+				end 
+				else
+				begin
+					next_state = STATE_7;
+				end
+			end
+			
+			STATE_8:
+			begin
+				// https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+				// First we must disable OTG features by writing x"00" to the OTG_CTRL (x"0a") register.
+				// A TXCMD byte of x"8a" is sent then a data byte of x"00" as per Figure 1.
+				
+				led_reg = ~4'h08;
+				led = led_reg;
+				
+				data = 8'h8a;
+				
+				if (NXT == 0)
+				begin
+					next_state = STATE_8;
+				end
+				else
+				begin
+					next_state = STATE_9;
+				end
+			end
+			
+			STATE_9:
+			begin
+				
+				led_reg = ~4'h09;
+				led = led_reg;
+				
+				data = 8'h00;
+				stp_reg = 8'h00;
+				next_state = STATE_10;
+			end
+			
+			STATE_10:
+			begin
+				
+				led_reg = ~4'h10;
+				led = led_reg;
+				
+				data = 8'h00;
+				stp_reg = 8'h01;
+				next_state = STATE_11;
+			end
+			
+			STATE_11:
+			begin
+				led_reg = ~4'h11;
+				led = led_reg;
+				
+				stp_reg = 8'h00;
 			end
 			
 			IDLE: 
@@ -402,7 +546,7 @@ module LED_4(
 				//led = led_reg;
 				
 				// next state
-				if ((ulpi_register_read_reg == 1) )//&& (ss_started == 0)
+				if ((ulpi_register_read_reg == 1))//&& (ss_started == 0)
 				begin
 					//ss_started = 1; // state machine is started, do not start it again
 					next_state = STATE_0;
@@ -418,7 +562,6 @@ module LED_4(
 		 endcase
 
 	end
-	
 	
 	/* State machine test
 	reg [2:0] cur_state;
@@ -544,6 +687,33 @@ module LED_4(
 			begin
 				uart_tx_data_valid_reg <= 0;
 			end
+		end
+		
+	end
+	*/
+	
+	/* PIN Tester command 
+	always @(posedge clk)
+	begin
+	
+		if(!nrst) 
+		begin
+			counter2 <= 32'd0;
+		end
+			
+		if (counter2 == 50000000)
+		begin
+			counter2 <= 0;
+			
+			// toggle the pin
+			testpin_reg <= ~testpin_reg;
+			
+			// blink the LED
+			led[0] <= ~led[0];
+		end
+		else
+		begin			
+			counter2 <= counter2 + 32'd1;
 		end
 		
 	end
