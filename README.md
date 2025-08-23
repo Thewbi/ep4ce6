@@ -756,17 +756,83 @@ Using LA5032 Logic Analyzer by Kingst, which supports D+ D- USB FS decoding, the
 On the left, there is a list of all decoded packets send from Microsoft Windows to the USB3300 peripheral.
 
 * Reset - Sequence - I do not know what that is exactly !!!
+
+See: https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+The USB 2.0 reference document states in section 9.1.1.3 states “After the device has been powered, 
+it must not respond to any bus transactions until it has received a reset from the bus. After receiving a reset,
+the device is then addressable at the default address.” (Question: What is the default address?)
+
+![USB_Decoding_SOF_PACKET](res/USB_Decoding_SOF_PACKET.png)
+
 * SYNC
 * PID SOF
 * Frame # 075
 * CRC OK 0x1C
 * EOP
 
-Then follow a bunch of similar packets.
+Then follow a bunch of similar packets. Until packet # 0x096
+
+* SYNC
+* PID SOF
+* Frame # 096
+* CRC OK 0x18
+* EOP
+
+Then there will be a SETUP packet:
+
+![USB_Decoding_SETUP_PACKET](res/USB_Decoding_SETUP_PACKET.png)
+
+* SYNC
+* PID SETUP
+* Address=0x00 Endpoint=0x00
+* CRC OK 0x02
+* EOP
+
+Followed by a GetDescriptor (Device) packet.
+
+![USB_Decoding_GET_DESCRIPTOR_DEVICE_PACKET](res/USB_Decoding_GET_DESCRIPTOR_DEVICE_PACKET.png)
+
+* SYNC
+* PID DATA0
+* BYTE 0x80
+* BYTE 0x06
+* BYTE 0x00
+* BYTE 0x01
+* BYTE 0x00
+* BYTE 0x00
+* BYTE 0x40
+* BYTE 0x00
+* CRC OK 0x94DD
+* EOP
+
+According to https://cross-hair.co.uk/tech-articles/ULPI%20interface.html, the byte sequence 
+80 06 00 01 00 00 40 00 is the GetDescriptor(Device) command send by the host to the device.
+
+The device has to ACK. Currently our device does not ACK so the host will send two more of those
+SETUP, GetDescriptor(Device) commands and then gives up.
+
+
+
+All these packets seem to be Start of Frame (SOF) packest. SOF packets are sent every millisecond for full speed.
+They contain a eleven bit frame number as payload. 
+
+According to https://www.keil.com/pack/doc/mw/usb/html/_u_s_b__protocol.html, the SOF packet starts the timeframe
+in which the device is allowed to send/receive ??? data on each pipe. There is a time segment reserved for each
+pipe and the respective pipe is allowed to transmit/receive only in it's respective timeslot.
+
+In our example since there are no pipes, there is no piped data!
+
+The SOF packet consists of a 
+
+* x bit SYNC sequence
+* 8 bit PID (the 8 bit are a 4 bit PID and it's reverse version. 2 times 4 yields 8 bit) The PID for the SOP is 1010 and in reverse 0101
+* 11 bit Frame Number
+* 5 bit CRC5 checksum
+* x bit EOP End of Packet (maybe 3 bit)
 
 Lets look at the first message:
 
-
+The first part is the SYNC
 
 
 
