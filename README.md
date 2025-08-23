@@ -717,6 +717,8 @@ Table 6.5 ULPI RX CMD Encoding, page 31.
 
 
 
+0x8a 10 00 10 10 
+
 
 
 
@@ -725,6 +727,137 @@ New project:
 Cyclone  
 
 
+
+
+
+
+# Initializing the USB3300 chip to FS speed Correctly
+
+After https://cross-hair.co.uk/tech-articles/ULPI%20interface.html the USB3300 needs to be reset and after that, 
+the OTG mode has to be disabled in order to make the USB3300 operate as a peripheral. After OTG is disabled,
+it is necessary to place the USB3300 into FullSpeed (FS) mode because this is the mode in which a USB device needs
+to connect to an operating system. (Once connected the USB peripheral and the OS can negotiate another speed potentially
+higher than Fullspeed, but FullSpeed (FS) is the initial speed expected!).
+
+Now, the USB3300 is ready to be connected to Microsoft Windows for example!
+Windows will send packets to the USB3300 peripheral and try to enumerate it and request descriptors to identify which
+USB profile the peripheral supports in order to load the respective driver.
+
+As the Verilog Code does not react to any of the USB Packets yet, there will be a Microsoft Windows USB connection sound
+followed by a disconnection sound and an error message that windows detected a malfunctioning USB device. Microsoft
+Windows announces that the device connected last did malfunction and could not be connected properly!
+
+Next let's look at the packets that are exchanged in this (broken) state of the Verilog USB3300 application:
+
+Using LA5032 Logic Analyzer by Kingst, which supports D+ D- USB FS decoding, the following screenshots were taken:
+
+![USB_Packet_Overview](res/USB_Decoding_DPlus_DMinus_Overview.png)
+
+On the left, there is a list of all decoded packets send from Microsoft Windows to the USB3300 peripheral.
+
+* Reset - Sequence - I do not know what that is exactly !!!
+* SYNC
+* PID SOF
+* Frame # 075
+* CRC OK 0x1C
+* EOP
+
+Then follow a bunch of similar packets.
+
+Lets look at the first message:
+
+
+
+
+
+
+
+
+
+# USB Cable
+
+https://www.beyondlogic.org/usbnutshell/usb2.shtml
+
+Pin Number		Cable Colour	Function
+1				Red				VBUS (5 volts)
+2				White			D-
+3				Green			D+
+4				Black			Ground
+
+
+# USB Speeds
+
+https://en.wikipedia.org/wiki/USB_communications
+
+The host controller divides bus time into 1 ms frames when using low speed (1.5 Mbit/s) and full speed (12 Mbit/s), 
+or 125 μs microframes when using high speed (480 Mbit/s), during which several transactions may take place.
+
+
+
+https://www.keil.com/pack/doc/mw/usb/html/_u_s_b__protocol.html
+
+The Start-of-Frame packet is sent every 1ms on full speed links.
+
+
+https://www.beyondlogic.org/usbnutshell/usb3.shtml
+https://www-user.tu-chemnitz.de/~heha/hsn/chm/usb.chm/usb3.htm
+
+Start of Frame Packets
+The SOF packet consisting of an 11-bit frame number is sent by the host every 1ms ± 500ns on a full speed bus or every 125 µs ± 0.0625 µs on a high speed bus.
+
+|       |              |                    |          |   |
+|-------|--------------|--------------------|----------|---|
+|Sync	|PID	       |Frame Number	    |CRC5	   |EOP|
+
+Sync - All packets must start with a sync field. The sync field is 8 bits long at low and full speed 
+or 32 bits long for high speed and is used to synchronise the clock of the receiver with that of the transmitter. 
+The last two bits indicate where the PID fields starts.
+
+PID - PID stands for Packet ID. This field is used to identify the type of packet that is being sent. 
+The following table shows the possible values.
+
+
+| Group		| PID Value		| Packet Identifier |
+| --------- | ------------- | ----------------- |
+|Token		| 0001			|OUT Token          |
+|			|1001			|IN Token           |
+|			|0101			|SOF Token          |
+|			|1101			|SETUP Token        |
+|			|               |                   |
+|Data		|0011			|DATA0              |
+|			|1011			|DATA1              |
+|			|0111			|DATA2              |
+|			|1111			|MDATA              |
+|			|               |                   |
+|Handshake	|0010			|ACK Handshake          |
+|			|1010			|NAK Handshake          |
+|			|1110			|STALL Handshake        |
+|			|0110			|NYET (No Response Yet) |
+|			|               |                       |
+|Special	|1100			|PREamble               |
+|			|1100			|ERR                    |
+|			|1000			|Split                  |
+|			|0100			|Ping                   |
+
+
+Frame Number -
+
+CRC5 -
+
+EOP - End of packet. Signalled by a Single Ended Zero (SE0) for approximately 2 bit times followed by a J for 1 bit time.
+	Single Ended Zero (SE0) - 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 # Forum Posts
 
 https://forum.microchip.com/s/topic/a5C3l000000MVVKEA4/t351162
