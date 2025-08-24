@@ -939,30 +939,63 @@ PHY (USB3300) which is directly connected to D+ and D-.
 ![DecodingReceivedBytes_0](res/DecodingReceivedBytes_0.png)
 
 First, the screenshot above is taken from a Logic Analyzer that is connected to the USB-Bus D+ and D-
-and at the same time it is also connected to the eight data lines of the UPLI interface.
+and at the same time it is also connected to the eight data lines of the UPLI interface. The top
+two channels are data[0] and data[1] and they carry D+ and D-! (USB encodes 0 and 1 symbols using two
+signals called D+ and D-. Combinations of high and low on D+ and D- respectively encode a 0 or a 1).
+The proof for this statement is to visually compare the upper two channels using channel 11 and 
+channel 12. Channel 11 and channel 12 is were the Logic Analyzer is directly connected to a cut-open
+USB cable and the D+ and D- wires within that cable! The visual comparison shows that the signals
+match exactly!
 
-We can immediately see that the ULPI interface just forwards the USB D+ and D- signals to the Link!
-In theory, the link can directly process the USB signals if it wants. It can also forward them to
+We can immediately see that the ULPI interface just forwards the USB D+ and D- signals from the PHY to the Link!
+In theory, the link can directly process the USB signals if it wants to! It can also forward them to
 some other component (this way a sniffer could be constructed which basically loops through the 
 signals to the communication partner).
 
-In practice, the Link does not have to process the USB D+ D- signals. The UPLI interface has an 
+In practice, the Link does not have to process the USB D+ and D- signals. The UPLI interface has an 
 added benefit. The PHY has an internal buffer in which it will combine eight bits from the D+ and
 D- lines into a byte. Once a byte is ready, the PHY will announce a received byte to the Link and
-the data is then placed on the eight data lines for the Link to connect.
+the data is then placed on the eight data lines for the Link to connect them in one go!
 
 The rule for when a received byte appears is as follows:
 * When data[4] is high and data[5] is low, the PHY starts to fill it's buffer. (No byte is ready yet).
 Using this special state (data[4] is high and data[5] is low), the Link knows that a byte will follow 
 suite and it can reserve space for the byte.
-* After eight bits have been received, the NXT signal goes high and at the same time the byte is placed
-onto the data lines by the PHY for the Link to latch the byte!
+* After eight bits have been received and combined into a byte, the NXT signal (Channel 9) is pulled high 
+by the PHY and at the same time the byte is placed onto the data lines by the PHY for the Link to latch the byte
+into some internal buffer!
 
 Lets see an example:
 
 ![DecodingReceivedBytes_1](res/DecodingReceivedBytes_1.png)
 
+Here the byte 0 is of binary bit pattern 10100101. This is the Packet ID 0101 for Start of Frame (SOF).
+As an added security mechanism 0101 is mirrored and then prefixed: 1010|0101. A PID (Packet ID) consists
+of eight bit.
+
+Next follows the 11 bit wide Frame Number. The 11 bit are partly contained in the next byte with 3 bits missing 
+(the three missing bits are contained in byte 2)
+
+Byte 1 is 10100011.
+
+Byte 2 starts with 000 which is the rest of the packet id.
+
+The packet id is therefore 10100011000 -> 00011000101 = 0xC5
+
+Byte 2 ends with the 5-bit CRC value which is 11100 -> 00111 in this case.
+The CRC is called CRC5 since there is another CRC called CRC16 created from 16 bit.
+
+The Computation of CRC5 is explained here: https://www.oguchi-rd.com/technology/crc5.pdf
+https://www.mikrocontroller.net/topic/77685
+
+An online calculator is here: TODO
+
 ![DecodingReceivedBytes_2](res/DecodingReceivedBytes_2.png)
+
+The image above shows a second example which exactly follows the strategy from the
+firste example. The only difference is that this is a GetDescriptor request send by
+Microsoft Windows during enumeration which is a little bit larger (eight data bytes for
+the request).
 	
 	
 	
