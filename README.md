@@ -753,7 +753,7 @@ Using LA5032 Logic Analyzer by Kingst, which supports D+ D- USB FS decoding, the
 
 ![USB_Packet_Overview](res/USB_Decoding_DPlus_DMinus_Overview.png)
 
-On the left, there is a list of all decoded packets send from Microsoft Windows to the USB3300 peripheral.
+On the far right, there is a list of all decoded packets send from Microsoft Windows to the USB3300 peripheral.
 
 * Reset - Sequence - I do not know what that is exactly !!!
 
@@ -761,6 +761,9 @@ See: https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
 The USB 2.0 reference document states in section 9.1.1.3 states “After the device has been powered, 
 it must not respond to any bus transactions until it has received a reset from the bus. After receiving a reset,
 the device is then addressable at the default address.” (Question: What is the default address?)
+
+After the reset, the host starts to send Start of Frame (SOF) packets every millisecond (since the peripheral says
+that it is a FullSpeed (FS) device)
 
 ![USB_Decoding_SOF_PACKET](res/USB_Decoding_SOF_PACKET.png)
 
@@ -811,7 +814,8 @@ According to https://cross-hair.co.uk/tech-articles/ULPI%20interface.html, the b
 The device has to ACK. Currently our device does not ACK so the host will send two more of those
 SETUP, GetDescriptor(Device) commands and then gives up.
 
-
+TODO: implement the functionality to place a ACK packet on the bus
+and implement the feature to write an entire Descriptor (Device) onto the bus.
 
 All these packets seem to be Start of Frame (SOF) packest. SOF packets are sent every millisecond for full speed.
 They contain a eleven bit frame number as payload. 
