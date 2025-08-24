@@ -72,6 +72,8 @@ PinCount: 144
 
 Name: EP4CE6E22C8, CoreVoltage: 1.2V, LEs: 6272, User I/Os: 92, Memory Bits: 276480, 
 
+Enter the word "EP4CE6E22C8" into the "Name Filter" input field!
+
 Once the project is created, you need to add at least one verilog file and make
 that verilog file the top level entity by switching to the Files tabe, opening
 the context menu on the verilog file and selecting "Set as Top-Level Entity".
@@ -785,8 +787,8 @@ Then there will be a SETUP packet:
 
 ![USB_Decoding_SETUP_PACKET](res/USB_Decoding_SETUP_PACKET.png)
 
-* SYNC
-* PID SETUP
+* SYNC (10000000bin (in the Logic Analyzer, the LSB arrives first so in the logic analyzer the SYNC looks like 00000001)
+* PID SETUP (Binary: 2D == 00101101, 00 = 00000000 10 = 00010000 
 * Address=0x00 Endpoint=0x00
 * CRC OK 0x02
 * EOP
@@ -796,7 +798,7 @@ Followed by a GetDescriptor (Device) packet.
 ![USB_Decoding_GET_DESCRIPTOR_DEVICE_PACKET](res/USB_Decoding_GET_DESCRIPTOR_DEVICE_PACKET.png)
 
 * SYNC
-* PID DATA0
+* PID DATA0 (== 0xC3 == 11000011 which is the 1100 PID and the mirrored version 0011. This Packet ID (PID) type is: 0011 = DATA.DATA0 see https://www.beyondlogic.org/usbnutshell/usb3.shtml)
 * BYTE 0x80
 * BYTE 0x06
 * BYTE 0x00
@@ -807,6 +809,9 @@ Followed by a GetDescriptor (Device) packet.
 * BYTE 0x00
 * CRC OK 0x94DD
 * EOP
+
+According to https://www.kampis-elektroecke.de/mikrocontroller/avr8/at90usb1287-usb/usb-protocoll/
+This is the beginning of the Windows GET_DESCRIPTOR request.
 
 According to https://cross-hair.co.uk/tech-articles/ULPI%20interface.html, the byte sequence 
 80 06 00 01 00 00 40 00 is the GetDescriptor(Device) command send by the host to the device.
@@ -887,27 +892,27 @@ PID - PID stands for Packet ID. This field is used to identify the type of packe
 The following table shows the possible values.
 
 
-| Group		| PID Value		| Packet Identifier |
-| --------- | ------------- | ----------------- |
-|Token		| 0001			|OUT Token          |
-|			|1001			|IN Token           |
-|			|0101			|SOF Token          |
-|			|1101			|SETUP Token        |
-|			|               |                   |
-|Data		|0011			|DATA0              |
-|			|1011			|DATA1              |
-|			|0111			|DATA2              |
-|			|1111			|MDATA              |
-|			|               |                   |
-|Handshake	|0010			|ACK Handshake          |
-|			|1010			|NAK Handshake          |
-|			|1110			|STALL Handshake        |
-|			|0110			|NYET (No Response Yet) |
-|			|               |                       |
-|Special	|1100			|PREamble               |
-|			|1100			|ERR                    |
-|			|1000			|Split                  |
-|			|0100			|Ping                   |
+| Group		| PID Value		| Packet Identifier      |
+| --------- | ------------- | ---------------------- |
+|Token		| 0001			| OUT Token              |
+|			| 1001			| IN Token               |
+|			| 0101			| SOF Token              |
+|			| 1101			| SETUP Token            |
+|			|               |                        |
+|Data		| 0011			| DATA0                  |
+|			| 1011			| DATA1                  |
+|			| 0111			| DATA2                  |
+|			| 1111			| MDATA                  |
+|			|               |                        |
+|Handshake	| 0010			| ACK Handshake          |
+|			| 1010			| NAK Handshake          |
+|			| 1110			| STALL Handshake        |
+|			| 0110			| NYET (No Response Yet) |
+|			|               |                        |
+|Special	| 1100			| PREamble               |
+|			| 1100			| ERR                    |
+|			| 1000			| Split                  |
+|			| 0100			| Ping                   |
 
 
 Frame Number -
@@ -920,7 +925,44 @@ EOP - End of packet. Signalled by a Single Ended Zero (SE0) for approximately 2 
 	
 	
 	
-	
+
+
+# Decoding Packet Bytes from the ULPI Interface
+
+Either I am dumb or the UPLI interface is wierd. In order to understand when to consume bytes, 
+you need to follow a strategy that is documented in none of the documents I have read! But maybe
+it is and I am just stupid.
+
+First, lets look at what information the UPLI interface carries between the Link (FPGA) and the
+PHY (USB3300) which is directly connected to D+ and D-.
+
+![DecodingReceivedBytes_0](res/DecodingReceivedBytes_0.png)
+
+First, the screenshot above is taken from a Logic Analyzer that is connected to the USB-Bus D+ and D-
+and at the same time it is also connected to the eight data lines of the UPLI interface.
+
+We can immediately see that the ULPI interface just forwards the USB D+ and D- signals to the Link!
+In theory, the link can directly process the USB signals if it wants. It can also forward them to
+some other component (this way a sniffer could be constructed which basically loops through the 
+signals to the communication partner).
+
+In practice, the Link does not have to process the USB D+ D- signals. The UPLI interface has an 
+added benefit. The PHY has an internal buffer in which it will combine eight bits from the D+ and
+D- lines into a byte. Once a byte is ready, the PHY will announce a received byte to the Link and
+the data is then placed on the eight data lines for the Link to connect.
+
+The rule for when a received byte appears is as follows:
+* When data[4] is high and data[5] is low, the PHY starts to fill it's buffer. (No byte is ready yet).
+Using this special state (data[4] is high and data[5] is low), the Link knows that a byte will follow 
+suite and it can reserve space for the byte.
+* After eight bits have been received, the NXT signal goes high and at the same time the byte is placed
+onto the data lines by the PHY for the Link to latch the byte!
+
+Lets see an example:
+
+![DecodingReceivedBytes_1](res/DecodingReceivedBytes_1.png)
+
+![DecodingReceivedBytes_2](res/DecodingReceivedBytes_2.png)
 	
 	
 	
