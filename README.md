@@ -990,6 +990,17 @@ https://www.mikrocontroller.net/topic/77685
 
 An online calculator is here: TODO
 
+As soon as the first byte (byte 0) has been sent by the PHY, the PHY immediately signals
+the beginning of the next byte (see the yellow mark on channel 4 and 5. data[4] is 1
+and data[5] is zero. This means the PHY collects the next 8 bits into a byte and the Link
+has to be ready to consume the byte in the future!
+
+After byte 1, the same yellow marker is sent again.
+
+When all three bytes have been consumed, DIR (channel 8) goes low and this tells the
+Link that there will be no more byte since the PHY has stopped consuming data from the
+USB D+ and D- lines since the packet transmission is over!
+
 ![DecodingReceivedBytes_2](res/DecodingReceivedBytes_2.png)
 
 The image above shows a second example which exactly follows the strategy from the
