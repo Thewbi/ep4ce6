@@ -1,0 +1,74 @@
+ https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+
+Get Descriptor (Device)
+
+1. (H->D) The host sends does send a SETUP packet in order to start a transaction
+10110100 00000000 00001000 (B4 00 0F)
+1. (H->D) The host sends PID_DATA1 follow by the getdescriptor request 
+	[SYNC] [PID_DATA1: 11000011] [GET DESC: 80 06 00 01 00 00 40 00] [CRC: 94 DD] [EOP]    
+1. (D->H) The Device answers a PID ACK (0x42 or 0xD2)     [SYNC] [PID ACK: 11010010 0xD2] [EOP]
+
+The transaction is SETUP here
+There might be SOF packets in the middle here
+
+1. (H->D) The host sends a PID IN message to start the IN part of the transaction 
+   [SYNC] [PID IN: 01101001 == 0x69] [ADDR+ENDP 0000 0000 000] [CRC: 00010] [EOP]   <BYTES: 69 00 02>
+1. (D->H) The device sends the descriptor data: [SYNC] [PID DATA1: 01001011 = 4B] [Desc: 12 01 00 02 FF FF FF 08] [CRC: 33 16] [EOP]
+1. (H->D) The host sends an ACK [SYNC] [ACK: 11010010 0xD2] [EOP]
+
+The IN part of the transaction is done.
+There might be SOF packets in the middle here
+
+Now the host actively starts the process to close the transaction
+
+1. (H->D) the host sends OUT
+	[SYNC] [PID OUT: 11100001 = 0xE1] [ADDR+ENDP 0000 0000 000] [CRC: 00010] [EOP]	<BYTES: E1 00 10>
+1. (H->D) the host sends DATA1 
+	[SYNC] [PID DATA 1: 01001011 (0x4B)] [CRC: 0x00 0x00] [EOP] <BYTES: 4B 00 00>
+1. (D->H) the device sends ACK (MS Controller sends a NACK)!
+	[SYNC] [ACK: 11010010 0xD2] [EOP] <D2>
+
+
+The transaction is over now
+
+A reset happens
+
+
+
+Req: 80 06 00 01 00 00 40 00 <94 DD>
+Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F87B>
+
+
+## The wierd 00 05 03 00 00 00 00 00 request from the host to the device!!!!
+(H->D) PID SETUP A:0x00 E:0x00 <02>
+(H->D) PID DATA 0: 00 05 03 00 00 00 00 00 <C7 EA>
+(D->H) PID ACK 0xD2
+(H->D) PID IN
+(D->H) PID DATA 1: <00 00> No data and also no CRC !!!!!! Just send an empty DATA 1 !!!
+(H->D) The host sends an ACK [SYNC] [ACK: 11010010 0xD2] [EOP]
+There is no transaction close!!!! NO PID OUT, NO PID DATA1, NO ACK!!!!
+
+
+outdata <= 8'h42; // ack (READ: 6.1.7.6 Typical USB Transmit with ULPI in document: 00001783C.pdf)
+				// a transmit command looks like this: [01][00][xxxx] whereas xxxx = 4 bit PID. The PID for
+				// an acknowledge is: 0010
+				
+				
+
+
+80 06 00 01 00 00 12 00 <F4E0>
+Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F87B>
+
+
+80 06 00 02 00 00 FF 00 <A4E9>
+09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <64FE>
+
+
+80 06 03 03 09 04 FF 00 <0A96>
+0A 03 30 00 30 00 30 00 31 00 <5CA7>
+
+
+80 06 00 03 00 00 FF 00 <64D4>
+
+
+00 05 03 00 00 00 00 00 <C7EA>
