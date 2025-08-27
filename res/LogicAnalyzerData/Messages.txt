@@ -1,12 +1,12 @@
- https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
 
 Get Descriptor (Device)
 
-1. (H->D) The host sends does send a SETUP packet in order to start a transaction
+1. (H->D) PID SETUP: The host sends does send a SETUP packet in order to start a transaction
 10110100 00000000 00001000 (B4 00 0F)
-1. (H->D) The host sends PID_DATA1 follow by the getdescriptor request 
+1. (H->D) PID DATA 0 or 1: The host sends PID DATA 1 follow by the getdescriptor request 
 	[SYNC] [PID_DATA1: 11000011] [GET DESC: 80 06 00 01 00 00 40 00] [CRC: 94 DD] [EOP]    
-1. (D->H) The Device answers a PID ACK (0x42 or 0xD2)     [SYNC] [PID ACK: 11010010 0xD2] [EOP]
+1. (D->H) [PID ACK] The Device answers a PID ACK (0x42 or 0xD2)     [SYNC] [PID ACK: 11010010 0xD2] [EOP]
 
 The transaction is SETUP here
 There might be SOF packets in the middle here
@@ -35,13 +35,18 @@ A reset happens
 
 
 
+
+Use USB Device Tree Viewer (x64), https://www.uwe-sieber.de/usbtreeview_e.html#download
+
+
+
 Req: 80 06 00 01 00 00 40 00 <94 DD>
-Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F87B>
+Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F8 7B>
 
 
-## The wierd 00 05 03 00 00 00 00 00 request from the host to the device!!!!
-(H->D) PID SETUP A:0x00 E:0x00 <02>
-(H->D) PID DATA 0: 00 05 03 00 00 00 00 00 <C7 EA>
+## The wierd <PID DATA 0> <00 05 03 00 00 00 00 00> [CRC: C7 EA] request from the host to the device!!!!
+(H->D) PID SETUP - A:0x00 E:0x00 <02>
+(H->D) PID DATA 0 - 00 05 03 00 00 00 00 00 <C7 EA>
 (D->H) PID ACK 0xD2
 (H->D) PID IN
 (D->H) PID DATA 1: <00 00> No data and also no CRC !!!!!! Just send an empty DATA 1 !!!
@@ -56,12 +61,12 @@ outdata <= 8'h42; // ack (READ: 6.1.7.6 Typical USB Transmit with ULPI in docume
 				
 
 
-80 06 00 01 00 00 12 00 <F4E0>
-Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F87B>
+Request: 80 06 00 01 00 00 12 00 <F4 E0>
+Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F8 7B>
 
 
 80 06 00 02 00 00 FF 00 <A4E9>
-09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <64FE>
+09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <64 FE>
 
 
 80 06 03 03 09 04 FF 00 <0A96>
@@ -71,4 +76,593 @@ Resp: 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F87B>
 80 06 00 03 00 00 FF 00 <64D4>
 
 
-00 05 03 00 00 00 00 00 <C7EA>
+00 05 03 00 00 00 00 00 <C7EA> <----- SET ADDRESS
+
+
+
+# Device Descriptor
+
+Request:
+80 06 00 01 00 00 12 00 <F4 E0>
+
+Response:
+12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F8 7B>
+
+
+
+
+
+
+# Configuration Descriptor
+
+## Request:
+<PID DATA 0> 80 06 00 02 00 00 FF 00 <A4 E9>
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x00,        // wValue[0:7]  Desc Index: 0
+0x02,        // wValue[8:15] Desc Type: (Configuration) <------------------------------- CONFIGURATION
+0x00, 0x00,  // wIndex Language ID: 0x00
+0xFF, 0x00,  // wLength = 255
+
+// 8 bytes
+
+// best guess: USB Standard Request
+```
+
+## RESPONSE
+<PID DATA 1> 09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <64 FE>
+
+
+
+This is a combined message! The message needs to be split into several parts (according to the application: USB Device Tree Viewer V4.6.0):
+
+09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00
+
+[09 02 20 00 01 01 00 80 32] [09 04 00 00 02 FF 00 00 02] [07 05 81 02 40 00 00] [07 05 01 02 40 00 00]
+
+```
+------------------ Configuration Descriptor -------------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x02 (Configuration Descriptor)
+wTotalLength             : 0x0020 (32 bytes)
+bNumInterfaces           : 0x01 (1 Interface)
+bConfigurationValue      : 0x01 (Configuration 1)
+iConfiguration           : 0x00 (No String Descriptor)
+bmAttributes             : 0x80
+ D7: Reserved, set 1     : 0x01
+ D6: Self Powered        : 0x00 (no)
+ D5: Remote Wakeup       : 0x00 (no)
+ D4..0: Reserved, set 0  : 0x00
+MaxPower                 : 0x32 (100 mA)
+Data (HexDump)           : 09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00   .. .....2.......
+                           00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00   ......@......@..
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x00 (Interface 0)
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0xFF (Vendor Specific)
+bInterfaceSubClass       : 0x00
+bInterfaceProtocol       : 0x00
+iInterface               : 0x02 (String Descriptor 2)
+ *!*ERROR  String descriptor not found
+Data (HexDump)           : 09 04 00 00 02 FF 00 00 02                        .........
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x81 (Direction=IN EndpointID=1)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (64 bytes)
+bInterval                : 0x00 (ignored)
+Data (HexDump)           : 07 05 81 02 40 00 00                              ....@..
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x01 (Direction=OUT EndpointID=1)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (64 bytes)
+bInterval                : 0x00 (ignored)
+Data (HexDump)           : 07 05 01 02 40 00 00                              ....@..
+
+      -------------------- String Descriptors -------------------
+none
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Device Descriptor (https://www.beyondlogic.org/usbnutshell/usb5.shtml#DeviceDescriptors)
+
+Request:
+80 06 00 01 00 00 40 00 <94 DD>
+
+https://eleccelerator.com/usbdescreqparser/#
+
+You need to paste the data without <CRC16>
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x00,        // wValue[0:7]  Desc Index: 0
+0x01,        // wValue[8:15] Desc Type: (Device)
+0x00, 0x00,  // wIndex Language ID: 0x00
+0x40, 0x00,  // wLength = 64
+
+// 8 bytes
+```
+
+Dir: D2H seems to not mean "Device to Host" but "Host to Device" for some reason
+
+Response:
+12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F8 7B>
+
+12 		- 1 Byte - bLength - 0x12 == 18d
+01 		- 1 Byte - bDescriptorType - 01d - Device Descriptor (0x01)
+10 01 	- 2 Byte - bcdUSB - USB Specification Number which device complies too. - Options: 0x02 == USB 2.0, 10.01 == USB 1.1
+00 		- 1 Byte - bDeviceClass - If equal to 0xFF, the class code is vendor specified.
+00 		- 1 Byte - bDeviceSubClass
+00 		- 1 Byte - bDeviceProtocol
+40 		- 1 Byte - bMaxPacketSize
+C4 10   - 2 Byte - idVendor 	- 0x10C4 search on https://the-sz.com/products/usbid/index.php - Silicon Laboratories, Inc. CP210x UART Bridge
+60 EA 	- 2 Byte - idProduct	- 0xEA60 search on https://the-sz.com/products/usbid/index.php - Silicon Laboratories, Inc. CP210x UART Bridge
+00 01	- 2 Byte - bcdDevice
+01 		- 1 Byte - iManufacturer
+02 		- 1 Byte - iProduct
+03 		- 1 Byte - iSerialNumber
+01		- 1 Byte - bNumConfigurations
+
+https://eleccelerator.com/usbdescreqparser/#
+
+You need to paste the data without <CRC16>
+
+This is a "USB Standard Descriptor"
+
+```
+0x12,        // bLength
+0x01,        // bDescriptorType (Device)
+0x10, 0x01,  // bcdUSB 1.10
+0x00,        // bDeviceClass (Use class information in the Interface Descriptors)
+0x00,        // bDeviceSubClass 
+0x00,        // bDeviceProtocol 
+0x40,        // bMaxPacketSize0 64
+0xC4, 0x10,  // idVendor 0x10C4
+0x60, 0xEA,  // idProduct 0xEA60
+0x00, 0x01,  // bcdDevice 2.00
+0x01,        // iManufacturer (String Index)
+0x02,        // iProduct (String Index)
+0x03,        // iSerialNumber (String Index)
+0x01,        // bNumConfigurations 1
+```
+
+// 18 bytes
+
+// best guess: USB Standard Descriptor
+
+
+
+
+
+
+
+
+
+# Set Address Request
+
+## PID SETUP: Address=0x00, Endpoint=0x00
+
+First, the current address is 0x00, endoint is 0x00.
+
+## Request
+
+The host will send a "change address request" in order to talk to the address 0x03 next!
+0x03 is the address of ??
+
+PID SETUP: Address=0x00, Endpoint=0x00
+
+00 05 03 00 00 00 00 00 <C7 EA>
+
+```
+0x00,        // bmRequestType: Dir: H2D, Type: Standard, Recipient: Device
+0x05,        // bRequest (Set Address) <-------------------------------------------- SET ADDRESS
+0x03, 0x00,  // wValue Device Addr: 3
+0x00, 0x00,  // wIndex = 0x00
+0x00, 0x00,  // wLength = 0
+
+// 8 bytes
+
+// best guess: USB Standard Request
+```
+
+## Response
+
+The request is acknowledged first, then answered with OK
+
+Now the active address is 0x03
+
+
+
+
+
+# Get Descriptor of address 0x03
+
+Here the DEVICE type is requested
+
+## PID SETUP: Address=0x03, Endpoint=0x00
+
+## REQUEST
+
+80 06 00 01 00 00 12 00 <F4 E0>
+
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x00,        // wValue[0:7]  Desc Index: 0
+0x01,        // wValue[8:15] Desc Type: (Device) <--------------------------------------- DEVICE type
+0x00, 0x00,  // wIndex Language ID: 0x00
+0x12, 0x00,  // wLength = 18
+
+// 8 bytes
+
+// best guess: USB Standard Request
+
+# RESPONSE
+
+12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 01 02 03 01 <F8 7B>
+
+https://eleccelerator.com/usbdescreqparser/#
+
+"Standard Descriptor"
+
+```
+0x12,        // bLength
+0x01,        // bDescriptorType (Device)
+0x10, 0x01,  // bcdUSB 1.10
+0x00,        // bDeviceClass (Use class information in the Interface Descriptors)
+0x00,        // bDeviceSubClass 
+0x00,        // bDeviceProtocol 
+0x40,        // bMaxPacketSize0 64
+0xC4, 0x10,  // idVendor 0x10C4
+0x60, 0xEA,  // idProduct 0xEA60
+0x00, 0x01,  // bcdDevice 2.00
+0x01,        // iManufacturer (String Index)
+0x02,        // iProduct (String Index)
+0x03,        // iSerialNumber (String Index)
+0x01,        // bNumConfigurations 1
+
+// 18 bytes
+
+// best guess: USB Standard Descriptor
+```
+
+
+
+
+
+
+# Get Descriptor of address 0x03
+
+Here, the CONFIGURATION type is requested
+
+## PID SETUP: Address=0x03, Endpoint=0x00
+
+## REQUEST
+
+80 06 00 02 00 00 FF 00 <A4 E9>
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x00,        // wValue[0:7]  Desc Index: 0
+0x02,        // wValue[8:15] Desc Type: (Configuration)  <--------------------------------------- CONFIGURATION type
+0x00, 0x00,  // wIndex Language ID: 0x00
+0xFF, 0x00,  // wLength = 255
+
+// 8 bytes
+
+// best guess: USB Standard Request
+```
+
+## RESPONSE
+
+09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 07 05 81 02 40 00 07 05 01 02 40 00 00 <64 FE>
+
+```
+0x09,        // bLength
+0x02,        // bDescriptorType (Configuration)
+0x20, 0x00,  // wTotalLength 32
+0x01,        // bNumInterfaces 1
+0x01,        // bConfigurationValue
+0x00,        // iConfiguration (String Index)
+0x80,        // bmAttributes
+0x32,        // bMaxPower 100mA
+
+0x09,        // bLength
+0x04,        // bDescriptorType (Interface)
+0x00,        // bInterfaceNumber 0
+0x00,        // bAlternateSetting
+0x02,        // bNumEndpoints 2
+0xFF,        // bInterfaceClass
+0x00,        // bInterfaceSubClass
+0x00,        // bInterfaceProtocol
+0x02,        // iInterface (String Index)
+
+0x07,        // bLength
+0x05,        // bDescriptorType (Endpoint)
+0x81,        // bEndpointAddress (IN/D2H)
+0x02,        // bmAttributes (Bulk)
+0x40, 0x00,  // wMaxPacketSize 64
+0x07,        // bInterval 7 (unit depends on device speed)
+
+0x05,        // bLength
+0x01,        // bDescriptorType (Device)
+0x02, 0x40,  // bcdUSB 40.02
+0x00,        // bDeviceClass (Use class information in the Interface Descriptors)
+
+0x00,        // bLength
+// 31 bytes
+
+// best guess: USB Standard Descriptor
+```
+
+
+
+# Request a String (index 3)
+
+## REQUEST:
+
+80 06 03 03 09 04 FF 00 <0A 96>
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x03,        // wValue[0:7]  Desc Index: 3 <---------------------------------- INDEX: 3
+0x03,        // wValue[8:15] Desc Type: (String) <---------------------------- STRING
+0x09, 0x04,  // wIndex Language ID: 0x0409
+0xFF, 0x00,  // wLength = 255
+
+// 8 bytes
+
+// best guess: USB Standard Request
+```
+
+
+## RESPONSE:
+
+0A 03 30 00 30 00 30 00 31 01 <5C A7>
+
+??? 
+
+```
+0x0A, 0x03, 0x30,  // Usage (0x3003)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x30,              // Unknown (bTag: 0x03, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x30,              // Unknown (bTag: 0x03, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x31, 0x01,        // Unknown (bTag: 0x03, bType: 0x00)
+
+// 10 bytes
+
+// best guess: USB HID Report Descriptor
+```
+
+
+
+# Request a String (index 0)
+
+## REQUEST:
+
+80 06 00 03 00 00 FF 00 <64 D4>
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x00,        // wValue[0:7]  Desc Index: 0 <---------------------------------- INDEX: 0
+0x03,        // wValue[8:15] Desc Type: (String) <---------------------------- STRING
+0x00, 0x00,  // wIndex Language ID: 0x00
+0xFF, 0x00,  // wLength = 255
+
+// 8 bytes
+
+// best guess: USB Standard Request
+```
+
+## RESPONSE: ???
+
+
+
+
+
+
+
+# 
+
+## REQUEST:
+
+04 03 09 04 <78 09>
+
+## RESPONSE: 
+
+????
+
+
+
+
+# Request a String (index 3)  ---- SAME AS ABOVE
+
+## REQUEST:
+
+80 06 03 03 09 04 FF 00 <0A 96>
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x03,        // wValue[0:7]  Desc Index: 3 <---------------------------------- INDEX: 3
+0x03,        // wValue[8:15] Desc Type: (String) <---------------------------- STRING
+0x09, 0x04,  // wIndex Language ID: 0x0409
+0xFF, 0x00,  // wLength = 255
+
+// 8 bytes
+
+// best guess: USB Standard Request
+```
+
+## RESPONSE
+
+0A 03 30 00 30 00 30 00 31 00 <5C A7>
+
+
+
+
+# Request a String (index 2)  
+
+
+## REQUEST
+
+80 06 02 03 09 04 FF 00 <DB 97>
+
+## RESPONSE
+
+4A 03 43 00 50 00 32 00 31 00 30 00 32 00 20 00 55 00 53 00 42 00 20 00 74 00 6F 00 20 00 55 00 41 00 52 00 54 00 20 00 42 00 72 00 69 00 64 00 67 00 65 00 20 00 43 00 6F 00 6E 00 74 00 72 00 <DC 37>
+
+```
+0x4A, 0x03, 0x43,  // Designator Minimum (17155)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x50,              // Unknown (bTag: 0x05, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x32, 0x00, 0x31,  // Unknown (bTag: 0x03, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x30,              // Unknown (bTag: 0x03, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x32, 0x00, 0x20,  // Unknown (bTag: 0x03, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x55, 0x00,        // Unit Exponent (0)
+0x53, 0x00, 0x42, 0x00, 0x20,  // Unknown (bTag: 0x05, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x74,              // Report Size
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x6F, 0x00, 0x20, 0x00, 0x55,  // Unknown (bTag: 0x06, bType: 0x03)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x41, 0x00,        // Unknown (bTag: 0x04, bType: 0x00)
+0x52, 0x00, 0x54,  // Unknown (bTag: 0x05, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x20,              // Unknown (bTag: 0x02, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x42, 0x00, 0x72,  // Unknown (bTag: 0x04, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x69, 0x00,        // Unknown (bTag: 0x06, bType: 0x02)
+0x64,              // Unit
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x67, 0x00, 0x65, 0x00, 0x20,  // Unit (None)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x43, 0x00, 0x6F, 0x00, 0x6E,  // Unknown (bTag: 0x04, bType: 0x00)
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x74,              // Report Size
+0x00,              // Unknown (bTag: 0x00, bType: 0x00)
+0x72, 0x00,        // Unknown (bTag: 0x07, bType: 0x00)
+
+// 64 bytes
+
+// best guess: USB HID Report Descriptor
+```
+
+# Information retrieved via AI:
+
+Übersicht mit KI
+The absolute minimum descriptors required for any USB device include 
+ - the Device Descriptor, which contains the Vendor ID (VID) and Product ID (PID), and 
+ - the mandatory Configuration Descriptor. 
+ 
+The Device Descriptor globally identifies the device, 
+while the Configuration Descriptor outlines the device's capabilities, 
+power consumption, and the interfaces it offers. 
+
+A single configuration is usually sufficient for a simple device. 
+
+
+
+
+
+
+
+
+
+
+
+https://www.mikrocontroller.net/articles/USB-Tutorial_mit_STM32
+
+
+CRC16 USB calculation works with this: https://www.lddgo.net/en/encrypt/crc
+
+12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01 <C0 CE>
+
+```
+#define W(x) (x)&0xFF,(x)>>8
+const unsigned char deviceDescriptor [18] = {
+	18,			// bLength
+	1,			// bDescriptorType: Device
+	W(0x0200),	// bcdUSB
+	0xFF,		// bDeviceClass: Vendor-specific
+	0xFF,		// bDeviceSubClass: ignored
+	0xFF,		// bDeviceProtocol: ignored
+	64,			// bMaxPacketSize0: allowed: 8,16,32,64
+	W(0xDEAD),	// idVendor
+	W(0xBEEF),	// idProduct
+	W(0x0100),	// bcdDevice
+	0,			// iManufacturer: No string descriptor
+	0,			// iProduct: No string descriptor
+	0,			// iSerialNumber: No string descriptor
+	1			// bNumConfigurations (must be at least 1)
+};
+```
+
+```
+static constexpr auto confDescriptor = EncodeDescriptors::USB20::configuration (
+			1,			// bNumInterfaces
+			1,			// bConfigurationValue
+			0,			// iConfiguration
+			0x80,		// bmAttributes
+			250,		// bMaxPower (500mA)
+
+			EncodeDescriptors::USB20::interface (
+				0,		// bInterfaceNumber
+				0,		// bAlternateSetting
+				2,		// bNumEndpoints
+				0xFF,	// bInterfaceClass
+				0xFF,	// bInterfaceSubClass
+				0xFF,	// bInterfaceProtocol
+				0		// iInterface
+			),
+			EncodeDescriptors::USB20::endpoint (
+				1,		// bEndpointAddress
+				2,		// bmAttributes
+				64,		// wMaxPacketSize
+				10		// bInterval
+			),
+			EncodeDescriptors::USB20::endpoint (
+				0x81,	// bEndpointAddress
+				2,		// bmAttributes
+				64,		// wMaxPacketSize
+				10		// bInterval
+		)
+);
+```

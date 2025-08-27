@@ -9,7 +9,7 @@
 
 
 
-module state_machine(
+module state_machine_2 (
 
 	// clock and reset
 	input 					reset,
@@ -58,6 +58,11 @@ module state_machine(
 	//assign led = led_reg;
 	
 	reg [7:0] latched_data_reg;
+	
+	
+	
+	reg [7:0] device_descriptor [0:17];
+	reg [7:0] device_descriptor_idx;
 	
 	
 	
@@ -116,6 +121,35 @@ module state_machine(
 				// start register write
 				ulpi_register_write_reg <= 1;
 				
+				
+				
+				
+//				device_descriptor[0] = 8'h01;
+//				device_descriptor[1] = 8'h02;
+//				device_descriptor[2] = 8'h02;
+//				device_descriptor[3] = 8'h03;
+//				device_descriptor[4] = 8'h04;
+//				device_descriptor[5] = 8'h05;
+//				device_descriptor[6] = 8'h06;
+//				device_descriptor[7] = 8'h07;
+//				
+//				device_descriptor[8] = 8'h08;
+//				device_descriptor[9] = 8'h09;
+//				device_descriptor[10] = 8'h0A;
+//				device_descriptor[11] = 8'h0B;
+//				device_descriptor[12] = 8'h0C;
+//				device_descriptor[13] = 8'h0D;
+//				device_descriptor[14] = 8'h0E;
+//				device_descriptor[15] = 8'h0F;
+//				
+//				device_descriptor[16] = 8'h10;
+//				device_descriptor[17] = 8'h11;
+				
+				// set index to 0
+				//device_descriptor_idx = 8'h00;
+				
+				
+				
 			end
 			
 		end
@@ -152,7 +186,6 @@ module state_machine(
 	localparam CONFIG_STATE_7 		= 8'd7;
 	localparam CONFIG_STATE_8 		= 8'd8;
 	localparam CONFIG_STATE_9 		= 8'd9;
-	
 	localparam CONFIG_STATE_10 	= 8'd10;
 	localparam CONFIG_STATE_11		= 8'd11;
 	localparam CONFIG_STATE_12		= 8'd12;
@@ -171,11 +204,11 @@ module state_machine(
 	localparam MSG_DEV_DESC_7		= 8'd27;
 	localparam MSG_DEV_DESC_8		= 8'd28;
 	localparam MSG_DEV_DESC_9		= 8'd29;
-	
 	localparam MSG_DEV_DESC_10		= 8'd30;
 	localparam MSG_DEV_DESC_11		= 8'd31;
 	localparam MSG_DEV_DESC_12		= 8'd32;
 	localparam MSG_DEV_DESC_13		= 8'd33;	
+	
 	// PID IN detection starts here
 	localparam MSG_DEV_DESC_14		= 8'd34;
 	localparam MSG_DEV_DESC_15		= 8'd35;
@@ -183,7 +216,6 @@ module state_machine(
 	localparam MSG_DEV_DESC_17		= 8'd37;
 	localparam MSG_DEV_DESC_18		= 8'd38;
 	localparam MSG_DEV_DESC_19		= 8'd39;
-	
 	localparam MSG_DEV_DESC_20		= 8'd40;
 	localparam MSG_DEV_DESC_21		= 8'd41;
 	localparam MSG_DEV_DESC_22		= 8'd42;
@@ -239,52 +271,6 @@ module state_machine(
 	localparam MSG_DEV_DESC_68		= 8'd88;
 	localparam MSG_DEV_DESC_69		= 8'd89;
 	
-	localparam MSG_DEV_DESC_70		= 8'd90;
-	localparam MSG_DEV_DESC_71		= 8'd91;
-	localparam MSG_DEV_DESC_72		= 8'd92;
-	localparam MSG_DEV_DESC_73		= 8'd93;
-	localparam MSG_DEV_DESC_74		= 8'd94;
-	localparam MSG_DEV_DESC_75		= 8'd95;
-	localparam MSG_DEV_DESC_76		= 8'd96;
-	localparam MSG_DEV_DESC_77		= 8'd97;
-	localparam MSG_DEV_DESC_78		= 8'd98;
-	localparam MSG_DEV_DESC_79		= 8'd99;
-	
-	localparam MSG_DEV_DESC_80		= 8'd100;
-	localparam MSG_DEV_DESC_81		= 8'd101;
-	localparam MSG_DEV_DESC_82		= 8'd102;
-	localparam MSG_DEV_DESC_83		= 8'd103;
-	localparam MSG_DEV_DESC_84		= 8'd104;
-	localparam MSG_DEV_DESC_85		= 8'd105;
-	localparam MSG_DEV_DESC_86		= 8'd106;
-	localparam MSG_DEV_DESC_87		= 8'd107;
-	localparam MSG_DEV_DESC_88		= 8'd108;
-	localparam MSG_DEV_DESC_89		= 8'd109;
-	
-	localparam MSG_DEV_DESC_90		= 8'd110;
-	localparam MSG_DEV_DESC_91		= 8'd111;
-	localparam MSG_DEV_DESC_92		= 8'd112;
-	localparam MSG_DEV_DESC_93		= 8'd113;
-	localparam MSG_DEV_DESC_94		= 8'd114;
-	localparam MSG_DEV_DESC_95		= 8'd115;
-	localparam MSG_DEV_DESC_96		= 8'd116;
-	localparam MSG_DEV_DESC_97		= 8'd117;
-	localparam MSG_DEV_DESC_98		= 8'd118;
-	localparam MSG_DEV_DESC_99		= 8'd119;
-	
-	localparam MSG_DEV_DESC_100		= 8'd120;
-	localparam MSG_DEV_DESC_101		= 8'd121;
-	localparam MSG_DEV_DESC_102		= 8'd122;
-	localparam MSG_DEV_DESC_103		= 8'd123;
-	localparam MSG_DEV_DESC_104		= 8'd124;
-	localparam MSG_DEV_DESC_105		= 8'd125;
-	localparam MSG_DEV_DESC_106		= 8'd126;
-	localparam MSG_DEV_DESC_107		= 8'd127;
-	localparam MSG_DEV_DESC_108		= 8'd128;
-	localparam MSG_DEV_DESC_109		= 8'd129;
-	
-	localparam MSG_DEV_DESC_CENTER		= 8'hFE;
-	
 	localparam STATE_IDLE 			= 8'd255;
 	
 	reg [7:0] state;// <= STATE_IDLE;
@@ -305,7 +291,8 @@ module state_machine(
 		case (state)
 
 			CONFIG_STATE_0: 
-			begin			
+			begin
+			
 `ifdef USE_LED_FOR_CONFIG_BLOCK
 				//led_reg <= ~4'b0000;
 				//led <= led_reg;
@@ -313,7 +300,7 @@ module state_machine(
 `endif
 
 				// LINK needs to pull STP low otherwise nothing works at all
-				STP = 1'b0;
+				STP = 0;
 
 				if (DIR == 1)
 				begin
@@ -348,12 +335,41 @@ module state_machine(
 					outdata <= 8'h8a; // [10][0x0A]
 					
 					state <= CONFIG_STATE_1; // next state
+					
+					
+					
+					device_descriptor[0] <= 8'h01;
+					device_descriptor[1] <= 8'h02;
+					device_descriptor[2] <= 8'h02;
+					device_descriptor[3] <= 8'h03;
+					device_descriptor[4] <= 8'h04;
+					device_descriptor[5] <= 8'h05;
+					device_descriptor[6] <= 8'h06;
+					device_descriptor[7] <= 8'h07;
+					
+					device_descriptor[8] <= 8'h08;
+					device_descriptor[9] <= 8'h09;
+					device_descriptor[10] <= 8'h0A;
+					device_descriptor[11] <= 8'h0B;
+					device_descriptor[12] <= 8'h0C;
+					device_descriptor[13] <= 8'h0D;
+					device_descriptor[14] <= 8'h0E;
+					device_descriptor[15] <= 8'h0F;
+					
+					device_descriptor[16] <= 8'h10;
+					device_descriptor[17] <= 8'h11;
+					
+					// set index to 0
+					device_descriptor_idx <= 8'h00;
+				
 				end
 			end
 
 			CONFIG_STATE_1:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b0001;
+				//led <= led_reg;
 				led <= ~4'b0001;
 `endif
 				outdata <= 8'h8a; // [10][0x0A]
@@ -395,7 +411,7 @@ module state_machine(
 `endif
 				// write 0x00 to the OTG register to disable OTG and enable peripheral mode
 				outdata <= 8'h00;
-				STP <= 1'b1; // send STP to tell the PHY that the command is sent completely and no more bytes follow
+				STP <= 8'h01; // send STP to tell the PHY that the command is sent completely and no more bytes follow
 			
 				state <= CONFIG_STATE_5; // next state
 			end
@@ -408,7 +424,7 @@ module state_machine(
 				led <= ~4'b0101;
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0;
+				STP <= 8'h00;
 			
 				state <= CONFIG_STATE_6; // next state
 			end
@@ -416,6 +432,8 @@ module state_machine(
 			CONFIG_STATE_6:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b0110;
+				//led <= led_reg;
 				led <= ~4'b0110;
 `endif
 				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
@@ -427,7 +445,9 @@ module state_machine(
 			CONFIG_STATE_7:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0110;
+				//led_reg <= ~4'b0111;
+				//led <= led_reg;
+				led <= ~4'b0111;
 `endif
 				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				outdata <= 8'h84; // [10][0x04] write the function control register
@@ -438,6 +458,8 @@ module state_machine(
 			CONFIG_STATE_8:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b1000;
+				//led <= led_reg;
 				led <= ~4'b1000;
 `endif
 				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
@@ -449,6 +471,8 @@ module state_machine(
 			CONFIG_STATE_9:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b1001;
+				//led <= led_reg;
 				led <= ~4'b0000;
 `endif
 				// write the value 0x45 into the FUNC_CTRL register to enable Fast Speed (FS) mode.
@@ -460,10 +484,12 @@ module state_machine(
 			CONFIG_STATE_10:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b1010;
+				//led <= led_reg;
 				led <= ~4'b1010;
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0;
+				STP <= 8'h00;
 				
 				// The PHY should respond with a RXCMD showing a LineState of J ("01", FS Idle).
 				// 10001010
@@ -477,7 +503,7 @@ module state_machine(
 				led <= ~4'b0011;
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b1; // send STP to tell the PHY that the command is sent completely and no more bytes follow
+				STP <= 8'h01; // send STP to tell the PHY that the command is sent completely and no more bytes follow
 					
 				state <= CONFIG_STATE_12; // next state
 			end
@@ -485,10 +511,10 @@ module state_machine(
 			CONFIG_STATE_12:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1100;
+				led <= ~4'b0000;
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0;
+				STP <= 8'h00;
 					
 				state <= CONFIG_STATE_13; // next state
 			end
@@ -496,13 +522,15 @@ module state_machine(
 			CONFIG_STATE_13:
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b1101;
+				//led <= led_reg;
 				led <= ~4'b1101;
 `endif
 				//outdata = 8'b01000000; // Transmit on D+/D- (See Table 6.4, page 24) [01]
 				//STP = 8'h00;
 				
 				outdata <= 8'h00;
-				STP <= 1'b0;
+				STP <= 8'h00;
 				
 				state <= CONFIG_STATE_14; // next state
 			end
@@ -510,12 +538,18 @@ module state_machine(
 			CONFIG_STATE_14:
 			begin			
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b1110;
+				//led <= led_reg;
 				led <= ~4'b1110;
 `endif
+				//outdata <= 8'h42; // Transmit on D+/D- ACK == 0x42
+				//STP <= 8'h00;
+				
 				outdata <= 8'h00;
-				STP <= 1'b0;
+				STP <= 8'h00;
 					
-				state <= MSG_DEV_DESC_0;		
+				state <= MSG_DEV_DESC_0;
+				//state <= CONFIG_STATE_16;			
 			end
 			
 			
@@ -550,332 +584,27 @@ module state_machine(
 	
 		//case (state)
 		
-		
-		
-			MSG_DEV_DESC_CENTER:
+			MSG_DEV_DESC_0:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1101;
+				//led_reg <= 4'b1111;
+				led <= ~4'b0001;
 `endif
-				if (data == 8'hC3) // 0xC3 is 1100 0011 == PID DATA 0
-					// CONSUME: GetDescriptor
+				if (data == 8'hc3)
 					state <= MSG_DEV_DESC_1;
-				//else if (data == 8'hE1)
-					// CONSUME: PID OUT <E1 00 10> (Send after RESPONSE to GetDescriptor, 
-				//	state <= MSG_DEV_DESC_41;
-				//else if (data == 8'hC3)	// PID DATA0 - 0xC3 11000011 // mystery packet
-				//	state <= MSG_DEV_DESC_50;
-				//else if (data == 8'h4B)
-				//	state <= MSG_DEV_DESC_44;
 				else
-					state <= MSG_DEV_DESC_CENTER;
+					state <= MSG_DEV_DESC_0;
 			end
-			
-			
-			//
-			// SET ADDRESS 00 05 (03|04) 00 00 00 00 00
-			// 
-			
-			MSG_DEV_DESC_90:
-			begin
-				if (data == 8'h05)
-				begin
-					state <= MSG_DEV_DESC_91;
-				end
-				else
-					state <= MSG_DEV_DESC_90;
-			end
-			
-			MSG_DEV_DESC_91:
-			begin
-				if (data == 8'h03)
-				begin
-					state <= MSG_DEV_DESC_92;
-				end
-				else if (data == 8'h04)
-				begin
-					state <= MSG_DEV_DESC_92;
-				end
-				else
-					state <= MSG_DEV_DESC_91;
-			end
-			
-			MSG_DEV_DESC_92:
-			begin
-				if (data == 8'h00)
-				begin
-					state <= MSG_DEV_DESC_93;
-				end
-				else
-					state <= MSG_DEV_DESC_92;
-			end
-			
-			MSG_DEV_DESC_93:
-			begin
-				if (data == 8'h00)
-				begin
-					state <= MSG_DEV_DESC_94;
-				end
-				else
-					state <= MSG_DEV_DESC_93;
-			end
-			
-			MSG_DEV_DESC_94:
-			begin
-				if (data == 8'h00)
-				begin
-					state <= MSG_DEV_DESC_95;
-				end
-				else
-					state <= MSG_DEV_DESC_94;
-			end
-			
-			MSG_DEV_DESC_95:
-			begin
-				if (data == 8'h00)
-				begin
-					state <= MSG_DEV_DESC_96;
-				end
-				else
-					state <= MSG_DEV_DESC_95;
-			end
-			
-			MSG_DEV_DESC_96:
-			begin
-				if (data == 8'h00)
-				begin
-					state <= MSG_DEV_DESC_97;
-				end
-				else
-					state <= MSG_DEV_DESC_96;
-			end
-			
-			// CRC 1
-			MSG_DEV_DESC_97:
-			begin
-				state <= MSG_DEV_DESC_98;
-			end
-			
-			// CRC 2
-			MSG_DEV_DESC_98:
-			begin
-				state <= MSG_DEV_DESC_99;
-			end
-			
-			//
-			// SEND ACK
-			//
-			// Wait for the PHY to release the lines and send ACK (0x42)
-			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
-			//
-			
-			MSG_DEV_DESC_99:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0011; // [L1][L2][L3][L4]
-`endif			
-				// Wait for the line to be free
-				if (DIR || NXT)
-				begin
-					state <= MSG_DEV_DESC_99;
-				end
-				else 
-				begin
-					outdata <= 8'h42; // ack 0x42 == [01] 00 0010
-					STP <= 1'b0;
-					
-					state <= MSG_DEV_DESC_100;
-				end				
-			end
-			
-			MSG_DEV_DESC_100:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1100; // [L1][L2][L3][L4]
-`endif
-				// WAIT for the DIR to be low so the line is not used
-				if (DIR == 1)
-					state <= MSG_DEV_DESC_100;
-				else 
-					if (NXT == 1)
-					begin
-						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b1;
-						state <= MSG_DEV_DESC_101;
-					end
-					else 
-						state <= state;
-			end
-			
-			MSG_DEV_DESC_101:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1101; // [L1][L2][L3][L4]
-`endif
-				outdata <= 8'h00;
-				STP <= 1'b0;
-				state <= MSG_DEV_DESC_102;
-				//state <= MSG_DEV_DESC_CENTER;
-			end
-			
-			//
-			// CONSUME PID IN 69
-			//
-			
-			MSG_DEV_DESC_102:
-			begin
-				if (data == 8'h69)
-				begin
-					state <= MSG_DEV_DESC_103;
-				end
-				else
-					state <= MSG_DEV_DESC_102;
-			end
-			
-			// ADDR ENDP
-			MSG_DEV_DESC_103:
-			begin
-				state <= MSG_DEV_DESC_104;
-			end
-			
-			// CRC6
-			MSG_DEV_DESC_104:
-			begin
-				state <= MSG_DEV_DESC_105;
-			end
-			
-			//
-			// SEND DATA 1 [4B 00 00]
-			//
-		
-			MSG_DEV_DESC_105:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0011; // [L1][L2][L3][L4]
-`endif			
-				// Wait for the line to be free
-				if (DIR || NXT)
-				begin
-					state <= MSG_DEV_DESC_105;
-				end
-				else 
-				begin
-					outdata <= 8'h4B; // ack 0x4B == [01] 00 1001
-					STP <= 1'b0;
-					
-					state <= MSG_DEV_DESC_106;
-				end				
-			end
-			
-			MSG_DEV_DESC_106:
-			begin
-				if (DIR == 1)
-					state <= MSG_DEV_DESC_106;
-				else 
-					if (NXT == 1)
-					begin
-						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b0;
-						state <= MSG_DEV_DESC_107;
-					end
-					else 
-						state <= state;
-			end
-			
-			MSG_DEV_DESC_107:
-			begin
-				if (DIR == 1)
-					state <= MSG_DEV_DESC_107;
-				else 
-					if (NXT == 1)
-					begin
-						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b0;
-						state <= MSG_DEV_DESC_108;
-					end
-					else 
-						state <= state;
-			end
-			
-			MSG_DEV_DESC_108:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1100; // [L1][L2][L3][L4]
-`endif
-/**/
-				// WAIT for the DIR to be low so the line is not used
-				if (DIR == 1)
-					state <= MSG_DEV_DESC_108;
-				else 
-					if (NXT == 1)
-					begin
-						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b1;
-						state <= MSG_DEV_DESC_109;
-					end
-					else 
-						state <= state;
-
-//				// tell the phy that the outgoing message is completely output
-//				outdata <= 8'h00;
-//				STP <= 1'b1;
-//				state <= MSG_DEV_DESC_109;
-			end
-			
-			MSG_DEV_DESC_109:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1101; // [L1][L2][L3][L4]
-`endif
-				outdata <= 8'h00;
-				STP <= 1'b0;
-				//state <= MSG_DEV_DESC_102;
-				state <= MSG_DEV_DESC_CENTER;
-			end
-			
-			//
-			// CONSUME GET_DESCRIPTOR_REQUEST
-			// 80 06 00 01 00 00 40 00
-			//
-			// CONSUME SET_ADDRESS
-			// 00 05 03 00 00 00 00 00 <
-			// 
 			
 			MSG_DEV_DESC_1:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0001;
 `endif
-//				if (data == 8'h80) // [80] 
-//					state <= MSG_DEV_DESC_2;
-//				else if (data == 8'h00) // [00] 05 03 00 00 00 00 00
-//					state <= MSG_DEV_DESC_90;
-//				else
-//					state <= MSG_DEV_DESC_1;
-					
-				case (data)
-				
-					8'h80:
-					begin
-						state <= MSG_DEV_DESC_2;
-					end
-					
-					8'h00:
-					begin
-						state <= MSG_DEV_DESC_90;
-					end
-					
-					default:
-					begin
-						state <= MSG_DEV_DESC_1;
-					end
-					
-				endcase
-				
+				if (data == 8'h80)
+					state <= MSG_DEV_DESC_2;
+				else
+					state <= MSG_DEV_DESC_1;
 			end
 			
 			MSG_DEV_DESC_2:
@@ -883,7 +612,7 @@ module state_machine(
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0010;
 `endif
-				if (data == 8'h06) // <80 [06]
+				if (data == 8'h06)
 					state <= MSG_DEV_DESC_3;
 				else
 					state <= MSG_DEV_DESC_2;
@@ -894,7 +623,7 @@ module state_machine(
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0011; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h00)	// <80 06 [00]
+				if (data == 8'h00)	
 					state <= MSG_DEV_DESC_4;
 				else
 					state <= MSG_DEV_DESC_3;
@@ -905,7 +634,7 @@ module state_machine(
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0100; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h01)  // <80 06 00 [01]
+				if (data == 8'h01)	
 					state <= MSG_DEV_DESC_5;
 				else
 					state <= MSG_DEV_DESC_4;
@@ -916,7 +645,7 @@ module state_machine(
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0101; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h00)	// <80 06 00 01 [00]
+				if (data == 8'h00)	
 					state <= MSG_DEV_DESC_6;
 				else
 					state <= MSG_DEV_DESC_5;
@@ -927,7 +656,7 @@ module state_machine(
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0110; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h00)	// <80 06 00 01 00 [00]
+				if (data == 8'h00)	
 					state <= MSG_DEV_DESC_7;
 				else
 					state <= MSG_DEV_DESC_6;
@@ -936,11 +665,9 @@ module state_machine(
 			MSG_DEV_DESC_7:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0110; // [L1][L2][L3][L4]
+				led <= ~4'b0111; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h40)	// <80 06 00 01 00 00 [40]
-					state <= MSG_DEV_DESC_8;
-				else if (data == 8'h12)
+				if (data == 8'h40)	
 					state <= MSG_DEV_DESC_8;
 				else
 					state <= MSG_DEV_DESC_7;
@@ -951,7 +678,7 @@ module state_machine(
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1000; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h00)	// <80 06 00 01 00 00 40 [00]> <DD 94>
+				if (data == 8'h00)	
 					state <= MSG_DEV_DESC_9; // entire DEVICE DESCRIPTOR REQUEST PACKET RECEIVED
 				else
 					state <= MSG_DEV_DESC_8;
@@ -996,8 +723,8 @@ module state_machine(
 				end
 				else 
 				begin
-					outdata <= 8'h42; // ack 0x42 == [01] 00 0010
-					STP <= 1'b0;
+					outdata <= 8'h42; // ack
+					STP <= 8'h00;
 					
 					state <= MSG_DEV_DESC_12;
 				end
@@ -1016,8 +743,8 @@ module state_machine(
 					if (NXT == 1)
 					begin
 						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b1;
+						outdata <= 8'b0;
+						STP <= 1;
 						state <= MSG_DEV_DESC_13;
 					end
 				else 
@@ -1030,12 +757,10 @@ module state_machine(
 				led <= ~4'b1101; // [L1][L2][L3][L4]
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0;
+				STP <= 8'h00;
 				state <= MSG_DEV_DESC_14;
 			end
 			
-			//
-			// CONSUME PID IN
 			//
 			// PID IN detection starts here. We expect the bytes <BYTES: 69 00 10>
 			//
@@ -1068,7 +793,10 @@ module state_machine(
 				led <= ~4'b1110; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h10)	// PID BYTE 2 - 0x10
+				begin
 					state <= MSG_DEV_DESC_17;
+					//device_descriptor_idx <= 0;
+				end
 				else
 					state <= MSG_DEV_DESC_16;
 			end
@@ -1081,6 +809,68 @@ module state_machine(
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif
+
+				if (device_descriptor_idx >= 8'h12)
+				begin
+					state = MSG_DEV_DESC_28; // next state
+				end
+				else
+				begin
+					// Wait for the line to be free
+					if (DIR || NXT)
+					begin
+						state = MSG_DEV_DESC_17; // remain
+					end
+					else 
+					begin
+						outdata = device_descriptor[device_descriptor_idx];
+						device_descriptor_idx = device_descriptor_idx + 1;
+						STP = 8'h00;
+					end
+					//state <= MSG_DEV_DESC_17; // remain
+				end
+				
+
+			
+
+			/*
+			// Wait for the line to be free
+			if (DIR == 1)
+			begin
+				state <= MSG_DEV_DESC_17; // remain
+			end
+			else 
+			begin
+				if (NXT == 1)
+				begin
+					outdata <= device_descriptor[device_descriptor_idx];
+					device_descriptor_idx <= device_descriptor_idx + 1;
+					
+					STP <= 8'h00;
+	
+					if (device_descriptor_idx >= 8'h12)
+					begin
+						state <= MSG_DEV_DESC_28; // next state
+					end
+					else
+					begin
+						state <= MSG_DEV_DESC_17; // remain
+					end
+				end
+			end
+			*/
+		end
+			
+			//
+			// SEND device descriptor
+			//
+			
+/*
+			MSG_DEV_DESC_17:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
 `endif			
 				// Wait for the line to be free
 				if (DIR || NXT)
@@ -1089,11 +879,10 @@ module state_machine(
 				end
 				else 
 				begin
-					// 0x4B == 01 00 1011
-					outdata <= 8'h4B; // <[4B] 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-					STP <= 1'b0;					
+					outdata <= 8'h4B; // <4B 12 01 00 02 FF FF FF 08 33 16>
+					STP <= 8'h00;					
 					state <= MSG_DEV_DESC_18; // next state
-				end		
+				end				
 			end
 			MSG_DEV_DESC_18:
 			begin
@@ -1109,13 +898,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// length of descriptor
-						outdata <= 8'h12; // <4B [12] 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						STP <= 1'b0;					
+						outdata <= 8'h12; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_19; // next state
 					end
-					else 
-						state <= state;
 				end				
 			end
 			MSG_DEV_DESC_19:
@@ -1132,13 +918,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// descriptor type 
-						outdata <= 8'h01; // <4B 12 [01] 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						STP <= 1'b0;					
+						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_20; // next state
 					end
-					else 
-						state <= state;
 				end					
 			end
 			MSG_DEV_DESC_20:
@@ -1155,14 +938,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// usb version
-						//outdata <= 8'h00; // <4B 12 01 [00] 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h10;
-						STP <= 1'b0;					
+						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_21; // next state
 					end
-					else 
-						state <= state;
 				end						
 			end
 			MSG_DEV_DESC_21:
@@ -1179,15 +958,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// usb version
-						
-						//outdata <= 8'h02; // <4B 12 01 00 [02] FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h01;
-						STP <= 1'b0;					
+						outdata <= 8'h02; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_22; // next state
 					end
-					else 
-						state <= state;
 				end					
 			end
 			MSG_DEV_DESC_22:
@@ -1204,15 +978,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// device Class
-						
-						//outdata <= 8'hFF; // <4B 12 01 00 02 [FF] FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h00; 
-						STP <= 1'b0;					
+						outdata <= 8'hFF; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_23; // next state
 					end
-					else 
-						state <= state;
 				end				
 			end
 			MSG_DEV_DESC_23:
@@ -1229,15 +998,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// device subclass
-						
-						//outdata <= 8'hFF; // <4B 12 01 00 02 FF [FF] FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h00;
-						STP <= 1'b0;					
+						outdata <= 8'hFF; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_24; // next state
 					end
-					else 
-						state <= state;
 				end					
 			end
 			MSG_DEV_DESC_24:
@@ -1254,14 +1018,10 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// device protocol
-						//outdata <= 8'hFF; // <4B 12 01 00 02 FF FF [FF] 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h00;
-						STP <= 1'b0;					
+						outdata <= 8'hFF; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_25; // next state
 					end
-					else 
-						state <= state;
 				end					
 			end
 			MSG_DEV_DESC_25:
@@ -1279,19 +1039,18 @@ module state_machine(
 					if (NXT == 1)
 					begin
 						// bMaxPacketSize0 == 8 (8 bytes)
-						outdata <= 8'h40; // <4B 12 01 00 02 FF FF FF [40] DE AD BE EF 01 00 00 00 00 01>
-						STP <= 1'b0;					
+						outdata <= 8'h08; // <4B 12 01 00 02 FF FF FF 08 33 16>
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_26; // next state
 					end
-					else 
-						state <= state;
 				end					
-			end			
+			end
+			
 			MSG_DEV_DESC_26:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif	
+`endif			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1301,16 +1060,12 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// id vendor 1
-						//outdata <= 8'hDE; // <4B 12 01 00 02 FF FF FF 40 [DE] AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'hC4;
-						STP <= 1'b0;					
+						outdata <= 8'h16; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 16 first
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_27; // next state
 					end
-					else 
-						state <= state;
-				end			
-			end			
+				end
+			end
 			MSG_DEV_DESC_27:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
@@ -1325,545 +1080,279 @@ module state_machine(
 				begin
 					if (NXT == 1)
 					begin
-						// id vendor 2
-						//outdata <= 8'hAD; // <4B 12 01 00 02 FF FF FF 40 DE [AD] BE EF 01 00 00 00 00 01>
-						outdata <= 8'h10; 
-						STP <= 1'b0;					
+						outdata <= 8'h33; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 33 last
+						STP <= 8'h00;					
 						state <= MSG_DEV_DESC_28; // next state
 					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_28:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_28; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// id product 1
-						//outdata <= 8'hBE; // <4B 12 01 00 02 FF FF FF 40 DE AD [BE] EF 01 00 00 00 00 01>
-						outdata <= 8'h60;
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_29; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_29:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_29; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// id product 2
-						//outdata <= 8'hEF; // <4B 12 01 00 02 FF FF FF 40 DE AD BE [EF] 01 00 00 00 00 01>
-						outdata <= 8'hEA;
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_30; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_30:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_30; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// bcdDevice (1/2)
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF [01] 00 00 00 00 01>
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_31; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_31:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_31; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// bcdDevice (2/2)
-						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 [00] 00 00 00 01>
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_32; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end			
-			MSG_DEV_DESC_32:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_32; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// string descriptor 1
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 [00] 00 00 01>
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_33; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_33:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_33; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// string descriptor 2
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 [00] 00 01>
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_34; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_34:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_34; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// string descriptor 3
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 [00] 01>
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_35; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-			MSG_DEV_DESC_35:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_35; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// bNumConfigurations
-						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 [01]>
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_36; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end			
-			MSG_DEV_DESC_36:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_36; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// CRC 1
-						//outdata <= 8'hC0; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 16 first
-						outdata <= 8'hDB;
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_37; // next state
-					end
-					else 
-						state <= state;
-				end
-			end
-			MSG_DEV_DESC_37:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_DESC_37; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						// CRC 2
-						//outdata <= 8'hCE; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 33 last
-						outdata <= 8'h34;
-						STP <= 1'b0;					
-						state <= MSG_DEV_DESC_38; // next state
-					end
-					else 
-						state <= state;
 				end			
 			end
+*/
 			
 			// SET STOP BIT
-			MSG_DEV_DESC_38:
+			MSG_DEV_DESC_28:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1100; // [L1][L2][L3][L4]
 `endif
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
-					state <= MSG_DEV_DESC_38;
+					state <= MSG_DEV_DESC_28;
 				else 
 					if (NXT == 1)
 					begin
 						// tell the phy that the outgoing message is completely output
 						outdata <= 8'h00;
-						STP <= 1'b1;						
-						state <= MSG_DEV_DESC_39;
+						STP <= 1;
+						state <= MSG_DEV_DESC_29;
+						//state <= MSG_DEV_DESC_30;
 					end
-					else 
-						state <= MSG_DEV_DESC_38;
-
-//				// tell the phy that the outgoing message is completely output
-//				outdata <= 8'h00;
-//				STP <= 1'b1;						
-//				state <= MSG_DEV_DESC_39;
+				else 
+					state <= state;
 			end
 			
 			// REMOVE the stop bit
-			MSG_DEV_DESC_39:
+			MSG_DEV_DESC_29:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0110; // [L1][L2][L3][L4]
-`endif		
-				outdata <= 8'h00;
-				STP <= 1'b0;
-				state <= MSG_DEV_DESC_40;
-			end
-			
-			
-			
-			
-			
-			// CONSUME ACK
-			MSG_DEV_DESC_40:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0000; // [L1][L2][L3][L4]
+				led <= ~4'b1111; // [L1][L2][L3][L4]
 `endif
-				outdata <= 8'h00;
-				STP <= 1'b0;
-				if (data == 8'hD2)
-					state <= MSG_DEV_DESC_41;
-				else
-					state <= MSG_DEV_DESC_40;
-			end
-			
-			
-			
-			
-			
-			
-			//
-			// CONSUME: PID OUT <E1 00 10>
-			//
-
-			MSG_DEV_DESC_41:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0000; // [L1][L2][L3][L4]
-`endif
-				if (data == 8'hE1) // PID BYTE 0
-					state <= MSG_DEV_DESC_42;
-				else
-					state <= MSG_DEV_DESC_41;
+				STP <= 0;
+				state <= MSG_DEV_DESC_30;
 			end
 
-			MSG_DEV_DESC_42:
+			
+			//
+			// CONSUME: PID out <E1 00 10>
+			//
+			
+			MSG_DEV_DESC_30:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0001; // [L1][L2][L3][L4]
 `endif
-				//if (data == 8'h00)	// PID BYTE 1 - 0x00
-				//	state <= MSG_DEV_DESC_43;
-				//else
-				//	state <= MSG_DEV_DESC_42;
-				state <= MSG_DEV_DESC_43;
+				
+				if (data == 8'hE1) // PID BYTE 0 - 0x69
+					state <= MSG_DEV_DESC_31;
+				else
+					state <= MSG_DEV_DESC_30;
 			end
 			
-			MSG_DEV_DESC_43:
+			MSG_DEV_DESC_31:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0010; // [L1][L2][L3][L4]
 `endif
-				//if (data == 8'h10)	// PID BYTE 2 - 0x10
-				//	state <= MSG_DEV_DESC_44;
-				//else
-				//	state <= MSG_DEV_DESC_43;
-				state <= MSG_DEV_DESC_44;
+				if (data == 8'h00)	// PID BYTE 1 - 0x00
+					state <= MSG_DEV_DESC_32;
+				else
+					state <= MSG_DEV_DESC_31;
+			end
+			
+			MSG_DEV_DESC_32:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0011; // [L1][L2][L3][L4]
+`endif
+				if (data == 8'h10)	// PID BYTE 2 - 0x10
+					state <= MSG_DEV_DESC_33;
+				else
+					state <= MSG_DEV_DESC_32;
 			end
 			
 			//
 			// CONSUME: PID DATA 1 <4B 00 00>
 			//
 			
-			MSG_DEV_DESC_44:
+			MSG_DEV_DESC_33:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0100; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h4D) // PID BYTE 0 - 0x4B [01][00][1011]
-					state <= MSG_DEV_DESC_45;
-				//if (data == 8'h4B) // PID BYTE 0 - 0x4B [01][00][1011]
-				//	state <= MSG_DEV_DESC_44;
+					state <= MSG_DEV_DESC_34;
 				else
-					state <= MSG_DEV_DESC_44;
+					state <= MSG_DEV_DESC_33;
 			end
 			
-			MSG_DEV_DESC_45:
+			MSG_DEV_DESC_34:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0101; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 1 - 0x00
-					state <= MSG_DEV_DESC_46;
+					state <= MSG_DEV_DESC_35;
 				else
-					state <= MSG_DEV_DESC_45;
+					state <= MSG_DEV_DESC_34;
 			end
 			
-			MSG_DEV_DESC_46:
+			MSG_DEV_DESC_35:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0110; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 2 - 0x00
-					state <= MSG_DEV_DESC_47;
+					state <= MSG_DEV_DESC_36;
 				else
-					state <= MSG_DEV_DESC_46;
+					state <= MSG_DEV_DESC_35;
 			end
 			
 			//
 			// SEND: ACK <D2>
+			// 
+			
+			//
+			// SEND ACK
 			//
 			// Wait for the PHY to release the lines and send ACK (0x42)
 			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
 			//
 			
-			MSG_DEV_DESC_47:
+			MSG_DEV_DESC_36:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1010; // [L1][L2][L3][L4]
-`endif		
+				led <= ~4'b1111; // [L1][L2][L3][L4]
+`endif			
 				// Wait for the line to be free
 				if (DIR || NXT)
 				begin
-					state <= MSG_DEV_DESC_47;
+					state <= MSG_DEV_DESC_36;
 				end
 				else 
 				begin
 					outdata <= 8'h42; // ack (01000010)
-					STP <= 1'b0;
+					STP <= 8'h00;
 					
-					state <= MSG_DEV_DESC_48;
-				end
-			
+					state <= MSG_DEV_DESC_37;
+				end				
 			end
 			
-			MSG_DEV_DESC_48:
+			MSG_DEV_DESC_37:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1000; // [L1][L2][L3][L4]
 `endif
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
-					state <= MSG_DEV_DESC_48;
+					state <= MSG_DEV_DESC_37;
 				else 
 					if (NXT == 1)
 					begin
 						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b1;
-						state <= MSG_DEV_DESC_49;
+						outdata <= 8'b0;
+						STP <= 1;
+						state <= MSG_DEV_DESC_38;
+						//state <= MSG_DEV_DESC_39;
 					end
-					else 
-						state <= MSG_DEV_DESC_48;
+				else 
+					state <= state;
 			end
 			
-			// REMOVE the stop bit
-			MSG_DEV_DESC_49:
+			// REMOVE the stop bit (SKIPPED)
+			MSG_DEV_DESC_38:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1001; // [L1][L2][L3][L4]
+				led <= ~4'b0001; // [L1][L2][L3][L4]
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0;
-				
-				//state <= MSG_DEV_DESC_49;
-				state <= MSG_DEV_DESC_CENTER;
-				
+				STP <= 8'h00;
+				state <= MSG_DEV_DESC_39;
 			end
 			
 			//
 			// process the mystery request that the internet does not know ???
-			// [PID DATA 0: C3] [00 05 03 00 00 00 00 00] [CRC: C7EA]
+			// [PID DATA: C3] [00 05 03 00 00 00 00 00] [CRC: C7EA]
 			//
 			
-			MSG_DEV_DESC_49:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1000; // [L1][L2][L3][L4]
-`endif
-				if (data == 8'hC3)	// PID DATA 0 - 0xC3 11000011
-					state <= MSG_DEV_DESC_50;
-				else
-					state <= MSG_DEV_DESC_49;
-			end
-			
-			MSG_DEV_DESC_50:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1001; // [L1][L2][L3][L4]
-`endif
-				if (data == 8'h00)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_51;
-				else
-					state <= MSG_DEV_DESC_50;
-			end
-			MSG_DEV_DESC_51:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1001; // [L1][L2][L3][L4]
-`endif
-				if (data == 8'h05)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_52;
-				else
-					state <= MSG_DEV_DESC_51;
-			end
-			MSG_DEV_DESC_52:
+			MSG_DEV_DESC_39:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0000; // [L1][L2][L3][L4]
 `endif
-				if (data == 8'h03)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_53;
+				if (data == 8'hC3)	// PID DATA0 - 0xC3 11000011
+					state <= MSG_DEV_DESC_40;
 				else
-					state <= MSG_DEV_DESC_52;
+					state <= MSG_DEV_DESC_39;
 			end
-			MSG_DEV_DESC_53:
+			
+			MSG_DEV_DESC_40:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif
+				if (data == 8'h00)	// PID BYTE 2 - 0x10
+					state <= MSG_DEV_DESC_41;
+				else
+					state <= MSG_DEV_DESC_40;
+			end
+			MSG_DEV_DESC_41:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif
+				if (data == 8'h05)	// PID BYTE 2 - 0x10
+					state <= MSG_DEV_DESC_42;
+				else
+					state <= MSG_DEV_DESC_41;
+			end
+			MSG_DEV_DESC_42:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0010; // [L1][L2][L3][L4]
+`endif
+				if (data == 8'h03)	// PID BYTE 2 - 0x10
+					state <= MSG_DEV_DESC_43;
+				else
+					state <= MSG_DEV_DESC_42;
+			end
+			MSG_DEV_DESC_43:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0011; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_54;
+					state <= MSG_DEV_DESC_44;
 				else
-					state <= MSG_DEV_DESC_53;
+					state <= MSG_DEV_DESC_43;
 			end
-			MSG_DEV_DESC_54:
+			MSG_DEV_DESC_44:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0100; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_55;
+					state <= MSG_DEV_DESC_45;
 				else
-					state <= MSG_DEV_DESC_54;
+					state <= MSG_DEV_DESC_44;
 			end
-			MSG_DEV_DESC_55:
+			MSG_DEV_DESC_45:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0101; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_56;
+					state <= MSG_DEV_DESC_46;
 				else
-					state <= MSG_DEV_DESC_55;
+					state <= MSG_DEV_DESC_45;
 			end
-			MSG_DEV_DESC_56:
+			MSG_DEV_DESC_46:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0000; // [L1][L2][L3][L4]
+				led <= ~4'b0110; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_57;
+					state <= MSG_DEV_DESC_47;
 				else
-					state <= MSG_DEV_DESC_56;
+					state <= MSG_DEV_DESC_46;
 			end
-			MSG_DEV_DESC_57:
+			MSG_DEV_DESC_47:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0101; // [L1][L2][L3][L4]
+				led <= ~4'b1111; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_58;
+					state <= MSG_DEV_DESC_48;
 				else
-					state <= MSG_DEV_DESC_57;
+					state <= MSG_DEV_DESC_47;
 			end
 			
 			//
@@ -1896,20 +1385,20 @@ module state_machine(
 			// CRC16 (2 Byte CRC) which we consume but skip checking validity
 			//
 			
-			MSG_DEV_DESC_58:
+			MSG_DEV_DESC_48:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1001; // [L1][L2][L3][L4]
 `endif
-				state <= MSG_DEV_DESC_59; // SKIP CRC BYTE 0
+				state <= MSG_DEV_DESC_49; // SKIP CRC BYTE 0
 			end
 			
-			MSG_DEV_DESC_59:
+			MSG_DEV_DESC_49:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1010; // [L1][L2][L3][L4]
 `endif
-				state <= MSG_DEV_DESC_60; // SKIP CRC BYTE 1
+				state <= MSG_DEV_DESC_50; // SKIP CRC BYTE 1
 			end
 			
 			//
@@ -1919,13 +1408,13 @@ module state_machine(
 			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
 			//
 			
-			MSG_DEV_DESC_60:
+			MSG_DEV_DESC_50:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0111; // [L1][L2][L3][L4]
 `endif		
 
-
+				//outdata <= 8'hD2; // ack
 				outdata <= 8'h42; // ack (READ: 6.1.7.6 Typical USB Transmit with ULPI in document: 00001783C.pdf)
 				// a transmit command looks like this: [01][00][xxxx] whereas xxxx = 4 bit PID. The PID for
 				// an acknowledge ACK is: 0010
@@ -1933,82 +1422,86 @@ module state_machine(
 				// Wait for the line to be free
 				if (DIR || NXT)
 				begin
-					state <= MSG_DEV_DESC_60;
+					state <= MSG_DEV_DESC_50;
 				end
 				else 
-				begin					
-					STP <= 1'b0;					
-					state <= MSG_DEV_DESC_61;
+				begin
+					
+					STP <= 8'h00;
+					
+					state <= MSG_DEV_DESC_51;
 				end
 			end
 			
-			MSG_DEV_DESC_61:
+			MSG_DEV_DESC_51:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1000; // [L1][L2][L3][L4]
 `endif
-				outdata <= 8'h00;
+				outdata <= 8'b0;
 				
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
-					state <= MSG_DEV_DESC_61;
+					state <= MSG_DEV_DESC_51;
 				else 
 					if (NXT == 1)
 					begin
 						// tell the phy that the outgoing message is completely output
-						STP <= 1'b1;
-						state <= MSG_DEV_DESC_62;
+						
+						STP <= 1;
+						state <= MSG_DEV_DESC_52;
+						//state <= MSG_DEV_DESC_51;
 					end
-					else 
-						state <= state;
+				else 
+					state <= state;
 			end
 			
 			// PULL STOP LOW
-			MSG_DEV_DESC_62:
+			MSG_DEV_DESC_52:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1011; // [L1][L2][L3][L4]
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0; // pull the STP signal low because it is high for a single cycle only
-				state <= MSG_DEV_DESC_63;
+				STP <= 8'h00; // pull the STP signal low because it is high for a single cycle only
+				state <= MSG_DEV_DESC_53;
 			end
 			
 			//
 			// CONSUME: (Host -> Device) PID IN <69 00 10>
 			//
 			
-			MSG_DEV_DESC_63:
+			MSG_DEV_DESC_53:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1001; // [L1][L2][L3][L4]
+				led <= ~4'b0001; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h69) // PID BYTE 0 - 0x69
-					state <= MSG_DEV_DESC_64;
+					state <= MSG_DEV_DESC_54;
 				else
-					state <= MSG_DEV_DESC_63;
+					state <= MSG_DEV_DESC_53;
 			end
 			
-			MSG_DEV_DESC_64:
+			MSG_DEV_DESC_54:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0000; // [L1][L2][L3][L4]
+				led <= ~4'b0010; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h00)	// PID BYTE 1 - 0x00
-					state <= MSG_DEV_DESC_65;
+					state <= MSG_DEV_DESC_55;
 				else
-					state <= MSG_DEV_DESC_64;
+					state <= MSG_DEV_DESC_54;
 			end
 			
-			MSG_DEV_DESC_65:
+			MSG_DEV_DESC_55:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b0100; // [L1][L2][L3][L4]
 `endif
 				if (data == 8'h10)	// PID BYTE 2 - 0x10
-					state <= MSG_DEV_DESC_66;
+					state <= MSG_DEV_DESC_56;
 				else
-					state <= MSG_DEV_DESC_65;
+					state <= MSG_DEV_DESC_55;
 			end
 			
 			//
@@ -2018,7 +1511,7 @@ module state_machine(
 			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
 			//
 			
-			MSG_DEV_DESC_66:
+			MSG_DEV_DESC_56:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1000; // [L1][L2][L3][L4]
@@ -2034,81 +1527,86 @@ module state_machine(
 				// Wait for the line to be free
 				if (DIR || NXT)
 				begin
-					state <= MSG_DEV_DESC_66;
+					state <= MSG_DEV_DESC_56;
 				end
 				else 
-				begin				
-					STP <= 1'b0;					
-					state <= MSG_DEV_DESC_67;
+				begin
+					
+					
+				
+					STP <= 8'h00;
+					
+					state <= MSG_DEV_DESC_57;
 				end
 			end
 			
-			MSG_DEV_DESC_67:
+			MSG_DEV_DESC_57:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1001; // [L1][L2][L3][L4]
 `endif		
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
-					state <= MSG_DEV_DESC_67;
+					state <= MSG_DEV_DESC_57;
 				else 
 					if (NXT == 1)
 					begin
 						outdata <= 8'h00;
 						// tell the phy that the outgoing message is completely output
-						STP <= 1'b0;
-						state <= MSG_DEV_DESC_68;
+						STP <= 0;
+						state <= MSG_DEV_DESC_58;
 					end
-					else 
-						state <= state;
+				else 
+					state <= state;
 			end
 			
 			// PULL STOP LOW
-			MSG_DEV_DESC_68:
+			MSG_DEV_DESC_58:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1010; // [L1][L2][L3][L4]
 `endif
 				outdata <= 8'h00;
 				STP <= 8'h00; // pull the STP signal low because it is high for a single cycle only
-				state <= MSG_DEV_DESC_69;
+				state <= MSG_DEV_DESC_59;
 			end
 			
 			// PULL STOP HIGH
-			MSG_DEV_DESC_69:
+			MSG_DEV_DESC_59:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1010; // [L1][L2][L3][L4]
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b1; // pull the STP signal high because it is high for a single cycle only
-				state <= MSG_DEV_DESC_70;
+				STP <= 8'h01; // pull the STP signal low because it is high for a single cycle only
+				state <= MSG_DEV_DESC_60;
 			end
 			
 			// PULL STOP LOW
-			MSG_DEV_DESC_70:
+			MSG_DEV_DESC_60:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
 				led <= ~4'b1010; // [L1][L2][L3][L4]
 `endif
 				outdata <= 8'h00;
-				STP <= 1'b0; // pull the STP signal low because it is high for a single cycle only
-				state <= MSG_DEV_DESC_70;
+				STP <= 8'h00; // pull the STP signal low because it is high for a single cycle only
+				state <= MSG_DEV_DESC_60;
 			end
 			
 			STATE_IDLE: 
 			begin
 `ifdef USE_LED_FOR_CONFIG_BLOCK
+				//led_reg <= ~4'b0111;
+				//led <= led_reg;
 				led <= ~4'b1000;
 `endif
 				// LINK needs to pull STP low otherwise nothing works at all
-				STP <= 1'b0;
+				STP <= 0;
 				
 				// next state
 				//if (ulpi_register_write_reg == 1)
 				//begin
-					//state <= CONFIG_STATE_0;
-					state <= MSG_DEV_DESC_CENTER;
+					state <= CONFIG_STATE_0;
 				//end
 			end
 			
