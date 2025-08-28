@@ -189,6 +189,7 @@ module state_machine_3 (
 			begin
 				led <= ~4'b0001;
 				
+				// 0xC3 == PID DATA 0
 				if (indata == 8'hC3) // this is PID DATA 0. It is followed by the entire request payload
 				begin
 					state <= PARSE_REQUEST;
@@ -206,12 +207,81 @@ module state_machine_3 (
 				led <= ~4'b0010;
 				
 				if (indata == 8'h80)
-				begin					
-					state <= DEVICE_DESCRIPTOR_REQUEST;
-					dev_desc_idx <= 8'h00;
-				end
+					begin					
+						state <= DEVICE_DESCRIPTOR_REQUEST;
+						dev_desc_idx <= 8'h00;
+					end
+				else if (indata == 8'h00)
+					begin					
+						state <= SET_ADDRESS_REQUEST;
+						dev_desc_idx <= 8'h00;
+					end
 				else
-					state <= PARSE_REQUEST;
+					begin
+						state <= PARSE_REQUEST;
+					end
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			
+			// <C3> [00 05 03 00 00 00 00 00] <EA 7C>
+			SET_ADDRESS_REQUEST:
+			begin
+				//led <= ~4'b0011;
+				
+				if ((dev_desc_idx == 8'h00) && (indata == 8'h05)) begin
+					led <= ~4'b0011;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if (dev_desc_idx == 8'h01) begin
+					led <= ~4'b0100;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if ((dev_desc_idx == 8'h02) && (indata == 8'h00)) begin
+					led <= ~4'b0101;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if ((dev_desc_idx == 8'h03) && (indata == 8'h00)) begin
+					led <= ~4'b0110;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if ((dev_desc_idx == 8'h04) && (indata == 8'h00)) begin
+					led <= ~4'b0111;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if ((dev_desc_idx == 8'h05) && (indata == 8'h00)) begin
+					led <= ~4'b1000;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if ((dev_desc_idx == 8'h06) && (indata == 8'h00)) begin
+					led <= ~4'b1001;
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if (dev_desc_idx == 8'h07) begin
+					led <= ~4'b1010;
+					// CRC 1
+					state <= SET_ADDRESS_REQUEST;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+				else if (dev_desc_idx == 8'h08) begin
+					led <= ~4'b1011;
+					// CRC 2
+					state <= SET_ADDRESS_SEND_ACK_1;
+					dev_desc_idx <= dev_desc_idx + 8'h01;
+				end
+//				else if (dev_desc_idx == 8'h0A) begin
+//					// DONE
+//					state <= SET_ADDRESS_SEND_ACK;
+//					dev_desc_idx <= dev_desc_idx + 8'h00;
+//				end
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
@@ -220,7 +290,7 @@ module state_machine_3 (
 			// 80 06 00 01 00 00 40 00 <DD 94>
 			DEVICE_DESCRIPTOR_REQUEST:
 			begin
-				led <= ~4'b0011;
+				//led <= ~4'b0011;
 				
 				if ((dev_desc_idx == 8'h00) && (indata == 8'h06)) begin
 					state <= DEVICE_DESCRIPTOR_REQUEST;
@@ -272,6 +342,301 @@ module state_machine_3 (
 			
 			
 			
+			
+			
+			
+			
+//			SET_ADDRESS_SEND_ACK:
+//			begin
+//				led <= ~4'b0100;
+//				
+//				state <= SET_ADDRESS_SEND_ACK_1;
+//				
+//				outdata <= 8'h00;
+//				STP <= 1'b0;
+//			end
+			
+			//
+			// SEND ACK
+			//
+			// Wait for the PHY to release the lines and send ACK (0x42)
+			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
+			//
+			
+			SET_ADDRESS_SEND_ACK_1:
+			begin
+				led <= ~4'b0101; // [L1][L2][L3][L4]
+			
+				// Wait for the line to be free
+				if (DIR || NXT)
+				begin
+					state <= SET_ADDRESS_SEND_ACK_1; // remain
+				end
+				else 
+				begin
+					outdata <= 8'h42; // ack
+					STP <= 8'h00;
+					
+					state <= SET_ADDRESS_SEND_ACK_2;
+				end				
+			end			
+			SET_ADDRESS_SEND_ACK_2:
+			begin
+				led <= ~4'b0110; // [L1][L2][L3][L4]
+
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SET_ADDRESS_SEND_ACK_2; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;
+						state <= SET_ADDRESS_SEND_ACK_3;
+					end
+					else 
+						state <= state;
+			end			
+			SET_ADDRESS_SEND_ACK_3:
+			begin
+				led <= ~4'b0111; // [L1][L2][L3][L4]
+
+				outdata <= 8'h00;
+				STP <= 1'b0;
+				
+				state <= SET_ADDRESS_PID_IN_WAIT;
+			end
+			
+			
+			
+			
+			
+			
+			// here, the host wants to receive the device address so it sends a PID IN to the device
+			// [69 00 CRC] 
+			SET_ADDRESS_PID_IN_WAIT:
+			begin
+				//led <= ~4'b0011; // [L1][L2][L3][L4]
+				
+				if (indata == 8'h69)
+				begin
+					state <= SET_ADDRESS_PID_IN_DETECT_ADDRESS;
+				end
+				// I think the host will never send DATA 1 since the device needs to answer with DATA 1 !!!
+				else
+					state <= SET_ADDRESS_PID_IN_WAIT;
+					
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			SET_ADDRESS_PID_IN_DETECT_ADDRESS:
+			begin
+				//led <= ~4'b0100; // [L1][L2][L3][L4]
+				
+				// check if the message is directed at this device
+				process_request <= 1'b0;
+				if ((indata == 8'h00) && (device_address == 8'h00))
+				begin
+					state <= SET_ADDRESS_PID_IN_DETECT_CRC;
+				end
+				else
+					state <= SET_ADDRESS_PID_IN_DETECT_ADDRESS;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			SET_ADDRESS_PID_IN_DETECT_CRC:
+			begin
+				//led <= ~4'b0101;
+				
+				state <= MSG_DEV_SEND_OLD_ADDRESS; // wait for a data packet
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			
+			
+			
+			MSG_DEV_SEND_OLD_ADDRESS:
+			begin
+				//led <= ~4'b1111;
+				
+				state <= MSG_DEV_SEND_OLD_ADDRESS_1;
+			
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			
+			
+			
+			
+			
+			//
+			// SEND old address
+			//
+			
+			MSG_DEV_SEND_OLD_ADDRESS_1:
+			begin
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+				
+				// Wait for the line to be free
+				if (DIR || NXT)
+				begin
+					state <= MSG_DEV_SEND_OLD_ADDRESS_1; // remain
+				end
+				else 
+				begin
+					// 0x4B == 01 00 1011
+					outdata <= 8'h4B; // <[4B] 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+					STP <= 1'b0;					
+					//state <= MSG_DEV_SEND_OLD_ADDRESS_2; // next state
+					state <= MSG_DEV_SEND_OLD_ADDRESS_4; // directly send CRC
+				end		
+			end
+/*
+			MSG_DEV_SEND_OLD_ADDRESS_2:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_SEND_OLD_ADDRESS_2; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						outdata <= 8'h00;
+						STP <= 1'b0;					
+						state <= MSG_DEV_SEND_OLD_ADDRESS_3; // next state
+					end
+					else 
+						state <= state;
+				end				
+			end
+			MSG_DEV_SEND_OLD_ADDRESS_3:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_SEND_OLD_ADDRESS_3; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						outdata <= 8'h00;
+						STP <= 1'b0;					
+						state <= MSG_DEV_SEND_OLD_ADDRESS_4; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+*/
+			MSG_DEV_SEND_OLD_ADDRESS_4:
+			begin
+				led <= ~4'b0010; // [L1][L2][L3][L4]
+
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_SEND_OLD_ADDRESS_4; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// CRC 1
+						//outdata <= 8'hFE;
+						outdata <= 8'h00;
+						STP <= 1'b0;					
+						state <= MSG_DEV_SEND_OLD_ADDRESS_5; // next state
+					end
+					else 
+						state <= state;
+				end						
+			end
+			MSG_DEV_SEND_OLD_ADDRESS_5:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_SEND_OLD_ADDRESS_5; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// CRC 2
+						//outdata <= 8'h4F;
+						outdata <= 8'h00;
+						STP <= 1'b0;					
+						state <= MSG_DEV_SEND_OLD_ADDRESS_6; // next state
+					end
+					else 
+						state <= state;
+				end						
+			end
+			
+			// SET STOP BIT
+			MSG_DEV_SEND_OLD_ADDRESS_6:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b1100; // [L1][L2][L3][L4]
+`endif
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1)
+					state <= MSG_DEV_SEND_OLD_ADDRESS_6;
+				else 
+					if (NXT == 1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;						
+						state <= MSG_DEV_SEND_OLD_ADDRESS_7;
+					end
+					else 
+						state <= MSG_DEV_SEND_OLD_ADDRESS_6;
+			end
+			
+			// REMOVE the stop bit
+			MSG_DEV_SEND_OLD_ADDRESS_7:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0110; // [L1][L2][L3][L4]
+`endif		
+				outdata <= 8'h00;
+				STP <= 1'b0;
+				
+				state <= MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK;
+			end
+			
+			
+			
+			MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK:
+			begin
+				led <= ~4'b1111;
+				
+				state <= MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			
+			
+			
+			
+			
 			DEVICE_DESCRIPTOR_SEND_ACK:
 			begin
 				//led <= ~4'b0000;
@@ -281,9 +646,6 @@ module state_machine_3 (
 				outdata <= 8'h00;
 				STP <= 1'b0;
 			end
-			
-	
-			
 			
 			//
 			// SEND ACK
@@ -342,7 +704,7 @@ module state_machine_3 (
 			// [69 00 CRC] 
 			DEVICE_DESCRIPTOR_PID_IN_WAIT:
 			begin
-				led <= ~4'b0011; // [L1][L2][L3][L4]
+				//led <= ~4'b0011; // [L1][L2][L3][L4]
 				
 				if (indata == 8'h69)
 				begin
@@ -1463,6 +1825,27 @@ module state_machine_3 (
 	localparam DEVICE_DESCRIPTOR_8_SEND_ACK_1				= 8'd178;
 	localparam DEVICE_DESCRIPTOR_8_SEND_ACK_2				= 8'd179;
 	localparam DEVICE_DESCRIPTOR_8_SEND_ACK_3				= 8'd180;
+	
+	localparam SET_ADDRESS_REQUEST							= 8'd181;
+	localparam SET_ADDRESS_SEND_ACK							= 8'd182;
+	localparam SET_ADDRESS_SEND_ACK_1						= 8'd183;
+	localparam SET_ADDRESS_SEND_ACK_2						= 8'd184;
+	localparam SET_ADDRESS_SEND_ACK_3						= 8'd185;
+	
+	localparam SET_ADDRESS_PID_IN_WAIT						= 8'd186;
+	localparam SET_ADDRESS_PID_IN_DETECT_ADDRESS			= 8'd187;
+	localparam SET_ADDRESS_PID_IN_DETECT_CRC				= 8'd188;
+	
+	localparam MSG_DEV_SEND_OLD_ADDRESS						= 8'd189;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_1					= 8'd190;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_2					= 8'd191;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_3					= 8'd192;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_4					= 8'd193;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_5					= 8'd194;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_6					= 8'd195;
+	localparam MSG_DEV_SEND_OLD_ADDRESS_7					= 8'd196;
+	
+	localparam MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK 	= 8'd197;
 	
 	localparam MSG_DEV_DESC_CENTER		= 8'hFE;
 	
