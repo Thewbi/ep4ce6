@@ -4,8 +4,8 @@
 //`define USE_LED_FOR_CONFIG_BLOCK 1
 `undef USE_LED_FOR_CONFIG_BLOCK
 
-`define USE_LED_FOR_REQ_DETECT_BLOCK 1
-//`undef USE_LED_FOR_REQ_DETECT_BLOCK
+//`define USE_LED_FOR_REQ_DETECT_BLOCK 1
+`undef USE_LED_FOR_REQ_DETECT_BLOCK
 
 //`define USE_LED_FOR_COMM_BLOCK 1
 `undef USE_LED_FOR_COMM_BLOCK
@@ -56,7 +56,7 @@ module state_machine_3 (
 	reg [7:0] device_address;
 	reg process_request;
 	reg [7:0] dev_desc_idx;
-	
+	reg [7:0] dev_desc_8_out_idx;
 	
 	//
 	// ULPI soft reset logic
@@ -158,8 +158,7 @@ module state_machine_3 (
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
-			end
-			
+			end			
 			PID_SETUP_DETECT_ADDRESS:
 			begin
 				// check if the message is directed at this device
@@ -174,8 +173,7 @@ module state_machine_3 (
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
-			end
-			
+			end			
 			PID_SETUP_DETECT_CRC:
 			begin
 				state <= PID_DATA_WAIT; // wait for a data packet
@@ -191,7 +189,7 @@ module state_machine_3 (
 			begin
 				led <= ~4'b0001;
 				
-				if (indata == 8'hC3)
+				if (indata == 8'hC3) // this is PID DATA 0. It is followed by the entire request payload
 				begin
 					state <= PARSE_REQUEST;
 				end
@@ -276,7 +274,7 @@ module state_machine_3 (
 			
 			DEVICE_DESCRIPTOR_SEND_ACK:
 			begin
-				led <= ~4'b1111;
+				//led <= ~4'b0000;
 				
 				state <= DEVICE_DESCRIPTOR_SEND_ACK_1;
 				
@@ -296,7 +294,7 @@ module state_machine_3 (
 			
 			DEVICE_DESCRIPTOR_SEND_ACK_1:
 			begin
-				led <= ~4'b0001; // [L1][L2][L3][L4]
+				led <= ~4'b1110; // [L1][L2][L3][L4]
 			
 				// Wait for the line to be free
 				if (DIR || NXT)
@@ -309,40 +307,729 @@ module state_machine_3 (
 					STP <= 8'h00;
 					
 					state <= DEVICE_DESCRIPTOR_SEND_ACK_2;
-				end
-				
-			end
-			
+				end				
+			end			
 			DEVICE_DESCRIPTOR_SEND_ACK_2:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= DEVICE_DESCRIPTOR_SEND_ACK_2; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;
+						state <= DEVICE_DESCRIPTOR_SEND_ACK_3;
+					end
+					else 
+						state <= state;
+			end			
+			DEVICE_DESCRIPTOR_SEND_ACK_3:
+			begin
 				led <= ~4'b0010; // [L1][L2][L3][L4]
+
+				outdata <= 8'h00;
+				STP <= 1'b0;
+				
+				//state <= DEVICE_DESCRIPTOR_SEND_ACK_3;
+				state <= DEVICE_DESCRIPTOR_PID_IN_WAIT;
+			end
+			
+			// here, the host wants to receive the device descriptor so it sends a PID IN to the device
+			// [69 00 CRC] 
+			DEVICE_DESCRIPTOR_PID_IN_WAIT:
+			begin
+				led <= ~4'b0011; // [L1][L2][L3][L4]
+				
+				if (indata == 8'h69)
+				begin
+					state <= DEVICE_DESCRIPTOR_PID_IN_DETECT_ADDRESS;
+				end
+				// I think the host will never send DATA 1 since the device needs to answer with DATA 1 !!!
+				else
+					state <= DEVICE_DESCRIPTOR_PID_IN_WAIT;
+					
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			DEVICE_DESCRIPTOR_PID_IN_DETECT_ADDRESS:
+			begin
+				led <= ~4'b0100; // [L1][L2][L3][L4]
+				
+				// check if the message is directed at this device
+				process_request <= 1'b0;
+				if ((indata == 8'h00) && (device_address == 8'h00))
+				begin
+					state <= DEVICE_DESCRIPTOR_PID_IN_DETECT_CRC;
+				end
+				else
+					state <= DEVICE_DESCRIPTOR_PID_IN_DETECT_ADDRESS;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			DEVICE_DESCRIPTOR_PID_IN_DETECT_CRC:
+			begin
+				led <= ~4'b0101;
+				
+				state <= MSG_DEV_DESC_17; // wait for a data packet
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			//
+			// SEND device descriptor
+			//
+			
+			MSG_DEV_DESC_17:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR || NXT)
+				begin
+					state <= MSG_DEV_DESC_17; // remain
+				end
+				else 
+				begin
+					// 0x4B == 01 00 1011
+					outdata <= 8'h4B; // <[4B] 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+					STP <= 1'b0;					
+					state <= MSG_DEV_DESC_18; // next state
+				end		
+			end
+			MSG_DEV_DESC_18:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_18; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// length of descriptor
+						outdata <= 8'h12; // <4B [12] 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_19; // next state
+					end
+					else 
+						state <= state;
+				end				
+			end
+			MSG_DEV_DESC_19:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_19; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// descriptor type 
+						outdata <= 8'h01; // <4B 12 [01] 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_20; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_20:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_20; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// usb version
+						//outdata <= 8'h00; // <4B 12 01 [00] 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h10;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_21; // next state
+					end
+					else 
+						state <= state;
+				end						
+			end
+			MSG_DEV_DESC_21:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_21; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// usb version
+						
+						//outdata <= 8'h02; // <4B 12 01 00 [02] FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h01;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_22; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_22:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_22; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// device Class
+						
+						//outdata <= 8'hFF; // <4B 12 01 00 02 [FF] FF FF 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h00; 
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_23; // next state
+					end
+					else 
+						state <= state;
+				end				
+			end
+			MSG_DEV_DESC_23:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_23; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// device subclass
+						
+						//outdata <= 8'hFF; // <4B 12 01 00 02 FF [FF] FF 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h00;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_24; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_24:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// Wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_24; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// device protocol
+						//outdata <= 8'hFF; // <4B 12 01 00 02 FF FF [FF] 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h00;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_25; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_25:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_25; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// bMaxPacketSize0 == 8 (8 bytes)
+						outdata <= 8'h40; // <4B 12 01 00 02 FF FF FF [40] DE AD BE EF 01 00 00 00 00 01>
+						STP <= 1'b0;
+						
+						//state <= MSG_DEV_DESC_26; // next state
+						state <= MSG_DEV_DESC_36;
+					end
+					else 
+						state <= state;
+				end					
+			end
+/*		
+			MSG_DEV_DESC_26:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif	
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_26; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// id vendor 1
+						//outdata <= 8'hDE; // <4B 12 01 00 02 FF FF FF 40 [DE] AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'hC4;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_27; // next state
+					end
+					else 
+						state <= state;
+				end			
+			end			
+			MSG_DEV_DESC_27:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_27; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// id vendor 2
+						//outdata <= 8'hAD; // <4B 12 01 00 02 FF FF FF 40 DE [AD] BE EF 01 00 00 00 00 01>
+						outdata <= 8'h10; 
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_28; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_28:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_28; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// id product 1
+						//outdata <= 8'hBE; // <4B 12 01 00 02 FF FF FF 40 DE AD [BE] EF 01 00 00 00 00 01>
+						outdata <= 8'h60;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_29; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_29:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_29; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// id product 2
+						//outdata <= 8'hEF; // <4B 12 01 00 02 FF FF FF 40 DE AD BE [EF] 01 00 00 00 00 01>
+						outdata <= 8'hEA;
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_30; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_30:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_30; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// bcdDevice (1/2)
+						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF [01] 00 00 00 00 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_31; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_31:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_31; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// bcdDevice (2/2)
+						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 [00] 00 00 00 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_32; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end			
+			MSG_DEV_DESC_32:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_32; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// string descriptor 1
+						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 [00] 00 00 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_33; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_33:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_33; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// string descriptor 2
+						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 [00] 00 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_34; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_34:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_34; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// string descriptor 3
+						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 [00] 01>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_35; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+			MSG_DEV_DESC_35:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_35; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// bNumConfigurations
+						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 [01]>
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_36; // next state
+					end
+					else 
+						state <= state;
+				end					
+			end
+*/
+
+			MSG_DEV_DESC_36:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_36; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// CRC 1
+						//outdata <= 8'hC0; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 16 first
+						//outdata <= 8'hDB;
+						outdata <= 8'h11;
+						
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_37; // next state
+					end
+					else 
+						state <= state;
+				end
+			end
+			MSG_DEV_DESC_37:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+`endif			
+				// wait for the line to be free
+				if (DIR == 1)
+				begin
+					state <= MSG_DEV_DESC_37; // remain
+				end
+				else 
+				begin
+					if (NXT == 1)
+					begin
+						// CRC 2
+						//outdata <= 8'hCE; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 33 last
+						//outdata <= 8'h34;
+						outdata <= 8'h41;
+						
+						STP <= 1'b0;					
+						state <= MSG_DEV_DESC_38; // next state
+					end
+					else 
+						state <= state;
+				end			
+			end
+
+
+			// SET STOP BIT
+			MSG_DEV_DESC_38:
+			begin
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b1100; // [L1][L2][L3][L4]
 `endif
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
-					state <= DEVICE_DESCRIPTOR_SEND_ACK_2; // remain
+					state <= MSG_DEV_DESC_38;
 				else 
 					if (NXT == 1)
 					begin
 						// tell the phy that the outgoing message is completely output
-						outdata <= 8'b0;
-						STP <= 1;
-						state <= DEVICE_DESCRIPTOR_SEND_ACK_3;
+						outdata <= 8'h00;
+						STP <= 1'b1;						
+						state <= MSG_DEV_DESC_39;
 					end
-				else 
-					state <= state;
+					else 
+						state <= MSG_DEV_DESC_38;
 			end
 			
-			DEVICE_DESCRIPTOR_SEND_ACK_3:
+			// REMOVE the stop bit
+			MSG_DEV_DESC_39:
 			begin
-				led <= ~4'b0011; // [L1][L2][L3][L4]
+`ifdef USE_LED_FOR_COMM_BLOCK
+				led <= ~4'b0110; // [L1][L2][L3][L4]
+`endif		
+				outdata <= 8'h00;
+				STP <= 1'b0;
+				
+				state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_ACK;
+			end
+			
+			
+			
+			DEVICE_DESCRIPTOR_8_WAIT_HOST_ACK:
+			begin
+				led <= ~4'b1000;
+				state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT;
+			end
+			
+			// [4B 00 00]
+			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT:
+			begin
+				led <= ~4'b0000;
+				
+				if (indata == 8'h4B)
+					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
+				else
+					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR:
+			begin
+				led <= ~4'b0001;
+				
+				// check if the message is directed at this device
+				if (indata == 8'h00)
+				begin
+					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_CRC;
+				end
+				else
+					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_CRC:
+			begin
+				led <= ~4'b0010;
+			
+				state <= DEVICE_DESCRIPTOR_8_SEND_ACK_1; // wait for a data packet
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			
+			
+			//
+			// SEND ACK
+			//
+			// Wait for the PHY to release the lines and send ACK (0x42)
+			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
+			//
+			
+			DEVICE_DESCRIPTOR_8_SEND_ACK_1:
+			begin
+				led <= ~4'b1110; // [L1][L2][L3][L4]
+			
+				// Wait for the line to be free
+				if (DIR || NXT)
+				begin
+					state <= DEVICE_DESCRIPTOR_8_SEND_ACK_1; // remain
+				end
+				else 
+				begin
+					outdata <= 8'h42; // ack
+					STP <= 8'h00;
+					
+					state <= DEVICE_DESCRIPTOR_8_SEND_ACK_2;
+				end				
+			end			
+			DEVICE_DESCRIPTOR_8_SEND_ACK_2:
+			begin
+				led <= ~4'b0001; // [L1][L2][L3][L4]
+
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= DEVICE_DESCRIPTOR_8_SEND_ACK_2; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;
+						state <= DEVICE_DESCRIPTOR_8_SEND_ACK_3;
+					end
+					else 
+						state <= state;
+			end			
+			DEVICE_DESCRIPTOR_8_SEND_ACK_3:
+			begin
+				led <= ~4'b0010; // [L1][L2][L3][L4]
 
 				outdata <= 8'h00;
-				STP <= 8'h00;
+				STP <= 1'b0;
 				
-				state <= PID_DATA_WAIT;
+				//state <= DEVICE_DESCRIPTOR_SEND_ACK_3;
+				//state <= DEVICE_DESCRIPTOR_PID_IN_WAIT;
+				state <= PARSE_REQUEST;
 			end
-			
 			
 			
 			//TODO: send 8 byte of device descriptor
@@ -759,6 +1446,23 @@ module state_machine_3 (
 	localparam DEVICE_DESCRIPTOR_SEND_ACK_1 = 8'd164;
 	localparam DEVICE_DESCRIPTOR_SEND_ACK_2 = 8'd165;
 	localparam DEVICE_DESCRIPTOR_SEND_ACK_3 = 8'd166;
+	
+	localparam DEVICE_DESCRIPTOR_PID_IN_WAIT 				= 8'd167;
+	localparam DEVICE_DESCRIPTOR_PID_IN_DETECT_ADDRESS = 8'd168;
+	localparam DEVICE_DESCRIPTOR_PID_IN_DETECT_CRC 		= 8'd169;
+	localparam DEVICE_DESC_8_SEND 							= 8'd170;
+	localparam DEVICE_DESC_8_RESPONSE 						= 8'd171;
+	localparam DEVICE_DESC_8_STOP 							= 8'd172; 
+	localparam DEVICE_DESC_8_RESUME 							= 8'd173;
+	localparam DEVICE_DESCRIPTOR_8_WAIT_HOST_ACK 		= 8'd174;
+	
+	localparam DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT 			= 8'd175;
+	localparam DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR		= 8'd176;
+	localparam DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_CRC		= 8'd177;
+	
+	localparam DEVICE_DESCRIPTOR_8_SEND_ACK_1				= 8'd178;
+	localparam DEVICE_DESCRIPTOR_8_SEND_ACK_2				= 8'd179;
+	localparam DEVICE_DESCRIPTOR_8_SEND_ACK_3				= 8'd180;
 	
 	localparam MSG_DEV_DESC_CENTER		= 8'hFE;
 	
