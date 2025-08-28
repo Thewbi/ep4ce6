@@ -1,14 +1,3 @@
-//`define USE_LED_FOR_RESET_BLOCK 1
-`undef USE_LED_FOR_RESET_BLOCK
-
-//`define USE_LED_FOR_CONFIG_BLOCK 1
-`undef USE_LED_FOR_CONFIG_BLOCK
-
-//`define USE_LED_FOR_REQ_DETECT_BLOCK 1
-`undef USE_LED_FOR_REQ_DETECT_BLOCK
-
-//`define USE_LED_FOR_COMM_BLOCK 1
-`undef USE_LED_FOR_COMM_BLOCK
 
 
 
@@ -52,9 +41,6 @@ module state_machine_3 (
 	
 	reg ulpi_register_write_reg;
 	
-	
-	reg [7:0] device_address;
-	reg process_request;
 	reg [7:0] dev_desc_idx;
 	reg [7:0] dev_desc_8_out_idx;
 	
@@ -68,9 +54,7 @@ module state_machine_3 (
 	
 		if (!RESET)
 		begin
-`ifdef USE_LED_FOR_RESET_BLOCK
-			led <= ~4'b0000;
-`endif
+
 			// reset counter
 			phy_reset_counter <= 32'd0;
 			
@@ -93,9 +77,7 @@ module state_machine_3 (
 			// YORO - you only reset once
 			if (phy_reset_performed == 0)
 			begin
-`ifdef USE_LED_FOR_RESET_BLOCK
-				led <= ~4'b0000;
-`endif
+
 			
 				// PHY reset has been performed
 				phy_reset_performed <= 1;
@@ -112,7 +94,6 @@ module state_machine_3 (
 		begin
 		
 			phy_reset_counter <= phy_reset_counter + 32'd1;
-			//ulpi_register_write_reg <= 0;
 			
 		end		
 		
@@ -136,10 +117,8 @@ module state_machine_3 (
 		
 		if (!RESET) 
 		begin
-			led <= ~4'b0000;
+
 			state <= STATE_IDLE;
-			device_address <= 8'h00;
-			process_request <= 1'b0;
 		end
 
 		case (state)
@@ -149,7 +128,7 @@ module state_machine_3 (
 			// [2D 00 10]
 			PID_SETUP_WAIT: // waiting for a PID SETUP packet
 			begin
-				led <= ~4'b0000;
+
 				
 				if (indata == 8'h2D)
 					state <= PID_SETUP_DETECT_ADDRESS;
@@ -162,11 +141,8 @@ module state_machine_3 (
 			PID_SETUP_DETECT_ADDRESS:
 			begin
 				// check if the message is directed at this device
-				process_request <= 1'b0;
-				//if ((indata == 8'h00) && (device_address == 8'h00))
 				if (indata == 8'h00)
-				begin
-					process_request <= 1'b1;					
+				begin					
 					state <= PID_SETUP_DETECT_CRC;
 				end
 				else
@@ -188,7 +164,6 @@ module state_machine_3 (
 		
 			PID_DATA_WAIT:
 			begin
-				led <= ~4'b0001;
 				
 				// 0xC3 == PID DATA 0
 				if (indata == 8'hC3) // this is PID DATA 0. It is followed by the entire request payload
@@ -205,7 +180,6 @@ module state_machine_3 (
 		
 			PARSE_REQUEST:
 			begin
-				led <= ~4'b0010;
 				
 				if (indata == 8'h80)
 					begin					
@@ -229,61 +203,45 @@ module state_machine_3 (
 			// <C3> [00 05 03 00 00 00 00 00] <EA 7C>
 			SET_ADDRESS_REQUEST:
 			begin
-				//led <= ~4'b0011;
 				
 				if ((dev_desc_idx == 8'h00) && (indata == 8'h05)) begin
-					led <= ~4'b0011;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if (dev_desc_idx == 8'h01) begin
-					led <= ~4'b0100;
-					//device_address <= indata;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if ((dev_desc_idx == 8'h02) && (indata == 8'h00)) begin
-					led <= ~4'b0101;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if ((dev_desc_idx == 8'h03) && (indata == 8'h00)) begin
-					led <= ~4'b0110;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if ((dev_desc_idx == 8'h04) && (indata == 8'h00)) begin
-					led <= ~4'b0111;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if ((dev_desc_idx == 8'h05) && (indata == 8'h00)) begin
-					led <= ~4'b1000;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if ((dev_desc_idx == 8'h06) && (indata == 8'h00)) begin
-					led <= ~4'b1001;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if (dev_desc_idx == 8'h07) begin
-					led <= ~4'b1010;
 					// CRC 1
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
 				else if (dev_desc_idx == 8'h08) begin
-					led <= ~4'b1011;
 					// CRC 2
 					state <= SET_ADDRESS_SEND_ACK_1;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
-//				else if (dev_desc_idx == 8'h0A) begin
-//					// DONE
-//					state <= SET_ADDRESS_SEND_ACK;
-//					dev_desc_idx <= dev_desc_idx + 8'h00;
-//				end
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
@@ -292,7 +250,7 @@ module state_machine_3 (
 			// 80 06 00 01 00 00 40 00 <DD 94>
 			DEVICE_DESCRIPTOR_REQUEST:
 			begin
-				//led <= ~4'b0011;
+
 				
 				if ((dev_desc_idx == 8'h00) && (indata == 8'h06)) begin
 					state <= DEVICE_DESCRIPTOR_REQUEST;
@@ -302,7 +260,7 @@ module state_machine_3 (
 					state <= DEVICE_DESCRIPTOR_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
-				else if ((dev_desc_idx == 8'h02) && (indata == 8'h01)) begin
+				else if (dev_desc_idx == 8'h02) begin
 					state <= DEVICE_DESCRIPTOR_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
@@ -349,15 +307,7 @@ module state_machine_3 (
 			
 			
 			
-//			SET_ADDRESS_SEND_ACK:
-//			begin
-//				led <= ~4'b0100;
-//				
-//				state <= SET_ADDRESS_SEND_ACK_1;
-//				
-//				outdata <= 8'h00;
-//				STP <= 1'b0;
-//			end
+
 			
 			//
 			// SEND ACK
@@ -368,7 +318,7 @@ module state_machine_3 (
 			
 			SET_ADDRESS_SEND_ACK_1:
 			begin
-				led <= ~4'b0101; // [L1][L2][L3][L4]
+
 			
 				// Wait for the line to be free
 				if (DIR || NXT)
@@ -385,7 +335,7 @@ module state_machine_3 (
 			end			
 			SET_ADDRESS_SEND_ACK_2:
 			begin
-				led <= ~4'b0110; // [L1][L2][L3][L4]
+
 
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1'b1)
@@ -403,7 +353,7 @@ module state_machine_3 (
 			end			
 			SET_ADDRESS_SEND_ACK_3:
 			begin
-				led <= ~4'b0111; // [L1][L2][L3][L4]
+
 
 				outdata <= 8'h00;
 				STP <= 1'b0;
@@ -420,7 +370,7 @@ module state_machine_3 (
 			// [69 00 CRC] 
 			SET_ADDRESS_PID_IN_WAIT:
 			begin
-				//led <= ~4'b0011; // [L1][L2][L3][L4]
+
 				
 				if (indata == 8'h69)
 				begin
@@ -434,12 +384,7 @@ module state_machine_3 (
 				STP <= 1'b0;
 			end
 			SET_ADDRESS_PID_IN_DETECT_ADDRESS:
-			begin
-				//led <= ~4'b0100; // [L1][L2][L3][L4]
-				
-				// check if the message is directed at this device
-				process_request <= 1'b0;
-				//if ((indata == 8'h00) && (device_address == 8'h00))
+			begin				
 				if (indata == 8'h00)
 				begin
 					state <= SET_ADDRESS_PID_IN_DETECT_CRC;
@@ -452,7 +397,7 @@ module state_machine_3 (
 			end			
 			SET_ADDRESS_PID_IN_DETECT_CRC:
 			begin
-				//led <= ~4'b0101;
+
 				
 				state <= MSG_DEV_SEND_OLD_ADDRESS; // wait for a data packet
 				
@@ -464,7 +409,7 @@ module state_machine_3 (
 			
 			MSG_DEV_SEND_OLD_ADDRESS:
 			begin
-				//led <= ~4'b1111;
+
 				
 				state <= MSG_DEV_SEND_OLD_ADDRESS_1;
 			
@@ -482,7 +427,7 @@ module state_machine_3 (
 			
 			MSG_DEV_SEND_OLD_ADDRESS_1:
 			begin
-				led <= ~4'b0001; // [L1][L2][L3][L4]
+
 				
 				// Wait for the line to be free
 				if (DIR || NXT)
@@ -498,56 +443,8 @@ module state_machine_3 (
 					state <= MSG_DEV_SEND_OLD_ADDRESS_4; // directly send CRC
 				end		
 			end
-/*
-			MSG_DEV_SEND_OLD_ADDRESS_2:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// Wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_SEND_OLD_ADDRESS_2; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						outdata <= 8'h00;
-						STP <= 1'b0;					
-						state <= MSG_DEV_SEND_OLD_ADDRESS_3; // next state
-					end
-					else 
-						state <= state;
-				end				
-			end
-			MSG_DEV_SEND_OLD_ADDRESS_3:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
-				// Wait for the line to be free
-				if (DIR == 1)
-				begin
-					state <= MSG_DEV_SEND_OLD_ADDRESS_3; // remain
-				end
-				else 
-				begin
-					if (NXT == 1)
-					begin
-						outdata <= 8'h00;
-						STP <= 1'b0;					
-						state <= MSG_DEV_SEND_OLD_ADDRESS_4; // next state
-					end
-					else 
-						state <= state;
-				end					
-			end
-*/
 			MSG_DEV_SEND_OLD_ADDRESS_4:
 			begin
-				led <= ~4'b0010; // [L1][L2][L3][L4]
-
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -569,9 +466,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_SEND_OLD_ADDRESS_5:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -595,9 +490,7 @@ module state_machine_3 (
 			// SET STOP BIT
 			MSG_DEV_SEND_OLD_ADDRESS_6:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1100; // [L1][L2][L3][L4]
-`endif
+
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
 					state <= MSG_DEV_SEND_OLD_ADDRESS_6;
@@ -615,10 +508,7 @@ module state_machine_3 (
 			
 			// REMOVE the stop bit
 			MSG_DEV_SEND_OLD_ADDRESS_7:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0110; // [L1][L2][L3][L4]
-`endif		
+			begin		
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
@@ -629,8 +519,6 @@ module state_machine_3 (
 			
 			MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK:
 			begin
-				led <= ~4'b1110;
-				
 				if (indata == 8'hD2) begin
 					state <= PID_SETUP_WAIT;
 				end else begin
@@ -649,8 +537,6 @@ module state_machine_3 (
 			
 			DEVICE_DESCRIPTOR_SEND_ACK:
 			begin
-				//led <= ~4'b0000;
-				
 				state <= DEVICE_DESCRIPTOR_SEND_ACK_1;
 				
 				outdata <= 8'h00;
@@ -666,8 +552,6 @@ module state_machine_3 (
 			
 			DEVICE_DESCRIPTOR_SEND_ACK_1:
 			begin
-				led <= ~4'b1110; // [L1][L2][L3][L4]
-			
 				// Wait for the line to be free
 				if (DIR || NXT)
 				begin
@@ -683,8 +567,6 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_SEND_ACK_2:
 			begin
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1'b1)
 					state <= DEVICE_DESCRIPTOR_SEND_ACK_2; // remain
@@ -701,8 +583,6 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_SEND_ACK_3:
 			begin
-				led <= ~4'b0010; // [L1][L2][L3][L4]
-
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
@@ -714,8 +594,6 @@ module state_machine_3 (
 			// [69 00 CRC] 
 			DEVICE_DESCRIPTOR_PID_IN_WAIT:
 			begin
-				//led <= ~4'b0011; // [L1][L2][L3][L4]
-				
 				if (indata == 8'h69)
 				begin
 					state <= DEVICE_DESCRIPTOR_PID_IN_DETECT_ADDRESS;
@@ -729,11 +607,7 @@ module state_machine_3 (
 			end
 			DEVICE_DESCRIPTOR_PID_IN_DETECT_ADDRESS:
 			begin
-				led <= ~4'b0100; // [L1][L2][L3][L4]
 				
-				// check if the message is directed at this device
-				process_request <= 1'b0;
-				//if ((indata == 8'h00) && (device_address == 8'h00))
 				if (indata == 8'h00)
 				begin
 					state <= DEVICE_DESCRIPTOR_PID_IN_DETECT_CRC;
@@ -746,7 +620,7 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_PID_IN_DETECT_CRC:
 			begin
-				led <= ~4'b0101;
+	
 				
 				state <= MSG_DEV_DESC_17; // wait for a data packet
 				
@@ -768,10 +642,7 @@ module state_machine_3 (
 			//
 			
 			MSG_DEV_DESC_17:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			begin			
 				// Wait for the line to be free
 				if (DIR || NXT)
 				begin
@@ -787,9 +658,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_18:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -810,9 +679,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_19:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -833,9 +700,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_20:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -857,9 +722,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_21:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -882,9 +745,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_22:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -907,9 +768,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_23:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -932,9 +791,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_24:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+		
 				// Wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -956,9 +813,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_25:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -971,13 +826,6 @@ module state_machine_3 (
 						// bMaxPacketSize0 == 8 (8 bytes)
 						outdata <= 8'h40; // <4B 12 01 00 02 FF FF FF [40] DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;
-						
-//						if (device_address == 8'h03) begin
-//							state <= MSG_DEV_DESC_36; // next state
-//							//state <= MSG_DEV_DESC_36;
-//						end else begin
-//							state <= MSG_DEV_DESC_36;
-//						end
 
 						state <= MSG_DEV_DESC_26;
 					end
@@ -985,12 +833,10 @@ module state_machine_3 (
 						state <= state;
 				end					
 			end
-/*	*/	
+
 			MSG_DEV_DESC_26:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif	
+	
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1012,9 +858,7 @@ module state_machine_3 (
 			end			
 			MSG_DEV_DESC_27:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1036,9 +880,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_28:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1060,9 +902,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_29:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1084,9 +924,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_30:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+		
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1107,9 +945,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_31:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1130,9 +966,7 @@ module state_machine_3 (
 			end			
 			MSG_DEV_DESC_32:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1152,10 +986,7 @@ module state_machine_3 (
 				end					
 			end
 			MSG_DEV_DESC_33:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			begin			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1176,9 +1007,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_34:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1199,9 +1028,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_35:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1223,10 +1050,7 @@ module state_machine_3 (
 
 
 			MSG_DEV_DESC_36:
-			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			begin			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1252,9 +1076,7 @@ module state_machine_3 (
 			end
 			MSG_DEV_DESC_37:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0001; // [L1][L2][L3][L4]
-`endif			
+			
 				// wait for the line to be free
 				if (DIR == 1)
 				begin
@@ -1283,9 +1105,7 @@ module state_machine_3 (
 			// SET STOP BIT
 			MSG_DEV_DESC_38:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b1100; // [L1][L2][L3][L4]
-`endif
+
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1)
 					state <= MSG_DEV_DESC_38;
@@ -1304,9 +1124,7 @@ module state_machine_3 (
 			// REMOVE the stop bit
 			MSG_DEV_DESC_39:
 			begin
-`ifdef USE_LED_FOR_COMM_BLOCK
-				led <= ~4'b0110; // [L1][L2][L3][L4]
-`endif		
+		
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
@@ -1317,14 +1135,14 @@ module state_machine_3 (
 			
 			DEVICE_DESCRIPTOR_8_WAIT_HOST_ACK:
 			begin
-				led <= ~4'b1000;
+
 				state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT;
 			end
 			
 			// [4B 00 00]
 			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT:
 			begin
-				led <= ~4'b0000;
+
 				
 				if (indata == 8'h4B)
 					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
@@ -1336,7 +1154,7 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR:
 			begin
-				led <= ~4'b0001;
+
 				
 				// check if the message is directed at this device
 				if (indata == 8'h00)
@@ -1351,7 +1169,7 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_CRC:
 			begin
-				led <= ~4'b0010;
+
 			
 				state <= DEVICE_DESCRIPTOR_8_SEND_ACK_1; // wait for a data packet
 				
@@ -1369,7 +1187,7 @@ module state_machine_3 (
 			
 			DEVICE_DESCRIPTOR_8_SEND_ACK_1:
 			begin
-				led <= ~4'b1110; // [L1][L2][L3][L4]
+
 			
 				// Wait for the line to be free
 				if (DIR || NXT)
@@ -1386,7 +1204,7 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_8_SEND_ACK_2:
 			begin
-				led <= ~4'b0001; // [L1][L2][L3][L4]
+
 
 				// WAIT for the DIR to be low so the line is not used
 				if (DIR == 1'b1)
@@ -1404,14 +1222,14 @@ module state_machine_3 (
 			end			
 			DEVICE_DESCRIPTOR_8_SEND_ACK_3:
 			begin
-				led <= ~4'b0010; // [L1][L2][L3][L4]
+
 
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
 				//state <= DEVICE_DESCRIPTOR_SEND_ACK_3;
 				//state <= DEVICE_DESCRIPTOR_PID_IN_WAIT;
-				state <= PARSE_REQUEST;
+				state <= PID_SETUP_WAIT;
 			end
 			
 			
@@ -1425,9 +1243,7 @@ module state_machine_3 (
  
 			CONFIG_STATE_0: 
 			begin			
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0001;
-`endif
+
 
 				// LINK needs to pull STP low otherwise nothing works at all
 				STP = 1'b0;
@@ -1470,9 +1286,7 @@ module state_machine_3 (
 
 			CONFIG_STATE_1:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0001;
-`endif
+
 				outdata <= 8'h8a; // [10][0x0A]
 				
 				state <= CONFIG_STATE_2; // next state
@@ -1480,9 +1294,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_2:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0010;
-`endif
+
 				// write to the OTG register
 				outdata <= 8'h8a; // [10][0x0A]
 				
@@ -1491,9 +1303,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_3:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0011;
-`endif
+
 				outdata <= 8'h00; // data byte to write into the register
 				
 				state <= CONFIG_STATE_4; // next state
@@ -1501,9 +1311,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_4:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0100;
-`endif
+
 				// write 0x00 to the OTG register to disable OTG and enable peripheral mode
 				outdata <= 8'h00;
 				STP <= 1'b1; // send STP to tell the PHY that the command is sent completely and no more bytes follow
@@ -1513,9 +1321,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_5:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0101;
-`endif
+
 				outdata <= 8'h00;
 				STP <= 1'b0;
 			
@@ -1524,9 +1330,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_6:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0110;
-`endif
+
 				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				outdata <= 8'h84; // [10][0x04] write the function control register
 					
@@ -1535,9 +1339,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_7:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b0110;
-`endif
+
 				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				outdata <= 8'h84; // [10][0x04] write the function control register
 					
@@ -1546,9 +1348,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_8:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1000;
-`endif
+
 				// Write to the FUNC_CTRL register (Goal: enable Fast Speed (FS) mode)
 				outdata <= 8'h84; // [10][0x04] write the function control register
 					
@@ -1557,9 +1357,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_9:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1001;
-`endif
+
 				// write the value 0x45 into the FUNC_CTRL register to enable Fast Speed (FS) mode.
 				outdata <= 8'h45; // data byte to write into the register (0100 0101)
 					
@@ -1568,9 +1366,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_10:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1010;
-`endif
+
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
@@ -1582,9 +1378,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_11:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1011;
-`endif
+
 				outdata <= 8'h00;
 				STP <= 1'b1; // send STP to tell the PHY that the command is sent completely and no more bytes follow
 					
@@ -1593,9 +1387,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_12:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1100;
-`endif
+
 				outdata <= 8'h00;
 				STP <= 1'b0;
 					
@@ -1604,9 +1396,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_13:
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1101;
-`endif
+
 				//outdata = 8'b01000000; // Transmit on D+/D- (See Table 6.4, page 24) [01]
 				//STP = 8'h00;
 				
@@ -1618,9 +1408,7 @@ module state_machine_3 (
 			
 			CONFIG_STATE_14:
 			begin			
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1110;
-`endif
+
 				outdata <= 8'h00;
 				STP <= 1'b0;
 					
@@ -1640,9 +1428,7 @@ module state_machine_3 (
 			
 			STATE_IDLE: 
 			begin
-`ifdef USE_LED_FOR_CONFIG_BLOCK
-				led <= ~4'b1000;
-`endif
+
 				// LINK needs to pull STP low otherwise nothing works at all
 				STP <= 1'b0;
 				
