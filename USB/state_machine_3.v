@@ -163,7 +163,8 @@ module state_machine_3 (
 			begin
 				// check if the message is directed at this device
 				process_request <= 1'b0;
-				if ((indata == 8'h00) && (device_address == 8'h00))
+				//if ((indata == 8'h00) && (device_address == 8'h00))
+				if (indata == 8'h00)
 				begin
 					process_request <= 1'b1;					
 					state <= PID_SETUP_DETECT_CRC;
@@ -237,6 +238,7 @@ module state_machine_3 (
 				end
 				else if (dev_desc_idx == 8'h01) begin
 					led <= ~4'b0100;
+					//device_address <= indata;
 					state <= SET_ADDRESS_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
@@ -312,7 +314,8 @@ module state_machine_3 (
 					state <= DEVICE_DESCRIPTOR_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
-				else if ((dev_desc_idx == 8'h05) && (indata == 8'h40)) begin
+				//else if ((dev_desc_idx == 8'h05) && (indata == 8'h40)) begin
+				else if (dev_desc_idx == 8'h05) begin
 					state <= DEVICE_DESCRIPTOR_REQUEST;
 					dev_desc_idx <= dev_desc_idx + 8'h01;
 				end
@@ -436,7 +439,8 @@ module state_machine_3 (
 				
 				// check if the message is directed at this device
 				process_request <= 1'b0;
-				if ((indata == 8'h00) && (device_address == 8'h00))
+				//if ((indata == 8'h00) && (device_address == 8'h00))
+				if (indata == 8'h00)
 				begin
 					state <= SET_ADDRESS_PID_IN_DETECT_CRC;
 				end
@@ -625,13 +629,19 @@ module state_machine_3 (
 			
 			MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK:
 			begin
-				led <= ~4'b1111;
+				led <= ~4'b1110;
 				
-				state <= MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK;
+				if (indata == 8'hD2) begin
+					state <= PID_SETUP_WAIT;
+				end else begin
+					state <= MSG_DEV_SEND_OLD_ADDRESS_WAIT_HOST_ACK;
+				end
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
 			end
+			
+			
 			
 			
 			
@@ -723,7 +733,8 @@ module state_machine_3 (
 				
 				// check if the message is directed at this device
 				process_request <= 1'b0;
-				if ((indata == 8'h00) && (device_address == 8'h00))
+				//if ((indata == 8'h00) && (device_address == 8'h00))
+				if (indata == 8'h00)
 				begin
 					state <= DEVICE_DESCRIPTOR_PID_IN_DETECT_CRC;
 				end
@@ -961,14 +972,20 @@ module state_machine_3 (
 						outdata <= 8'h40; // <4B 12 01 00 02 FF FF FF [40] DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;
 						
-						//state <= MSG_DEV_DESC_26; // next state
-						state <= MSG_DEV_DESC_36;
+//						if (device_address == 8'h03) begin
+//							state <= MSG_DEV_DESC_36; // next state
+//							//state <= MSG_DEV_DESC_36;
+//						end else begin
+//							state <= MSG_DEV_DESC_36;
+//						end
+
+						state <= MSG_DEV_DESC_26;
 					end
 					else 
 						state <= state;
 				end					
 			end
-/*		
+/*	*/	
 			MSG_DEV_DESC_26:
 			begin
 `ifdef USE_LED_FOR_COMM_BLOCK
@@ -1203,7 +1220,7 @@ module state_machine_3 (
 						state <= state;
 				end					
 			end
-*/
+
 
 			MSG_DEV_DESC_36:
 			begin
@@ -1221,8 +1238,10 @@ module state_machine_3 (
 					begin
 						// CRC 1
 						//outdata <= 8'hC0; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 16 first
-						//outdata <= 8'hDB;
-						outdata <= 8'h11;
+						outdata <= 8'hDB;
+						
+						// for the first eight byte only
+						//outdata <= 8'h11;
 						
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_37; // next state
@@ -1247,8 +1266,10 @@ module state_machine_3 (
 					begin
 						// CRC 2
 						//outdata <= 8'hCE; // <4B 12 01 00 02 FF FF FF 08 33 16> THE CRC IS PROVIDED IN REVERSE!!!! 33 last
-						//outdata <= 8'h34;
-						outdata <= 8'h41;
+						outdata <= 8'h34;
+						
+						// for the first eight byte only
+						//outdata <= 8'h41;
 						
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_38; // next state
