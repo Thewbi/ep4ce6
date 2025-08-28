@@ -1,4 +1,15 @@
+URLS
+
 https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+https://www.beyondlogic.org/usbnutshell/usb3.shtml
+https://www.uwe-sieber.de/usbtreeview_e.html#download
+https://www.beyondlogic.org/usbnutshell/usb5.shtml#DeviceDescriptors
+https://www.mikrocontroller.net/articles/USB-Tutorial_mit_STM32
+CRC16 USB calculation works with this: https://www.lddgo.net/en/encrypt/crc
+
+
+
+
 
 Get Descriptor (Device)
 
@@ -303,7 +314,7 @@ Now the active address is 0x03
 
 
 
-# Get Descriptor of address 0x03
+# Get Device Descriptor of address 0x03 (because of the SETUP packet which carries address 3)
 
 Here the DEVICE type is requested
 
@@ -358,7 +369,7 @@ https://eleccelerator.com/usbdescreqparser/#
 
 
 
-# Get Descriptor of address 0x03
+# Get Configuration Descriptor of address 3
 
 Here, the CONFIGURATION type is requested
 
