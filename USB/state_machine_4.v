@@ -53,27 +53,34 @@ module state_machine_4 (
 	reg tx_ready;
 	reg [7:0] tx_transmitted;
 	
+	reg no_out;
+	
 	
 	always @(posedge clk)	
 	begin
+	
 		if (recv_ready == 1'b1)
 		begin
-			//led <= ~idx; // [L1 L2 L3 L4]
+			//led <= ~idx; // [L1 L2 L3 L4]			
 			
-			// 80 06 00 01 00 00 40 00
-			//led <= ~recv_byte[1];
-			
+			// GetDescriptor (1) -- DeviceDescriptor
+			// REQUEST: 80 06 00 01 00 00 40 00
 			if (
 				(recv_byte[0] == 8'h80) &&
 				(recv_byte[1] == 8'h06) &&
 				(recv_byte[3] == 8'h01)
 			)
 			begin
+			
 				led <= ~4'b1111;
 				
+				// RESPONSE
 				// 4B -- 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 00 00 00 01 -- DB 34
+				
+				// DATA 1
 				tx_byte[0] = 8'h4B;
 				
+				// PAYLOAD
 				tx_byte[1] = 8'h12;
 				tx_byte[2] = 8'h01;
 				tx_byte[3] = 8'h10;
@@ -93,13 +100,85 @@ module state_machine_4 (
 				tx_byte[17] = 8'h00;
 				tx_byte[18] = 8'h01;
 				
+				// CRC16
 				tx_byte[19] = 8'hDB;
 				tx_byte[20] = 8'h34;
 				
-				tx_len = 8'd21;
+				tx_len = 8'd21; // size(PID DATA 1) + size(PAYLOAD) + size(CRC16) = 1 + 18 + 2 = 21
 				
 				tx_ready = 1;
+				
+				// this transaction contains an OUT part
+				no_out = 0;
+				
 			end
+			
+			
+			// GetDescriptor (2) -- ConfigurationDescriptor
+			// REQUEST: 80 06 00 02 00 00 40 00
+			if (
+				(recv_byte[0] == 8'h80) &&
+				(recv_byte[1] == 8'h06) &&
+				(recv_byte[3] == 8'h02)
+			)
+			begin
+			
+				led <= ~4'b1111;
+				
+				// RESPONSE
+				// 4B -- 09 02 20 00 01 01 00 80 32 -- E3 6D
+				
+				// DATA 1
+				tx_byte[0] = 8'h4B;
+				
+				// PAYLOAD
+				tx_byte[1] = 8'h09;
+				tx_byte[2] = 8'h02;
+				tx_byte[3] = 8'h20;
+				tx_byte[4] = 8'h00;
+				tx_byte[5] = 8'h01;
+				tx_byte[6] = 8'h01;
+				tx_byte[7] = 8'h00;
+				tx_byte[8] = 8'h80;
+				tx_byte[9] = 8'h32;
+				
+				// CRC16
+				tx_byte[10] = 8'hE3;
+				tx_byte[11] = 8'h6D;
+				
+				tx_len = 8'd12; // size(PID DATA 1) + size(PAYLOAD) + size(CRC16) = 1 + 9 + 2 = 12
+				
+				tx_ready = 1;
+				
+				// this transaction contains an OUT part
+				no_out = 0;
+				
+			end
+			
+			
+			// REQUEST: Set Address (00 05 03 00 00 00 00 00) 
+			else if (
+				(recv_byte[0] == 8'h00) &&
+				(recv_byte[1] == 8'h05)
+			)
+			begin
+			
+				// DATA 1
+				tx_byte[0] = 8'h4B;
+				
+				// CRC16
+				tx_byte[1] = 8'h00;
+				tx_byte[2] = 8'h00;
+				
+				tx_len = 8'd3; // size(PID DATA 1) + size(PAYLOAD) + size(CRC16) = 1 + 0 + 2 = 3
+				 
+				tx_ready = 1;
+				
+				// this transaction DOES NOT contain an OUT part
+				no_out = 1;
+				
+			end
+			
 		end
 		else
 		begin
@@ -133,6 +212,7 @@ module state_machine_4 (
 			begin
 				idx <= 4'b0000;
 //				led <= ~4'b0000;
+
 				recv_ready <= 1'b0;
 				
 				if (indata == 8'h2D)
@@ -395,7 +475,16 @@ module state_machine_4 (
 					begin
 						outdata <= tx_byte[2];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_4;
+						
+						if (tx_len == 3)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_4;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -410,7 +499,16 @@ module state_machine_4 (
 					begin
 						outdata <= tx_byte[3];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_5;
+						
+						if (tx_len == 4)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_5;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -844,7 +942,17 @@ module state_machine_4 (
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
-				state <= OUT_WAIT_HOST_ACK;
+				// perform the OUT part of a transaction or not
+				if (no_out == 1'b1)
+				begin
+					// The SetAddress request does not terminate the transaction with a OUT part!
+					// In that case return to the next SETUP PID immediately
+					state <= PID_SETUP_WAIT;
+				end
+				else
+				begin
+					state <= OUT_WAIT_HOST_ACK;
+				end
 			end
 			
 			
