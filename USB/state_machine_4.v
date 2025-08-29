@@ -711,9 +711,98 @@ module state_machine_4 (
 				outdata <= 8'h00;
 				STP <= 1'b0;
 				
-				state <= PID_SETUP_WAIT;
+				state <= OUT_WAIT_HOST_ACK;
 			end
 			
+			
+			
+			
+			
+			
+			OUT_WAIT_HOST_ACK:
+			begin
+				state <= OUT_WAIT_HOST_PID;
+			end
+			
+			// OUT PACKET is COMPLETELY IGNORED!!!!!
+			
+			// [4B 00 00]
+			OUT_WAIT_HOST_PID: // THIS WILL NOT PROCESS OUT BUT DATA1 FROM THE HOST!
+			begin				
+				if (indata == 8'h4B)
+					state <= OUT_WAIT_HOST_PID_ADDR;
+				else
+					state <= OUT_WAIT_HOST_PID;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			OUT_WAIT_HOST_PID_ADDR:
+			begin				
+				// check if the message is directed at this device
+				//if (indata == 8'h00)
+				//begin
+					state <= OUT_WAIT_HOST_PID_CRC;
+				//end
+				//else
+				//	state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end			
+			OUT_WAIT_HOST_PID_CRC:
+			begin			
+				state <= SEND_ACK_RESP_1; // wait for a data packet
+				
+				outdata <= 8'h00;
+				STP <= 1'b0;
+			end	
+			
+			//
+			// SEND ACK
+			//
+			// Wait for the PHY to release the lines and send ACK (0x42)
+			// The PHY will produce the SYNC pattern and the EOP for us!!! THANK YOU!
+			//
+			
+			SEND_ACK_RESP_1:
+			begin			
+				// Wait for the line to be free
+				if (DIR || NXT)
+				begin
+					state <= SEND_ACK_RESP_1; // remain
+				end
+				else 
+				begin
+					outdata <= 8'h42; // ack
+					STP <= 8'h00;
+					
+					state <= SEND_ACK_RESP_2;
+				end				
+			end			
+			SEND_ACK_RESP_2:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_ACK_RESP_2; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;
+						state <= SEND_ACK_RESP_3;
+					end
+					else 
+						state <= state;
+			end			
+			SEND_ACK_RESP_3:
+			begin
+				outdata <= 8'h00;
+				STP <= 1'b0;
+				
+				state <= PID_SETUP_WAIT;
+			end
 			
 			
 		
@@ -1067,6 +1156,15 @@ module state_machine_4 (
 	
 	localparam SEND_RESPONSE_21			= 8'd54;
 	localparam SEND_RESPONSE_22			= 8'd55;
+	
+	localparam OUT_WAIT_HOST_ACK			= 8'd56;
+	localparam OUT_WAIT_HOST_PID			= 8'd57;
+	localparam OUT_WAIT_HOST_PID_ADDR	= 8'd58;
+	localparam OUT_WAIT_HOST_PID_CRC		= 8'd59;
+	
+	localparam SEND_ACK_RESP_1          = 8'd60;
+	localparam SEND_ACK_RESP_2          = 8'd61;
+	localparam SEND_ACK_RESP_3          = 8'd62;
 	
 	localparam SEND_RESPONSE_STOP_1		= 8'd70;
 	localparam SEND_RESPONSE_STOP_2		= 8'd71;
