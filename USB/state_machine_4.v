@@ -51,7 +51,7 @@ module state_machine_4 (
 	reg [3:0] tx_len;	
 	reg [7:0] tx_byte [0:64];
 	reg tx_ready;
-	
+	reg [7:0] tx_transmitted;
 	
 	
 	always @(posedge clk)	
@@ -365,12 +365,11 @@ module state_machine_4 (
 				end
 				else 
 				begin
-					outdata <= tx_byte[0]; // ack
+					outdata <= tx_byte[0];
 					STP <= 8'h00;
-					
 					state <= SEND_RESPONSE_2;
 				end				
-			end			
+			end
 			SEND_RESPONSE_2:
 			begin
 				// WAIT for the DIR to be low so the line is not used
@@ -379,15 +378,335 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
-						outdata <= 8'h00;
-						STP <= 1'b1;
+						outdata <= tx_byte[1];
+						STP <= 1'b0;
 						state <= SEND_RESPONSE_3;
 					end
 					else 
 						state <= state;
-			end			
+			end
 			SEND_RESPONSE_3:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_3; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[2];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_4;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_4:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_4; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[3];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_5;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_5:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_5; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[4];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_6;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_6:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_6; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[5];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_7;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_7:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_7; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[6];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_8;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_8:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_8; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[7];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_9;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_9:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_9; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[8];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_10;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_10:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_10; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[9];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_11;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_11:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_11; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[10];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_12;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_12:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_12; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[11];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_13;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_13:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_13; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[12];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_14;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_14:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_14; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[13];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_15;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_15:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_15; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[14];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_16;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_16:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_16; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[15];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_17;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_17:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_17; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[16];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_18;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_18:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_18; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[17];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_19;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_19:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_19; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[18];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_20;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_20:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_20; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[19];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_21;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_21:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_21; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= tx_byte[20];
+						STP <= 1'b0;
+						state <= SEND_RESPONSE_STOP_1;
+					end
+					else 
+						state <= state;
+			end
+
+			SEND_RESPONSE_STOP_1:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_STOP_1; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;
+						state <= SEND_RESPONSE_STOP_2;
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_STOP_2:
 			begin
 				outdata <= 8'h00;
 				STP <= 1'b0;
@@ -725,6 +1044,32 @@ module state_machine_4 (
 	localparam SEND_RESPONSE_1 			= 8'd34;
 	localparam SEND_RESPONSE_2				= 8'd35;
 	localparam SEND_RESPONSE_3				= 8'd36;
+	localparam SEND_RESPONSE_4				= 8'd37;
+	localparam SEND_RESPONSE_5				= 8'd38;
+	
+	localparam SEND_RESPONSE_6 			= 8'd39;
+	localparam SEND_RESPONSE_7				= 8'd40;
+	localparam SEND_RESPONSE_8				= 8'd41;
+	localparam SEND_RESPONSE_9				= 8'd42;
+	localparam SEND_RESPONSE_10			= 8'd43;
+	
+	localparam SEND_RESPONSE_11 			= 8'd44;
+	localparam SEND_RESPONSE_12			= 8'd45;
+	localparam SEND_RESPONSE_13			= 8'd46;
+	localparam SEND_RESPONSE_14			= 8'd47;
+	localparam SEND_RESPONSE_15			= 8'd48;
+	
+	localparam SEND_RESPONSE_16 			= 8'd49;
+	localparam SEND_RESPONSE_17			= 8'd50;
+	localparam SEND_RESPONSE_18			= 8'd51;
+	localparam SEND_RESPONSE_19			= 8'd52;
+	localparam SEND_RESPONSE_20			= 8'd53;
+	
+	localparam SEND_RESPONSE_21			= 8'd54;
+	localparam SEND_RESPONSE_22			= 8'd55;
+	
+	localparam SEND_RESPONSE_STOP_1		= 8'd70;
+	localparam SEND_RESPONSE_STOP_2		= 8'd71;
 	
 	localparam STATE_IDLE 					= 8'd255;
 	
