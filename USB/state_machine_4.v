@@ -48,6 +48,10 @@ module state_machine_4 (
 	reg [7:0] recv_byte [0:15];
 	reg recv_ready;
 	
+	reg [3:0] tx_len;	
+	reg [7:0] tx_byte [0:64];
+	reg tx_ready;
+	
 	
 	
 	always @(posedge clk)	
@@ -66,11 +70,41 @@ module state_machine_4 (
 			)
 			begin
 				led <= ~4'b1111;
+				
+				// 4B -- 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 00 00 00 01 -- DB 34
+				tx_byte[0] = 8'h4B;
+				
+				tx_byte[1] = 8'h12;
+				tx_byte[2] = 8'h01;
+				tx_byte[3] = 8'h10;
+				tx_byte[4] = 8'h01;
+				tx_byte[5] = 8'h00;
+				tx_byte[6] = 8'h00;
+				tx_byte[7] = 8'h00;
+				tx_byte[8] = 8'h40;
+				tx_byte[9] = 8'hC4;
+				tx_byte[10] = 8'h10;
+				tx_byte[11] = 8'h60;
+				tx_byte[12] = 8'hEA;
+				tx_byte[13] = 8'h00;
+				tx_byte[14] = 8'h01;
+				tx_byte[15] = 8'h00;
+				tx_byte[16] = 8'h00;
+				tx_byte[17] = 8'h00;
+				tx_byte[18] = 8'h01;
+				
+				tx_byte[19] = 8'hDB;
+				tx_byte[20] = 8'h34;
+				
+				tx_len = 21;
+				
+				tx_ready = 1;
 			end
 		end
 		else
 		begin
 			led <= ~4'b0000;
+			tx_ready = 0;
 		end
 	end
 	
@@ -199,8 +233,15 @@ module state_machine_4 (
 				STP <= 1'b0;
 			end			
 			PID_IN_3:
-			begin				
-				state <= SEND_NACK_1;
+			begin
+				if (tx_ready)
+				begin					
+					state <= SEND_RESPONSE_1;
+				end
+				else
+				begin
+					state <= SEND_NACK_1;
+				end
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
@@ -311,9 +352,48 @@ module state_machine_4 (
 			
 			
 			
+			//
+			// SEND RESPONSE
+			//
 			
-			
-			
+			SEND_RESPONSE_1:
+			begin			
+				// Wait for the line to be free
+				if (DIR || NXT)
+				begin
+					state <= SEND_RESPONSE_1; // remain
+				end
+				else 
+				begin
+					outdata <= tx_byte[0]; // ack
+					STP <= 8'h00;
+					
+					state <= SEND_RESPONSE_2;
+				end				
+			end			
+			SEND_RESPONSE_2:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_2; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						// tell the phy that the outgoing message is completely output
+						outdata <= 8'h00;
+						STP <= 1'b1;
+						state <= SEND_RESPONSE_3;
+					end
+					else 
+						state <= state;
+			end			
+			SEND_RESPONSE_3:
+			begin
+				outdata <= 8'h00;
+				STP <= 1'b0;
+				
+				state <= PID_SETUP_WAIT;
+			end
 			
 			
 			
@@ -641,6 +721,10 @@ module state_machine_4 (
 	localparam PID_IN_1						= 8'd31;
 	localparam PID_IN_2						= 8'd32;
 	localparam PID_IN_3						= 8'd33;
+	
+	localparam SEND_RESPONSE_1 			= 8'd34;
+	localparam SEND_RESPONSE_2				= 8'd35;
+	localparam SEND_RESPONSE_3				= 8'd36;
 	
 	localparam STATE_IDLE 					= 8'd255;
 	
