@@ -1139,11 +1139,11 @@ module state_machine_3 (
 				state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT;
 			end
 			
+			// OUT PACKET is COMPLETELY IGNORED!!!!!
+			
 			// [4B 00 00]
-			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT:
-			begin
-
-				
+			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT: // THIS WILL NOT PROCESS OUT BUT DATA1 FROM THE HOST!
+			begin				
 				if (indata == 8'h4B)
 					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
 				else
@@ -1153,24 +1153,20 @@ module state_machine_3 (
 				STP <= 1'b0;
 			end			
 			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR:
-			begin
-
-				
+			begin				
 				// check if the message is directed at this device
-				if (indata == 8'h00)
-				begin
+				//if (indata == 8'h00)
+				//begin
 					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_CRC;
-				end
-				else
-					state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
+				//end
+				//else
+				//	state <= DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_ADDR;
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
 			end			
 			DEVICE_DESCRIPTOR_8_WAIT_HOST_PID_OUT_CRC:
-			begin
-
-			
+			begin			
 				state <= DEVICE_DESCRIPTOR_8_SEND_ACK_1; // wait for a data packet
 				
 				outdata <= 8'h00;
