@@ -57,11 +57,20 @@ module state_machine_4 (
 			//led <= ~idx; // [L1 L2 L3 L4]
 			
 			// 80 06 00 01 00 00 40 00
-			led <= ~recv_byte[1];
+			//led <= ~recv_byte[1];
+			
+			if (
+				(recv_byte[0] == 8'h80) &&
+				(recv_byte[1] == 8'h06) &&
+				(recv_byte[3] == 8'h01)
+			)
+			begin
+				led <= ~4'b1111;
+			end
 		end
 		else
 		begin
-			led <= ~1'b0000;
+			led <= ~4'b0000;
 		end
 	end
 	
