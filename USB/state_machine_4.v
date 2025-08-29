@@ -129,9 +129,8 @@ module state_machine_4 (
 				// wait for the payload of the request to be received!!!
 				if (DIR || NXT)
 				begin
-					state <= STORE_REQUEST;
-					
 					idx = idx + 4'b0001;
+					state <= STORE_REQUEST;
 				end
 				else 
 				begin					
@@ -192,7 +191,6 @@ module state_machine_4 (
 				end
 				else 
 				begin
-					//led = ~4'b0001;
 					led = ~idx;
 					
 					//outdata <= 8'h42; // ACK
