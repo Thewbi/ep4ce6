@@ -41,73 +41,25 @@ module state_machine_4 (
 	reg [7:0] dev_desc_idx;
 	reg [7:0] dev_desc_8_out_idx;
 	
-	//
-	// ULPI soft reset logic
-	//
-	
-	// UPLI, Perform RESET
-	always @(posedge CLKOUT)
-	begin
-	
-		if (!RESET)
-		begin
-
-			// reset counter
-			phy_reset_counter <= 32'd0;
-			
-			// no reset performed yet
-			phy_reset_performed <= 0;
-			
-			// assert the reset pin to trigger a reset of the PHY
-			RST_reg <= 1;
-			
-			// do not register write while the PHY resets
-			ulpi_register_write_reg <= 0;
-		end
-		
-		//if (phy_reset_counter == 60000000)
-		//if (phy_reset_counter == 10000000)
-		if (phy_reset_counter == 100000)
-		begin		
-			phy_reset_counter <= 0;
-			
-			// YORO - you only reset once
-			if (phy_reset_performed == 0)
-			begin
-
-			
-				// PHY reset has been performed
-				phy_reset_performed <= 1;
-				
-				// do not reset any more
-				RST_reg <= 0;
-				
-				// start register write
-				ulpi_register_write_reg <= 1;				
-			end
-			
-		end
-		else
-		begin
-		
-			phy_reset_counter <= phy_reset_counter + 32'd1;
-			
-		end		
-		
-	end
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	reg [7:0] state;
+	
+	
+	reg [3:0] idx;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	always @(posedge CLKOUT)	
 	begin
@@ -119,9 +71,16 @@ module state_machine_4 (
 
 		case (state)
 		
+			//
+			// PID SETUP - is the start of a transaction
+			//
+		
 			// [2D 00 10]
 			PID_SETUP_WAIT: // waiting for a PID SETUP packet
-			begin				
+			begin
+				idx = 4'b0000;
+				led = ~4'b0000;
+				
 				if (indata == 8'h2D)
 					state <= PID_SETUP_DETECT_ADDRESS;
 				else
@@ -146,7 +105,9 @@ module state_machine_4 (
 			end
 		
 		
-		
+			//
+			// DATA 0 means the HOST sends a request to the DEVICE
+			//
 		
 			PID_DATA_0_WAIT:
 			begin				
@@ -169,10 +130,12 @@ module state_machine_4 (
 				if (DIR || NXT)
 				begin
 					state <= STORE_REQUEST;
+					
+					idx = idx + 4'b0001;
 				end
 				else 
 				begin					
-					state <= SEND_ACK_1; // acknowledge DATA 0
+					state <= SEND_ACK_1; // acknowledge DATA 0		
 				end			
 				
 				outdata <= 8'h00;
@@ -229,6 +192,9 @@ module state_machine_4 (
 				end
 				else 
 				begin
+					//led = ~4'b0001;
+					led = ~idx;
+					
 					//outdata <= 8'h42; // ACK
 					outdata <= 8'h5A; // NAK
 					STP <= 8'h00;
@@ -534,6 +500,65 @@ module state_machine_4 (
 				state <= STATE_IDLE;
 			
 		endcase
+		
+	end
+	
+	
+	
+	
+	
+	//
+	// ULPI soft reset logic
+	//
+	
+	// UPLI, Perform RESET
+	always @(posedge CLKOUT)
+	begin
+	
+		if (!RESET)
+		begin
+
+			// reset counter
+			phy_reset_counter <= 32'd0;
+			
+			// no reset performed yet
+			phy_reset_performed <= 0;
+			
+			// assert the reset pin to trigger a reset of the PHY
+			RST_reg <= 1;
+			
+			// do not register write while the PHY resets
+			ulpi_register_write_reg <= 0;
+		end
+		
+		//if (phy_reset_counter == 60000000)
+		//if (phy_reset_counter == 10000000)
+		if (phy_reset_counter == 100000)
+		begin		
+			phy_reset_counter <= 0;
+			
+			// YORO - you only reset once
+			if (phy_reset_performed == 0)
+			begin
+
+			
+				// PHY reset has been performed
+				phy_reset_performed <= 1;
+				
+				// do not reset any more
+				RST_reg <= 0;
+				
+				// start register write
+				ulpi_register_write_reg <= 1;				
+			end
+			
+		end
+		else
+		begin
+		
+			phy_reset_counter <= phy_reset_counter + 32'd1;
+			
+		end		
 		
 	end
 	
