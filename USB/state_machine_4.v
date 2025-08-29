@@ -114,12 +114,13 @@ module state_machine_4 (
 			end
 			
 			
-			// GetDescriptor (2) -- ConfigurationDescriptor
-			// REQUEST: 80 06 00 02 00 00 40 00
+			// GetDescriptor (2) -- ConfigurationDescriptor -- (SHORT RESPONSE VERSION)
+			// REQUEST: 80 06 00 02 00 00 20 00
 			if (
 				(recv_byte[0] == 8'h80) &&
 				(recv_byte[1] == 8'h06) &&
-				(recv_byte[3] == 8'h02)
+				(recv_byte[3] == 8'h02) &&
+				(recv_byte[6] == 8'h20)
 			)
 			begin
 			
@@ -154,6 +155,83 @@ module state_machine_4 (
 				no_out = 0;
 				
 			end
+			
+			// GetDescriptor (2) -- ConfigurationDescriptor (LONG RESPONSE VERSION)
+			// REQUEST: 80 06 00 02 00 00 FF 00
+			if (
+				(recv_byte[0] == 8'h80) &&
+				(recv_byte[1] == 8'h06) &&
+				(recv_byte[3] == 8'h02) &&
+				(recv_byte[6] == 8'hFF)
+			)
+			begin
+			
+				led <= ~4'b1111;
+				
+				// RESPONSE
+				// 4B -- 09 02 20 00 01 01 00 80 32 -- E3 6D
+				
+				// DATA 1
+				tx_byte[0] = 8'h4B;
+				
+				// PAYLOAD
+				// 09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <FE 64>
+				tx_byte[1] = 8'h09;
+				tx_byte[2] = 8'h02;
+				tx_byte[3] = 8'h20;
+				tx_byte[4] = 8'h00;
+				// 01 01 00 80
+				tx_byte[5] = 8'h01;
+				tx_byte[6] = 8'h01;
+				tx_byte[7] = 8'h00;
+				tx_byte[8] = 8'h80;
+				// 32 09 04 00
+				tx_byte[9] = 8'h32;
+				tx_byte[10] = 8'h09;
+				tx_byte[11] = 8'h04;
+				tx_byte[12] = 8'h00;
+				// 00 02 FF 00
+				tx_byte[13] = 8'h00;
+				tx_byte[14] = 8'h02;
+				tx_byte[15] = 8'hFF;
+				tx_byte[16] = 8'h00;
+				// 00 02 07 05
+				tx_byte[17] = 8'h00;
+				tx_byte[18] = 8'h02;
+				tx_byte[19] = 8'h07;
+				tx_byte[20] = 8'h05;
+				// 81 02 40 00
+				tx_byte[21] = 8'h81;
+				tx_byte[22] = 8'h02;
+				tx_byte[23] = 8'h40;
+				tx_byte[24] = 8'h00;
+				// 00 07 05 01
+				tx_byte[25] = 8'h00;
+				tx_byte[26] = 8'h07;
+				tx_byte[27] = 8'h05;
+				tx_byte[28] = 8'h01;
+				// 02 40 00 00
+				tx_byte[29] = 8'h02;
+				tx_byte[30] = 8'h40;
+				tx_byte[31] = 8'h00;
+				tx_byte[32] = 8'h00;
+				
+				// CRC16
+				tx_byte[33] = 8'hFE;
+				tx_byte[34] = 8'h64;
+				
+				tx_len = 8'd35; // size(PID DATA 1) + size(PAYLOAD) + size(CRC16) = 1 + 32 + 2 = 35
+				
+				tx_ready = 1;
+				
+				// this transaction contains an OUT part
+				no_out = 0;
+				
+			end
+			
+			
+			// REQUEST: 
+			// RESPONSE: 09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <FE 64>
 			
 			
 			// REQUEST: Set Address (00 05 03 00 00 00 00 00) 
