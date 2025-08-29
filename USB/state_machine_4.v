@@ -50,10 +50,13 @@ module state_machine_4 (
 	
 	
 	
+	reg [7:0] recv_byte [0:15];
 	
 	
 	
-	
+//	always @(posedge clk)	
+//	begin
+//	end
 	
 	
 	
@@ -78,8 +81,8 @@ module state_machine_4 (
 			// [2D 00 10]
 			PID_SETUP_WAIT: // waiting for a PID SETUP packet
 			begin
-				idx = 4'b0000;
-				led = ~4'b0000;
+				idx <= 4'b0000;
+				led <= ~4'b0000;
 				
 				if (indata == 8'h2D)
 					state <= PID_SETUP_DETECT_ADDRESS;
@@ -127,15 +130,24 @@ module state_machine_4 (
 			STORE_REQUEST:
 			begin				
 				// wait for the payload of the request to be received!!!
-				if (DIR || NXT)
+				//if (DIR || NXT)
+				
+				if (DIR)
 				begin
-					idx = idx + 4'b0001;
-					state <= STORE_REQUEST;
+					if (NXT)
+					begin
+						idx <= idx + 4'b0001;			// [L1 L2 L3 L4]
+						//idx <= 4'b0001; 				// [L1 L2 L3 L4]
+						
+						recv_byte[idx] <= indata;
+						
+						state <= STORE_REQUEST;
+					end
 				end
 				else 
-				begin					
-					state <= SEND_ACK_1; // acknowledge DATA 0		
-				end			
+					begin					
+						state <= SEND_ACK_1; // acknowledge DATA 0		
+					end			
 				
 				outdata <= 8'h00;
 				STP <= 1'b0;
@@ -191,7 +203,7 @@ module state_machine_4 (
 				end
 				else 
 				begin
-					led = ~idx;
+					led <= ~idx; // [L1 L2 L3 L4]
 					
 					//outdata <= 8'h42; // ACK
 					outdata <= 8'h5A; // NAK
