@@ -48,7 +48,7 @@ module state_machine_4 (
 	reg [7:0] recv_byte [0:15];
 	reg recv_ready;
 	
-	reg [3:0] tx_len;	
+	reg [7:0] tx_len;	
 	reg [7:0] tx_byte [0:64];
 	reg tx_ready;
 	reg [7:0] tx_transmitted;
@@ -96,7 +96,7 @@ module state_machine_4 (
 				tx_byte[19] = 8'hDB;
 				tx_byte[20] = 8'h34;
 				
-				tx_len = 21;
+				tx_len = 8'd21;
 				
 				tx_ready = 1;
 			end
@@ -393,7 +393,6 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[2];
 						STP <= 1'b0;
 						state <= SEND_RESPONSE_4;
@@ -409,7 +408,6 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[3];
 						STP <= 1'b0;
 						state <= SEND_RESPONSE_5;
@@ -425,10 +423,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[4];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_6;
+						
+						if (tx_len == 5)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_6;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -441,10 +447,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[5];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_7;
+						
+						if (tx_len == 6)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_7;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -457,10 +471,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[6];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_8;
+						
+						if (tx_len == 7)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_8;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -473,10 +495,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[7];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_9;
+						
+						if (tx_len == 8)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_9;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -489,10 +519,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[8];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_10;
+						
+						if (tx_len == 9)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_10;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -505,10 +543,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[9];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_11;
+						
+						if (tx_len == 10)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_11;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -521,10 +567,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[10];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_12;
+						
+						if (tx_len == 11)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_12;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -537,10 +591,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[11];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_13;
+						
+						if (tx_len == 12)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_13;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -553,10 +615,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[12];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_14;
+						
+						if (tx_len == 13)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_14;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -569,10 +639,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[13];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_15;
+						
+						if (tx_len == 14)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_15;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -585,10 +663,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[14];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_16;
+						
+						if (tx_len == 15)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_16;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -601,10 +687,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[15];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_17;
+						
+						if (tx_len == 16)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_17;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -617,10 +711,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[16];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_18;
+						
+						if (tx_len == 17)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_18;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -633,10 +735,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[17];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_19;
+						
+						if (tx_len == 18)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_19;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -649,10 +759,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[18];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_20;
+						
+						if (tx_len == 19)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_20;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -665,10 +783,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[19];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_21;
+						
+						if (tx_len == 20)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_21;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -681,10 +807,18 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= tx_byte[20];
 						STP <= 1'b0;
-						state <= SEND_RESPONSE_STOP_1;
+						
+						if (tx_len == 21)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_22;
+						end
+						
 					end
 					else 
 						state <= state;
@@ -698,7 +832,6 @@ module state_machine_4 (
 				else 
 					if (NXT == 1'b1)
 					begin
-						// tell the phy that the outgoing message is completely output
 						outdata <= 8'h00;
 						STP <= 1'b1;
 						state <= SEND_RESPONSE_STOP_2;
