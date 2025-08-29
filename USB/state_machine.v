@@ -176,8 +176,7 @@ module state_machine(
 	localparam MSG_DEV_DESC_11		= 8'd31;
 	localparam MSG_DEV_DESC_12		= 8'd32;
 	localparam MSG_DEV_DESC_13		= 8'd33;	
-	// PID IN detection starts here
-	localparam MSG_DEV_DESC_14		= 8'd34;
+	localparam MSG_DEV_DESC_14		= 8'd34; // PID IN detection starts here
 	localparam MSG_DEV_DESC_15		= 8'd35;
 	localparam MSG_DEV_DESC_16		= 8'd36;
 	localparam MSG_DEV_DESC_17		= 8'd37;

@@ -474,7 +474,7 @@ module LED_4(
 				// First we must disable OTG features by writing x"00" to the OTG_CTRL (x"0a") register.
 				// A TXCMD byte of x"8a" is sent then a data byte of x"00" as per Figure 1.
 				
-				led_reg = ~4'h07;
+				led_reg = ~4'b0111;
 				led = led_reg;
 				
 				data = 8'h8a; // [10][001010] = 10b = Register Write, 0x0A = OTG Control Write
@@ -495,7 +495,7 @@ module LED_4(
 				// First we must disable OTG features by writing x"00" to the OTG_CTRL (x"0a") register.
 				// A TXCMD byte of x"8a" is sent then a data byte of x"00" as per Figure 1.
 				
-				led_reg = ~4'h08;
+				led_reg = ~4'b1000;
 				led = led_reg;
 				
 				data = 8'h8a;
@@ -513,7 +513,7 @@ module LED_4(
 			STATE_9:
 			begin
 				
-				led_reg = ~4'h09;
+				led_reg = ~4'b1001;
 				led = led_reg;
 				
 				data = 8'h00;
@@ -524,7 +524,7 @@ module LED_4(
 			STATE_10:
 			begin
 				
-				led_reg = ~4'h10;
+				led_reg = ~4'b10;
 				led = led_reg;
 				
 				data = 8'h00;
@@ -534,7 +534,7 @@ module LED_4(
 			
 			STATE_11:
 			begin
-				led_reg = ~4'h11;
+				led_reg = ~4'b11;
 				led = led_reg;
 				
 				stp_reg = 8'h00;

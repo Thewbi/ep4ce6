@@ -712,7 +712,7 @@ module state_machine_3 (
 					begin
 						// usb version
 						//outdata <= 8'h00; // <4B 12 01 [00] 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h10;
+						outdata <= 8'h10; // <4B 12 01 [10] 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_21; // next state
 					end
@@ -735,7 +735,7 @@ module state_machine_3 (
 						// usb version
 						
 						//outdata <= 8'h02; // <4B 12 01 00 [02] FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h01;
+						outdata <= 8'h01; // <4B 12 01 10 [01] FF FF FF 40 DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_22; // next state
 					end
@@ -758,7 +758,7 @@ module state_machine_3 (
 						// device Class
 						
 						//outdata <= 8'hFF; // <4B 12 01 00 02 [FF] FF FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h00; 
+						outdata <= 8'h00;   // <4B 12 01 10 01 [00] FF FF 40 DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_23; // next state
 					end
@@ -780,8 +780,8 @@ module state_machine_3 (
 					begin
 						// device subclass
 						
-						//outdata <= 8'hFF; // <4B 12 01 00 02 FF [FF] FF 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h00;
+						//outdata <= 8'hFF;  // <4B 12 01 00 02 FF [FF] FF 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h00;		// <4B 12 01 10 01 00 [00] FF 40 DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_24; // next state
 					end
@@ -802,8 +802,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// device protocol
-						//outdata <= 8'hFF; // <4B 12 01 00 02 FF FF [FF] 40 DE AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'h00;
+						//outdata <= 8'hFF; 	// <4B 12 01 00 02 FF FF [FF] 40 DE AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'h00;		// <4B 12 01 10 01 00 00 [00] 40 DE AD BE EF 01 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_25; // next state
 					end
@@ -824,8 +824,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// bMaxPacketSize0 == 8 (8 bytes)
-						outdata <= 8'h40; // <4B 12 01 00 02 FF FF FF [40] DE AD BE EF 01 00 00 00 00 01>
-						STP <= 1'b0;
+						outdata <= 8'h40; 	// <4B 12 01 00 02 FF FF FF [40] DE AD BE EF 01 00 00 00 00 01>
+						STP <= 1'b0;			// <4B 12 01 10 01 00 00 00 [40] DE AD BE EF 01 00 00 00 00 01>
 
 						state <= MSG_DEV_DESC_26;
 					end
@@ -847,8 +847,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// id vendor 1
-						//outdata <= 8'hDE; // <4B 12 01 00 02 FF FF FF 40 [DE] AD BE EF 01 00 00 00 00 01>
-						outdata <= 8'hC4;
+						//outdata <= 8'hDE; 	// <4B 12 01 00 02 FF FF FF 40 [DE] AD BE EF 01 00 00 00 00 01>
+						outdata <= 8'hC4;		// <4B 12 01 10 01 00 00 00 40 [C4] 10 60 EA 00 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_27; // next state
 					end
@@ -869,8 +869,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// id vendor 2
-						//outdata <= 8'hAD; // <4B 12 01 00 02 FF FF FF 40 DE [AD] BE EF 01 00 00 00 00 01>
-						outdata <= 8'h10; 
+						//outdata <= 8'hAD; 	// <4B 12 01 00 02 FF FF FF 40 DE [AD] BE EF 01 00 00 00 00 01>
+						outdata <= 8'h10; 	// <4B 12 01 10 01 00 00 00 40 C4 [10] 60 EA 00 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_28; // next state
 					end
@@ -891,8 +891,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// id product 1
-						//outdata <= 8'hBE; // <4B 12 01 00 02 FF FF FF 40 DE AD [BE] EF 01 00 00 00 00 01>
-						outdata <= 8'h60;
+						//outdata <= 8'hBE; 	// <4B 12 01 00 02 FF FF FF 40 DE AD [BE] EF 01 00 00 00 00 01>
+						outdata <= 8'h60;		// <4B 12 01 10 01 00 00 00 40 C4 10 [60] EA 00 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_29; // next state
 					end
@@ -913,8 +913,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// id product 2
-						//outdata <= 8'hEF; // <4B 12 01 00 02 FF FF FF 40 DE AD BE [EF] 01 00 00 00 00 01>
-						outdata <= 8'hEA;
+						//outdata <= 8'hEF; 	// <4B 12 01 00 02 FF FF FF 40 DE AD BE [EF] 01 00 00 00 00 01>
+						outdata <= 8'hEA;		// <4B 12 01 10 01 00 00 00 40 C4 10 60 [EA] 00 00 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_30; // next state
 					end
@@ -935,8 +935,8 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// bcdDevice (1/2)
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF [01] 00 00 00 00 01>
-						STP <= 1'b0;					
+						outdata <= 8'h00; // <4B 12 01 10 01 00 00 00 40 C4 10 60 EA [00] 00 00 00 00 01>
+						STP <= 1'b0;	
 						state <= MSG_DEV_DESC_31; // next state
 					end
 					else 
@@ -956,7 +956,7 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// bcdDevice (2/2)
-						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 [00] 00 00 00 01>
+						outdata <= 8'h01; // <4B 12 01 10 01 00 00 00 40 C4 10 60 EA 00 [01] 00 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_32; // next state
 					end
@@ -977,7 +977,7 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// string descriptor 1
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 [00] 00 00 01>
+						outdata <= 8'h00; // <4B 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 [00] 00 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_33; // next state
 					end
@@ -997,7 +997,7 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// string descriptor 2
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 [00] 00 01>
+						outdata <= 8'h00; // <4B 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 00 [00] 00 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_34; // next state
 					end
@@ -1018,7 +1018,7 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// string descriptor 3
-						outdata <= 8'h00; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 [00] 01>
+						outdata <= 8'h00; // <4B 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 00 00 [00] 01>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_35; // next state
 					end
@@ -1039,7 +1039,7 @@ module state_machine_3 (
 					if (NXT == 1)
 					begin
 						// bNumConfigurations
-						outdata <= 8'h01; // <4B 12 01 00 02 FF FF FF 40 DE AD BE EF 01 00 00 00 00 [01]>
+						outdata <= 8'h01; // <4B 12 01 10 01 00 00 00 40 C4 10 60 EA 00 01 00 00 00 [01]>
 						STP <= 1'b0;					
 						state <= MSG_DEV_DESC_36; // next state
 					end

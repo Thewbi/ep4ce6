@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6E22C8
-set_global_assignment -name TOP_LEVEL_ENTITY state_machine
+set_global_assignment -name TOP_LEVEL_ENTITY state_machine_4
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 13.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:37:31  AUGUST 08, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION 13.1
@@ -80,9 +80,24 @@ set_location_assignment PIN_38 -to data[1]
 set_location_assignment PIN_33 -to data[0]
 set_location_assignment PIN_42 -to data[2]
 set_location_assignment PIN_126 -to uart_tx_pin
-set_location_assignment PIN_125 -to reset
 set_location_assignment PIN_54 -to NXT
 set_location_assignment PIN_58 -to STP
+set_location_assignment PIN_125 -to RESET
+set_global_assignment -name VERILOG_FILE state_machine_4.v
+set_global_assignment -name VERILOG_FILE state_machine_3.v
+set_global_assignment -name VERILOG_FILE state_machine_2.v
+set_global_assignment -name VERILOG_FILE state_machine.v
+set_global_assignment -name VERILOG_FILE debounce.v
+set_global_assignment -name VERILOG_FILE clk_divider.v
+set_global_assignment -name VERILOG_FILE UART_TX.v
+set_global_assignment -name VERILOG_FILE UARTTransmitter.v
+set_global_assignment -name VERILOG_FILE LED_4.v
+set_global_assignment -name VERILOG_FILE usbModule.v
+set_global_assignment -name VERILOG_FILE write_register.v
+set_global_assignment -name VERILOG_FILE pin_tester.v
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[3]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[2]
@@ -101,20 +116,8 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[4]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_tx_pin
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to NXT
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to STP
-set_global_assignment -name VERILOG_FILE state_machine_2.v
-set_global_assignment -name VERILOG_FILE state_machine.v
-set_global_assignment -name VERILOG_FILE debounce.v
-set_global_assignment -name VERILOG_FILE clk_divider.v
-set_global_assignment -name VERILOG_FILE UART_TX.v
-set_global_assignment -name VERILOG_FILE UARTTransmitter.v
-set_global_assignment -name VERILOG_FILE LED_4.v
-set_global_assignment -name VERILOG_FILE usbModule.v
-set_global_assignment -name VERILOG_FILE write_register.v
-set_global_assignment -name VERILOG_FILE pin_tester.v
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to RESET
+set_global_assignment -name QIP_FILE altpll_1.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
