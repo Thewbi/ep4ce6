@@ -988,7 +988,8 @@ The CRC is called CRC5 since there is another CRC called CRC16 created from 16 b
 The Computation of CRC5 is explained here: https://www.oguchi-rd.com/technology/crc5.pdf
 https://www.mikrocontroller.net/topic/77685
 
-An online calculator is here: TODO
+An online calculator is here: 
+https://www.lddgo.net/en/encrypt/crc
 
 As soon as the first byte (byte 0) has been sent by the PHY, the PHY immediately signals
 the beginning of the next byte (see the yellow mark on channel 4 and 5. data[4] is 1
@@ -1008,8 +1009,48 @@ firste example. The only difference is that this is a GetDescriptor request send
 Microsoft Windows during enumeration which is a little bit larger (eight data bytes for
 the request).
 	
-	
-	
+
+
+
+
+# USB Descriptor, Only first eight bytes are retrieved
+
+When you start implementing USB devices, you start out knowing next to nothing.
+
+The USB 2.0 specification is free to download and in theory you can read the entire thing from 
+front to back. Most likely you will still not know how the Microsoft Windows USB stack operates
+when it enumerates your USB device.
+
+The most remarkable thing is that the USB stack first queries the DeviceDescriptor but it only
+reads the first eight bytes. Even if you send a full device descriptor. Then it will store the
+first eight byte only and it will ignore the rest and throw away the rest of the bytes. Should
+your USB device break, crash or unplug at this points, the USB stack only has the first eight
+bytes from the DeviceDescriptor. All applications that will query information about the device
+at this point, will receive the first eight byte.
+
+See this screenshot, where the device implementation was faulty and only send the DeviceDescriptor
+once:
+
+![DeviceDescriptorOnlyEightByte](res/DeviceDescriptorOnlyEightByte.png)
+
+The application is called USB Device Tree Viewer (x64) by Uwe Sieber.
+The application is available for download here: https://www.uwe-sieber.de/usbtreeview_e.html#download
+
+The screenshot shows the USB Device Descriptor section and the byte array only has eight byte followed
+by zeroes, where bytes should be located!
+
+The reason for the eight byte is that the 8th byte contains the information as to how many bytes
+the device can receive and transmit in a single packet! The options are 8, 16, 32, 64 and probably more 
+options. Since every device has to be able to consume at least eight byte in one packet, the USB stack
+first processes eight byte no matter how many bytes it really receives.
+
+When the USB Stack has learned about how many bytes the device supports, the USB device triggers a 
+reset for the device and after the reset, it will query the device descriptor again. This time it will
+consider more than eight bytes!
+
+This means for implementing a USB device, be prepared to first only get eight bytes across and be 
+ready to be reset and be ready to be asked for the same data several times (as we have discussed with
+the DeviceDescriptor which is queried again!).
 	
 	
 	

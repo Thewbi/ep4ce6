@@ -792,6 +792,8 @@ https://pete.akeo.ie/2011/03/troubleshooting-usb-device-development.html
 
 // GET STATUS Request
 
+https://github.com/zephyrproject-rtos/zephyr/issues/27958
+
 80 00 00 00 00 00 02 00
 
 ```
