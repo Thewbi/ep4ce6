@@ -44,19 +44,26 @@ module state_machine_4 (
 	reg [7:0] state;
 	
 	
-	reg [3:0] idx;
-	
-	
-	
-	
-	
+	reg [3:0] idx;	
 	reg [7:0] recv_byte [0:15];
+	reg recv_ready;
 	
 	
 	
-//	always @(posedge clk)	
-//	begin
-//	end
+	always @(posedge clk)	
+	begin
+		if (recv_ready == 1'b1)
+		begin
+			//led <= ~idx; // [L1 L2 L3 L4]
+			
+			// 80 06 00 01 00 00 40 00
+			led <= ~recv_byte[1];
+		end
+		else
+		begin
+			led <= ~1'b0000;
+		end
+	end
 	
 	
 	
@@ -82,7 +89,8 @@ module state_machine_4 (
 			PID_SETUP_WAIT: // waiting for a PID SETUP packet
 			begin
 				idx <= 4'b0000;
-				led <= ~4'b0000;
+//				led <= ~4'b0000;
+				recv_ready <= 1'b0;
 				
 				if (indata == 8'h2D)
 					state <= PID_SETUP_DETECT_ADDRESS;
@@ -203,7 +211,8 @@ module state_machine_4 (
 				end
 				else 
 				begin
-					led <= ~idx; // [L1 L2 L3 L4]
+//					led <= ~idx; // [L1 L2 L3 L4]
+					recv_ready <= 1'b1;
 					
 					//outdata <= 8'h42; // ACK
 					outdata <= 8'h5A; // NAK
