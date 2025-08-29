@@ -65,6 +65,7 @@ module state_machine_4 (
 			
 			// GetDescriptor (1) -- DeviceDescriptor
 			// REQUEST: 80 06 00 01 00 00 40 00
+			// REQUEST: 80 06 00 01 00 00 12 00
 			if (
 				(recv_byte[0] == 8'h80) &&
 				(recv_byte[1] == 8'h06) &&
@@ -115,12 +116,12 @@ module state_machine_4 (
 			
 			
 			// GetDescriptor (2) -- ConfigurationDescriptor -- (SHORT RESPONSE VERSION)
-			// REQUEST: 80 06 00 02 00 00 20 00
-			if (
+			// REQUEST: 80 06 00 02 00 00 09 00
+			else if (
 				(recv_byte[0] == 8'h80) &&
 				(recv_byte[1] == 8'h06) &&
 				(recv_byte[3] == 8'h02) &&
-				(recv_byte[6] == 8'h20)
+				(recv_byte[6] == 8'h09)
 			)
 			begin
 			
@@ -158,11 +159,14 @@ module state_machine_4 (
 			
 			// GetDescriptor (2) -- ConfigurationDescriptor (LONG RESPONSE VERSION)
 			// REQUEST: 80 06 00 02 00 00 FF 00
-			if (
+			// REQUEST: 80 06 00 02 00 00 20 00
+			else if (
 				(recv_byte[0] == 8'h80) &&
 				(recv_byte[1] == 8'h06) &&
 				(recv_byte[3] == 8'h02) &&
-				(recv_byte[6] == 8'hFF)
+				(
+					(recv_byte[6] == 8'h20) || (recv_byte[6] == 8'hFF)
+				)
 			)
 			begin
 			
@@ -251,6 +255,33 @@ module state_machine_4 (
 				tx_len = 8'd3; // size(PID DATA 1) + size(PAYLOAD) + size(CRC16) = 1 + 0 + 2 = 3
 				 
 				tx_ready = 1;
+				
+				// this transaction DOES NOT contain an OUT part
+				no_out = 1;
+				
+			end
+			
+			// REQUEST: GetStatus (80 00 00 00 00 00 02 00) 
+			else if (
+				(recv_byte[0] == 8'h80) &&
+				(recv_byte[1] == 8'h00) &&
+				(recv_byte[6] == 8'h02)
+			)
+			begin
+			
+				// DATA 1
+				tx_byte[0] = 8'h4B;
+				
+				tx_byte[1] = 8'h00;
+				tx_byte[2] = 8'h00;
+				
+				// CRC16
+				tx_byte[3] = 8'hFE;
+				tx_byte[4] = 8'h4F;
+				
+				tx_len = 8'd3; // size(PID DATA 1) + size(PAYLOAD) + size(CRC16) = 1 + 2 + 2 = 5
+				 
+				tx_ready = 5;
 				
 				// this transaction DOES NOT contain an OUT part
 				no_out = 1;
@@ -999,6 +1030,342 @@ module state_machine_4 (
 					else 
 						state <= state;
 			end
+			SEND_RESPONSE_22:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_22; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[21];
+						STP <= 1'b0;
+						
+						if (tx_len == 22)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_23;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_23:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_23; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[22];
+						STP <= 1'b0;
+						
+						if (tx_len == 23)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_24;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_24:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_24; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[23];
+						STP <= 1'b0;
+						
+						if (tx_len == 24)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_25;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_25:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_25; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[24];
+						STP <= 1'b0;
+						
+						if (tx_len == 25)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_26;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_26:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_26; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[25];
+						STP <= 1'b0;
+						
+						if (tx_len == 26)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_27;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_27:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_27; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[26];
+						STP <= 1'b0;
+						
+						if (tx_len == 27)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_28;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_28:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_28; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[27];
+						STP <= 1'b0;
+						
+						if (tx_len == 28)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_29;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_29:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_29; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[28];
+						STP <= 1'b0;
+						
+						if (tx_len == 29)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_30;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_30:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_30; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[29];
+						STP <= 1'b0;
+						
+						if (tx_len == 30)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_31;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_31:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_31; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[30];
+						STP <= 1'b0;
+						
+						if (tx_len == 31)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_32;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_32:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_32; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[31];
+						STP <= 1'b0;
+						
+						if (tx_len == 32)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_33;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_33:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_33; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[32];
+						STP <= 1'b0;
+						
+						if (tx_len == 33)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_34;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_34:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_34; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[33];
+						STP <= 1'b0;
+						
+						if (tx_len == 34)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_35;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
+			SEND_RESPONSE_35:
+			begin
+				// WAIT for the DIR to be low so the line is not used
+				if (DIR == 1'b1)
+					state <= SEND_RESPONSE_35; // remain
+				else 
+					if (NXT == 1'b1)
+					begin
+						outdata <= tx_byte[34];
+						STP <= 1'b0;
+						
+						if (tx_len == 35)
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						else
+						begin
+							state <= SEND_RESPONSE_STOP_1;
+						end
+						
+					end
+					else 
+						state <= state;
+			end
 
 			SEND_RESPONSE_STOP_1:
 			begin
@@ -1475,18 +1842,33 @@ module state_machine_4 (
 	
 	localparam SEND_RESPONSE_21			= 8'd54;
 	localparam SEND_RESPONSE_22			= 8'd55;
+	localparam SEND_RESPONSE_23			= 8'd56;
+	localparam SEND_RESPONSE_24			= 8'd57;
+	localparam SEND_RESPONSE_25			= 8'd58;
 	
-	localparam OUT_WAIT_HOST_ACK			= 8'd56;
-	localparam OUT_WAIT_HOST_PID			= 8'd57;
-	localparam OUT_WAIT_HOST_PID_ADDR	= 8'd58;
-	localparam OUT_WAIT_HOST_PID_CRC		= 8'd59;
+	localparam SEND_RESPONSE_26			= 8'd59;
+	localparam SEND_RESPONSE_27			= 8'd60;
+	localparam SEND_RESPONSE_28			= 8'd61;
+	localparam SEND_RESPONSE_29			= 8'd62;
+	localparam SEND_RESPONSE_30			= 8'd63;
 	
-	localparam SEND_ACK_RESP_1          = 8'd60;
-	localparam SEND_ACK_RESP_2          = 8'd61;
-	localparam SEND_ACK_RESP_3          = 8'd62;
+	localparam SEND_RESPONSE_31			= 8'd64;
+	localparam SEND_RESPONSE_32			= 8'd65;
+	localparam SEND_RESPONSE_33			= 8'd66;
+	localparam SEND_RESPONSE_34			= 8'd67;
+	localparam SEND_RESPONSE_35			= 8'd68;
 	
-	localparam SEND_RESPONSE_STOP_1		= 8'd70;
-	localparam SEND_RESPONSE_STOP_2		= 8'd71;
+	localparam OUT_WAIT_HOST_ACK			= 8'd69;
+	localparam OUT_WAIT_HOST_PID			= 8'd70;
+	localparam OUT_WAIT_HOST_PID_ADDR	= 8'd71;
+	localparam OUT_WAIT_HOST_PID_CRC		= 8'd72;
+	
+	localparam SEND_ACK_RESP_1          = 8'd73;
+	localparam SEND_ACK_RESP_2          = 8'd74;
+	localparam SEND_ACK_RESP_3          = 8'd75;
+	
+	localparam SEND_RESPONSE_STOP_1		= 8'd76;
+	localparam SEND_RESPONSE_STOP_2		= 8'd77;
 	
 	localparam STATE_IDLE 					= 8'd255;
 	

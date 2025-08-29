@@ -6,6 +6,7 @@ https://www.uwe-sieber.de/usbtreeview_e.html#download
 https://www.beyondlogic.org/usbnutshell/usb5.shtml#DeviceDescriptors
 https://www.mikrocontroller.net/articles/USB-Tutorial_mit_STM32
 CRC16 USB calculation works with this: https://www.lddgo.net/en/encrypt/crc
+https://eleccelerator.com/usbdescreqparser/#
 
 
 
@@ -676,4 +677,129 @@ static constexpr auto confDescriptor = EncodeDescriptors::USB20::configuration (
 				10		// bInterval
 		)
 );
+```
+
+
+
+
+
+
+
+
+
+
+Req: 80 06 00 02 00 00 20 00 <B1 94>
+
+Get Descriptor, Device, Length: 32
+
+
+
+
+
+Req: 80 06 00 02 00 00 09 00 <AE 04>
+
+Resp: Response:  09 02 20 00 01 01 00 80 32 <E3 6D>
+
+
+
+
+Req: 80 06 00 02 00 00 FF 00 <E9 A4>
+
+Get Descriptor, Device, Length: 255
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x06,        // bRequest (Get Descriptor)
+0x00,        // wValue[0:7]  Desc Index: 0
+0x02,        // wValue[8:15] Desc Type: (Configuration)
+0x00, 0x00,  // wIndex Language ID: 0x00
+0xFF, 0x00,  // wLength = 255
+
+// 8 bytes
+```
+
+
+
+Response:  09 02 20 00 01 01 00 80 32 <E3 6D>
+
+```
+0x09,        // bLength
+0x02,        // bDescriptorType (Configuration)
+0x20, 0x00,  // wTotalLength 32
+0x01,        // bNumInterfaces 1
+0x01,        // bConfigurationValue
+0x00,        // iConfiguration (String Index)
+0x80,        // bmAttributes
+0x32,        // bMaxPower 100mA
+
+// 9 bytes
+```
+
+
+This is considered a malformed response according to wireshark. 
+A correct response contains several descriptors at once:
+
+09 02 20 00 01 01 00 80 32 09 04 00 00 02 FF 00 00 02 07 05 81 02 40 00 00 07 05 01 02 40 00 00 <FE 64>
+
+
+
+
+
+
+# NAK
+
+```
+-- SETUP TRANSACTION
+>> SETUP
+>> DATA 0 [0x?? 0x?? .. 0x??] [CRC1 CRC2]  // <------------ THIS IS THE REQUEST
+<< ACK
+
+-- IN TRANSACTION
+-- HOST WANTS DATA
+>> IN                                                  // [69 ?? CRC]
+<< NAK                                                 // []
+
+>> IN
+<< NAK
+
+...
+
+>> IN
+<< NAK
+
+>> IN
+<< DATA 1 [0x?? 0x?? .. 0x??] [CRC1 CRC2] // <------------ THIS IS THE RESPONSE
+
+>> ACK
+
+-- OUT TRANSACTION
+>> OUT
+>> DATA 1 // <-------------------------------------------- THIS IS REALLY DATA 1 NOT DATA 0
+<< ACK
+```
+
+
+
+
+
+
+https://pete.akeo.ie/2011/03/troubleshooting-usb-device-development.html
+
+
+
+
+
+
+// GET STATUS Request
+
+80 00 00 00 00 00 02 00
+
+```
+0x80,        // bmRequestType: Dir: D2H, Type: Standard, Recipient: Device
+0x00,        // bRequest (Get Status)
+0x00, 0x00,  // wValue = 0x00
+0x00, 0x00,  // wIndex = 0x00
+0x02, 0x00,  // wLength = 2
+
+// 8 bytes
 ```
