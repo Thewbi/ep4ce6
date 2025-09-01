@@ -1051,6 +1051,79 @@ consider more than eight bytes!
 This means for implementing a USB device, be prepared to first only get eight bytes across and be 
 ready to be reset and be ready to be asked for the same data several times (as we have discussed with
 the DeviceDescriptor which is queried again!).
+
+
+
+
+
+# URLS
+
+* https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+* https://www.beyondlogic.org/usbnutshell/usb3.shtml
+* https://www.uwe-sieber.de/usbtreeview_e.html#download
+* https://www.beyondlogic.org/usbnutshell/usb5.shtml#DeviceDescriptors
+* https://www.mikrocontroller.net/articles/USB-Tutorial_mit_STM32
+* https://www.lddgo.net/en/encrypt/crc - CRC16 USB calculation works with this online calculator.
+* https://eleccelerator.com/usbdescreqparser/#
+
+
+# Explanation of the Source Code
+
+The source code in state_machine_4.v is admittedly horrible but as a beginner, this is the best I could
+do during my two week journey learning the USB3300 chip.
+
+The first task that was identified as receiving and responding USB messages, that the MS Window USB stack
+sends during enumeration. Currently the source code will not do more than getting the device enumerated
+in Windows.
+
+To check which messages need to be processed, check https://cross-hair.co.uk/tech-articles/ULPI%20interface.html
+In the middle of the page, there is a table with a set of transactions.
+
+This is the set of transactions that you will see in a similar order during enumeration. The basic gist is
+that windows will first assume that your device listens on address 0. It will retrieve the DeviceDescriptor
+(only the first 8 byte of it) in order to learn how many bytes the device is able to process per message.
+Then it will reset the device and call SetAddress to assign a non-zero address to the device (On the homepage,
+SetAddress is listed first. I could not verify this behaviour. SetAddress was later during my experiments).
+Once the device has an address, the ConfigurationDescriptor is requested.
+
+To understand the data exchange, you need a basic understanding of USB transactions. USB defines transactions
+which are started by the host using a "Setup Transaction" exchange, followed by "IN transaction exchange"
+followed by "OUT transaction". Looking at SetAddress, you can see that there is no "OUT transaction" part
+for SetAddress! SetAddress is an exception from the rule. Apparently the host tells the USB hub to assign an
+address to the newly connected device and the USB hub will then only use two of the three parts of a transaction.
+So basically the host sticks to the rul of Setup, IN and OUT but the USB hub does not. 
+
+The first real roadblock that I hit during the work with the USB3300 is the fact that for some reason, sending
+data has to be extremely fast! It has to be so fast in fact, that there is no time for incrementing operations for example,
+such as incrementing the index for the next byte to send from the outgoing buffer! This means that the +1 operation
+for incrementing the index does not fit into the budget that the FPGA has for sending data!
+
+My first implementation contained an array and an index regster pointing into that array. The solution did increment an index and 
+transmitted the byte that the index points to in the array! This did not work at all! The message have not been transmitted!
+After a long period of searching for the problem, I finally came to the conclusion that there is simply no time for
+any computations!
+
+My current solution is to have a state machine that is able to send up to ~40 bytes of data from an output buffer
+without incrementing an index register. The states of the sending state machine are linearily transitioned through.
+If the message in the outgoing buffer is n-bytes in size, then in the n-th state the state machine jumps
+to the end of transmission!
+
+The state machine should be updated so that it is able to send 64 bytes (0x40) as advertised in the 
+DeviceDescriptor!
+
+The outgoing message is constructed in a second part of the source code which runs in the 50Mhz clock domain
+of the FPGA (an not in the 60Mhz clock domain of the USB3300 chip). The USB3300 is used to send a NAK (not
+acknowledge) message whenever it sees a IN packet unless the outgoing message is correctly constructed in which
+case it stops responding with NAK and sends the outgoing message instead.
+
+I tested how many NAK messages the Windows USB Stack accepts before it declares the device a failed device.
+It think that the stack is fine with about five seconds of continously receiveing NAK messages before it
+declares the device broken! You should be able to create a response message within 5 seconds!
+
+Once the outgoing messages is produced, the data is sent using the linear sending state machine which
+does do as little processing as possible to fit into the 60 Mhz budget!
+
+
 	
 	
 	
