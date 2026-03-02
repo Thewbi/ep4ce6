@@ -1,5 +1,5 @@
 TimeQuest Timing Analyzer report for LED_4
-Thu Aug 21 10:12:43 2025
+Sat Feb 14 16:06:32 2026
 Quartus II 64-Bit Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
 
 
@@ -1845,7 +1845,7 @@ No non-DPA dedicated SERDES Receiver circuitry present in device or used in desi
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
     Info: Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
-    Info: Processing started: Thu Aug 21 10:12:41 2025
+    Info: Processing started: Sat Feb 14 16:06:30 2026
 Info: Command: quartus_sta LED_4 -c LED_4
 Info: qsta_default_script.tcl version: #1
 Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
@@ -1926,8 +1926,8 @@ Info (332146): Worst-case minimum pulse width slack is -3.000
 Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 4 warnings
-    Info: Peak virtual memory: 4784 megabytes
-    Info: Processing ended: Thu Aug 21 10:12:43 2025
+    Info: Peak virtual memory: 4802 megabytes
+    Info: Processing ended: Sat Feb 14 16:06:32 2026
     Info: Elapsed time: 00:00:02
     Info: Total CPU time (on all processors): 00:00:02
 

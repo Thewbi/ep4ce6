@@ -6,10 +6,7 @@ module LED_4(
 	
 	reg [31:0] counter;	
 	reg clk2;
-	reg [7:0] i;	
-	reg [3:0] led_reg;
-	
-	//assign led = led_reg;
+	reg [7:0] i;
 	
 	always @(posedge clk, negedge nrst) begin
 		if (!nrst) begin
@@ -31,10 +28,10 @@ module LED_4(
 			led <= 4'd0;
 		else
 			case (i)
-		      0:	begin led <= 4'b0001; i<=i+1; end
-				1:	begin led <= 4'b0010; i<=i+1; end
-				2:	begin led <= 4'b0100; i<=i+1; end
-				3:	begin led <= 4'b1000; i<=0; end
+		      0:	begin led <= 4'b0001; i <= i+1; end
+				1:	begin led <= 4'b0010; i <= i+1; end
+				2:	begin led <= 4'b0100; i <= i+1; end
+				3:	begin led <= 4'b1000; i <= 0; end
 			endcase
 	end
 	
