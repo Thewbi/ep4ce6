@@ -86,7 +86,7 @@ module PHY_controller
 	parameter datab2n = 9; // 2^9 = 512 bits = 64 byte
 	parameter skip_bytes = 0;
 
-/*	
+/*	*/
 	//
 	// UART RX -> ETHERNET TX
 	//
@@ -187,91 +187,94 @@ module PHY_controller
 		
 			//T_data[t_idx[datab2n-2:0]] <= {1'b0, 1'b1};
 	
-//			// preamble (7 byte preamble: 01010101, followed by 1 byte Start Frame Delimiter (SFD) 11010101)
-//			// the bits need to be sent LSB first, MSB last
-//			T_data [0] <= {1'b0, 1'b1};
-//			T_data [1] <= {1'b0, 1'b1};
-//			T_data [2] <= {1'b0, 1'b1};
-//			T_data [3] <= {1'b0, 1'b1};
-//			
-//			T_data [4] <= {1'b0, 1'b1};
-//			T_data [5] <= {1'b0, 1'b1};
-//			T_data [6] <= {1'b0, 1'b1};
-//			T_data [7] <= {1'b0, 1'b1};
-//			
-//			T_data [8] <= {1'b0, 1'b1};
-//			T_data [9] <= {1'b0, 1'b1};
-//			T_data[10] <= {1'b0, 1'b1};
-//			T_data[11] <= {1'b0, 1'b1};
-//			
-//			T_data[12] <= {1'b0, 1'b1};
-//			T_data[13] <= {1'b0, 1'b1};
-//			T_data[14] <= {1'b0, 1'b1};
-//			T_data[15] <= {1'b0, 1'b1};
-//			
-//			T_data[16] <= {1'b0, 1'b1};
-//			T_data[17] <= {1'b0, 1'b1};
-//			T_data[18] <= {1'b0, 1'b1};
-//			T_data[19] <= {1'b0, 1'b1};
-//			
-//			T_data[20] <= {1'b0, 1'b1};
-//			T_data[21] <= {1'b0, 1'b1};
-//			T_data[22] <= {1'b0, 1'b1};
-//			T_data[23] <= {1'b0, 1'b1};
-//			
-//			T_data[24] <= {1'b0, 1'b1};
-//			T_data[25] <= {1'b0, 1'b1};
-//			T_data[26] <= {1'b0, 1'b1};
-//			T_data[27] <= {1'b0, 1'b1};
-//			
-//			// Start Frame Delimiter (SFD) 11010101)
-//			T_data[28] <= {1'b0, 1'b1};
-//			T_data[29] <= {1'b0, 1'b1};
-//			T_data[30] <= {1'b0, 1'b1};
-//			T_data[31] <= {1'b1, 1'b1};
-		
-
-
-			T_data [0] <= {1'b1, 1'b0};
-			T_data [1] <= {1'b1, 1'b0};
-			T_data [2] <= {1'b1, 1'b0};
-			T_data [3] <= {1'b1, 1'b0};
+			// preamble (7 byte preamble: 01010101, followed by 1 byte Start Frame Delimiter (SFD) 11010101)
+			// the bits need to be sent LSB first, MSB last
+/*			
+			// 0 byte
 			
-			T_data [4] <= {1'b1, 1'b0};
-			T_data [5] <= {1'b1, 1'b0};
-			T_data [6] <= {1'b1, 1'b0};
-			T_data [7] <= {1'b1, 1'b0};
+			T_data [0] <= {1'b0, 1'b1};
+			T_data [1] <= {1'b0, 1'b1};
+			T_data [2] <= {1'b0, 1'b1};
+			T_data [3] <= {1'b0, 1'b1};
 			
-			T_data [8] <= {1'b1, 1'b0};
-			T_data [9] <= {1'b1, 1'b0};
-			T_data[10] <= {1'b1, 1'b0};
-			T_data[11] <= {1'b1, 1'b0};
+			T_data [4] <= {1'b0, 1'b1};
+			T_data [5] <= {1'b0, 1'b1};
+			T_data [6] <= {1'b0, 1'b1};
+			T_data [7] <= {1'b0, 1'b1};
 			
-			T_data[12] <= {1'b1, 1'b0};
-			T_data[13] <= {1'b1, 1'b0};
-			T_data[14] <= {1'b1, 1'b0};
-			T_data[15] <= {1'b1, 1'b0};
+			T_data [8] <= {1'b0, 1'b1};
+			T_data [9] <= {1'b0, 1'b1};
+			T_data[10] <= {1'b0, 1'b1};
+			T_data[11] <= {1'b0, 1'b1};
 			
-			T_data[16] <= {1'b1, 1'b0};
-			T_data[17] <= {1'b1, 1'b0};
-			T_data[18] <= {1'b1, 1'b0};
-			T_data[19] <= {1'b1, 1'b0};
+			T_data[12] <= {1'b0, 1'b1};
+			T_data[13] <= {1'b0, 1'b1};
+			T_data[14] <= {1'b0, 1'b1};
+			T_data[15] <= {1'b0, 1'b1};
 			
-			T_data[20] <= {1'b1, 1'b0};
-			T_data[21] <= {1'b1, 1'b0};
-			T_data[22] <= {1'b1, 1'b0};
-			T_data[23] <= {1'b1, 1'b0};
+			T_data[16] <= {1'b0, 1'b1};
+			T_data[17] <= {1'b0, 1'b1};
+			T_data[18] <= {1'b0, 1'b1};
+			T_data[19] <= {1'b0, 1'b1};
 			
-			T_data[24] <= {1'b1, 1'b0};
-			T_data[25] <= {1'b1, 1'b0};
-			T_data[26] <= {1'b1, 1'b0};
-			T_data[27] <= {1'b1, 1'b0};
+			T_data[20] <= {1'b0, 1'b1};
+			T_data[21] <= {1'b0, 1'b1};
+			T_data[22] <= {1'b0, 1'b1};
+			T_data[23] <= {1'b0, 1'b1};
+			
+			T_data[24] <= {1'b0, 1'b1};
+			T_data[25] <= {1'b0, 1'b1};
+			T_data[26] <= {1'b0, 1'b1};
+			T_data[27] <= {1'b0, 1'b1};
 			
 			// Start Frame Delimiter (SFD) 11010101)
-			T_data[28] <= {1'b1, 1'b0};
-			T_data[29] <= {1'b1, 1'b0};
-			T_data[30] <= {1'b1, 1'b0};
+			T_data[28] <= {1'b0, 1'b1};
+			T_data[29] <= {1'b0, 1'b1};
+			T_data[30] <= {1'b0, 1'b1};
 			T_data[31] <= {1'b1, 1'b1};
+		
+			// 8 byte (8*8 = 64 bit)
+
+//			T_data [0] <= {1'b1, 1'b0};
+//			T_data [1] <= {1'b1, 1'b0};
+//			T_data [2] <= {1'b1, 1'b0};
+//			T_data [3] <= {1'b1, 1'b0};
+//			
+//			T_data [4] <= {1'b1, 1'b0};
+//			T_data [5] <= {1'b1, 1'b0};
+//			T_data [6] <= {1'b1, 1'b0};
+//			T_data [7] <= {1'b1, 1'b0};
+//			
+//			T_data [8] <= {1'b1, 1'b0};
+//			T_data [9] <= {1'b1, 1'b0};
+//			T_data[10] <= {1'b1, 1'b0};
+//			T_data[11] <= {1'b1, 1'b0};
+//			
+//			T_data[12] <= {1'b1, 1'b0};
+//			T_data[13] <= {1'b1, 1'b0};
+//			T_data[14] <= {1'b1, 1'b0};
+//			T_data[15] <= {1'b1, 1'b0};
+//			
+//			T_data[16] <= {1'b1, 1'b0};
+//			T_data[17] <= {1'b1, 1'b0};
+//			T_data[18] <= {1'b1, 1'b0};
+//			T_data[19] <= {1'b1, 1'b0};
+//			
+//			T_data[20] <= {1'b1, 1'b0};
+//			T_data[21] <= {1'b1, 1'b0};
+//			T_data[22] <= {1'b1, 1'b0};
+//			T_data[23] <= {1'b1, 1'b0};
+//			
+//			T_data[24] <= {1'b1, 1'b0};
+//			T_data[25] <= {1'b1, 1'b0};
+//			T_data[26] <= {1'b1, 1'b0};
+//			T_data[27] <= {1'b1, 1'b0};
+//			
+//			// Start Frame Delimiter (SFD) 11010101)
+//			T_data[28] <= {1'b1, 1'b0};
+//			T_data[29] <= {1'b1, 1'b0};
+//			T_data[30] <= {1'b1, 1'b0};
+//			T_data[31] <= {1'b1, 1'b1};
 			
 			
 			// 8 byte
@@ -412,10 +415,300 @@ module PHY_controller
 			{T_data[284], T_data[285], T_data[286], T_data[287]} <= 8'h63;
 			
 			// 72 byte = 288 * 2 = 576 bits = 576 / 8 = 72 byte == 64 byte + 8 byte preamble
+			*/
 			
+			T_data [0] <= {1'b0, 1'b1};
+			T_data [1] <= {1'b0, 1'b1};
+			T_data [2] <= {1'b0, 1'b1};
+			T_data [3] <= {1'b0, 1'b1};
+			T_data [4] <= {1'b0, 1'b1};
+			T_data [5] <= {1'b0, 1'b1};
+			T_data [6] <= {1'b0, 1'b1};
+			T_data [7] <= {1'b0, 1'b1};
+			T_data [8] <= {1'b0, 1'b1};
+			T_data [9] <= {1'b0, 1'b1};
+			T_data [10] <= {1'b0, 1'b1};
+			T_data [11] <= {1'b0, 1'b1};
+			T_data [12] <= {1'b0, 1'b1};
+			T_data [13] <= {1'b0, 1'b1};
+			T_data [14] <= {1'b0, 1'b1};
+			T_data [15] <= {1'b0, 1'b1};
+			T_data [16] <= {1'b0, 1'b1};
+			T_data [17] <= {1'b0, 1'b1};
+			T_data [18] <= {1'b0, 1'b1};
+			T_data [19] <= {1'b0, 1'b1};
+			T_data [20] <= {1'b0, 1'b1};
+			T_data [21] <= {1'b0, 1'b1};
+			T_data [22] <= {1'b0, 1'b1};
+			T_data [23] <= {1'b0, 1'b1};
+			T_data [24] <= {1'b0, 1'b1};
+			T_data [25] <= {1'b0, 1'b1};
+			T_data [26] <= {1'b0, 1'b1};
+			T_data [27] <= {1'b0, 1'b1};
+			T_data [28] <= {1'b0, 1'b1};
+			T_data [29] <= {1'b0, 1'b1};
+			T_data [30] <= {1'b0, 1'b1};
+			T_data [31] <= {1'b1, 1'b1};
+			T_data [32] <= {1'b0, 1'b0};
+			T_data [33] <= {1'b0, 1'b0};
+			T_data [34] <= {1'b0, 1'b0};
+			T_data [35] <= {1'b0, 1'b0};
+			T_data [36] <= {1'b0, 1'b0};
+			T_data [37] <= {1'b0, 1'b0};
+			T_data [38] <= {1'b0, 1'b0};
+			T_data [39] <= {1'b0, 1'b0};
+			T_data [40] <= {1'b0, 1'b0};
+			T_data [41] <= {1'b0, 1'b0};
+			T_data [42] <= {1'b0, 1'b1};
+			T_data [43] <= {1'b0, 1'b0};
+			T_data [44] <= {1'b0, 1'b1};
+			T_data [45] <= {1'b0, 1'b0};
+			T_data [46] <= {1'b0, 1'b0};
+			T_data [47] <= {1'b0, 1'b0};
+			T_data [48] <= {1'b1, 1'b1};
+			T_data [49] <= {1'b0, 1'b0};
+			T_data [50] <= {1'b1, 1'b1};
+			T_data [51] <= {1'b1, 1'b0};
+			T_data [52] <= {1'b0, 1'b1};
+			T_data [53] <= {1'b1, 1'b1};
+			T_data [54] <= {1'b1, 1'b1};
+			T_data [55] <= {1'b1, 1'b0};
+			T_data [56] <= {1'b0, 1'b0};
+			T_data [57] <= {1'b0, 1'b1};
+			T_data [58] <= {1'b0, 1'b0};
+			T_data [59] <= {1'b0, 1'b0};
+			T_data [60] <= {1'b0, 1'b1};
+			T_data [61] <= {1'b0, 1'b1};
+			T_data [62] <= {1'b0, 1'b0};
+			T_data [63] <= {1'b0, 1'b0};
+			T_data [64] <= {1'b1, 1'b0};
+			T_data [65] <= {1'b0, 1'b1};
+			T_data [66] <= {1'b0, 1'b0};
+			T_data [67] <= {1'b0, 1'b0};
+			T_data [68] <= {1'b1, 1'b1};
+			T_data [69] <= {1'b0, 1'b1};
+			T_data [70] <= {1'b0, 1'b0};
+			T_data [71] <= {1'b0, 1'b0};
+			T_data [72] <= {1'b0, 1'b0};
+			T_data [73] <= {1'b1, 1'b0};
+			T_data [74] <= {1'b0, 1'b0};
+			T_data [75] <= {1'b0, 1'b0};
+			T_data [76] <= {1'b0, 1'b1};
+			T_data [77] <= {1'b1, 1'b0};
+			T_data [78] <= {1'b0, 1'b0};
+			T_data [79] <= {1'b0, 1'b0};
+			T_data [80] <= {1'b0, 1'b0};
+			T_data [81] <= {1'b1, 1'b0};
+			T_data [82] <= {1'b0, 1'b0};
+			T_data [83] <= {1'b0, 1'b0};
+			T_data [84] <= {1'b1, 1'b0};
+			T_data [85] <= {1'b0, 1'b1};
+			T_data [86] <= {1'b0, 1'b0};
+			T_data [87] <= {1'b0, 1'b0};
+			T_data [88] <= {1'b0, 1'b0};
+			T_data [89] <= {1'b0, 1'b0};
+			T_data [90] <= {1'b0, 1'b0};
+			T_data [91] <= {1'b0, 1'b0};
+			T_data [92] <= {1'b0, 1'b1};
+			T_data [93] <= {1'b0, 1'b0};
+			T_data [94] <= {1'b0, 1'b0};
+			T_data [95] <= {1'b0, 1'b0};
+			T_data [96] <= {1'b0, 1'b0};
+			T_data [97] <= {1'b1, 1'b0};
+			T_data [98] <= {1'b0, 1'b0};
+			T_data [99] <= {1'b0, 1'b0};
+			T_data [100] <= {1'b0, 1'b0};
+			T_data [101] <= {1'b0, 1'b0};
+			T_data [102] <= {1'b0, 1'b0};
+			T_data [103] <= {1'b0, 1'b0};
+			T_data [104] <= {1'b1, 1'b0};
+			T_data [105] <= {1'b0, 1'b1};
+			T_data [106] <= {1'b0, 1'b0};
+			T_data [107] <= {1'b0, 1'b0};
+			T_data [108] <= {1'b0, 1'b0};
+			T_data [109] <= {1'b0, 1'b1};
+			T_data [110] <= {1'b0, 1'b0};
+			T_data [111] <= {1'b0, 1'b0};
+			T_data [112] <= {1'b0, 1'b0};
+			T_data [113] <= {1'b0, 1'b0};
+			T_data [114] <= {1'b0, 1'b0};
+			T_data [115] <= {1'b0, 1'b0};
+			T_data [116] <= {1'b1, 1'b0};
+			T_data [117] <= {1'b0, 1'b0};
+			T_data [118] <= {1'b0, 1'b0};
+			T_data [119] <= {1'b0, 1'b0};
+			T_data [120] <= {1'b0, 1'b0};
+			T_data [121] <= {1'b0, 1'b1};
+			T_data [122] <= {1'b0, 1'b0};
+			T_data [123] <= {1'b0, 1'b0};
+			T_data [124] <= {1'b0, 1'b1};
+			T_data [125] <= {1'b0, 1'b1};
+			T_data [126] <= {1'b0, 1'b0};
+			T_data [127] <= {1'b0, 1'b0};
+			T_data [128] <= {1'b1, 1'b0};
+			T_data [129] <= {1'b0, 1'b1};
+			T_data [130] <= {1'b0, 1'b0};
+			T_data [131] <= {1'b0, 1'b0};
+			T_data [132] <= {1'b1, 1'b1};
+			T_data [133] <= {1'b0, 1'b1};
+			T_data [134] <= {1'b0, 1'b0};
+			T_data [135] <= {1'b0, 1'b0};
+			T_data [136] <= {1'b0, 1'b0};
+			T_data [137] <= {1'b1, 1'b0};
+			T_data [138] <= {1'b0, 1'b0};
+			T_data [139] <= {1'b0, 1'b0};
+			T_data [140] <= {1'b0, 1'b1};
+			T_data [141] <= {1'b1, 1'b0};
+			T_data [142] <= {1'b0, 1'b0};
+			T_data [143] <= {1'b0, 1'b0};
+			T_data [144] <= {1'b0, 1'b0};
+			T_data [145] <= {1'b0, 1'b0};
+			T_data [146] <= {1'b0, 1'b0};
+			T_data [147] <= {1'b1, 1'b1};
+			T_data [148] <= {1'b0, 1'b0};
+			T_data [149] <= {1'b1, 1'b0};
+			T_data [150] <= {1'b1, 1'b0};
+			T_data [151] <= {1'b1, 1'b0};
+			T_data [152] <= {1'b0, 1'b0};
+			T_data [153] <= {1'b0, 1'b0};
+			T_data [154] <= {1'b0, 1'b0};
+			T_data [155] <= {1'b0, 1'b0};
+			T_data [156] <= {1'b0, 1'b0};
+			T_data [157] <= {1'b1, 1'b1};
+			T_data [158] <= {1'b1, 1'b0};
+			T_data [159] <= {1'b0, 1'b0};
+			T_data [160] <= {1'b0, 1'b0};
+			T_data [161] <= {1'b0, 1'b0};
+			T_data [162] <= {1'b0, 1'b0};
+			T_data [163] <= {1'b0, 1'b0};
+			T_data [164] <= {1'b0, 1'b0};
+			T_data [165] <= {1'b0, 1'b0};
+			T_data [166] <= {1'b0, 1'b0};
+			T_data [167] <= {1'b0, 1'b0};
+			T_data [168] <= {1'b0, 1'b0};
+			T_data [169] <= {1'b0, 1'b0};
+			T_data [170] <= {1'b0, 1'b1};
+			T_data [171] <= {1'b0, 1'b0};
+			T_data [172] <= {1'b0, 1'b1};
+			T_data [173] <= {1'b0, 1'b0};
+			T_data [174] <= {1'b0, 1'b0};
+			T_data [175] <= {1'b0, 1'b0};
+			T_data [176] <= {1'b1, 1'b1};
+			T_data [177] <= {1'b0, 1'b0};
+			T_data [178] <= {1'b1, 1'b1};
+			T_data [179] <= {1'b1, 1'b0};
+			T_data [180] <= {1'b0, 1'b1};
+			T_data [181] <= {1'b1, 1'b1};
+			T_data [182] <= {1'b1, 1'b1};
+			T_data [183] <= {1'b1, 1'b0};
+			T_data [184] <= {1'b0, 1'b0};
+			T_data [185] <= {1'b0, 1'b0};
+			T_data [186] <= {1'b0, 1'b0};
+			T_data [187] <= {1'b1, 1'b1};
+			T_data [188] <= {1'b0, 1'b0};
+			T_data [189] <= {1'b1, 1'b0};
+			T_data [190] <= {1'b1, 1'b0};
+			T_data [191] <= {1'b1, 1'b0};
+			T_data [192] <= {1'b0, 1'b0};
+			T_data [193] <= {1'b0, 1'b0};
+			T_data [194] <= {1'b0, 1'b0};
+			T_data [195] <= {1'b0, 1'b0};
+			T_data [196] <= {1'b0, 1'b0};
+			T_data [197] <= {1'b0, 1'b1};
+			T_data [198] <= {1'b0, 1'b0};
+			T_data [199] <= {1'b0, 1'b0};
+			T_data [200] <= {1'b0, 1'b0};
+			T_data [201] <= {1'b0, 1'b0};
+			T_data [202] <= {1'b0, 1'b0};
+			T_data [203] <= {1'b0, 1'b0};
+			T_data [204] <= {1'b0, 1'b0};
+			T_data [205] <= {1'b0, 1'b0};
+			T_data [206] <= {1'b0, 1'b0};
+			T_data [207] <= {1'b0, 1'b0};
+			T_data [208] <= {1'b0, 1'b0};
+			T_data [209] <= {1'b0, 1'b0};
+			T_data [210] <= {1'b0, 1'b0};
+			T_data [211] <= {1'b0, 1'b0};
+			T_data [212] <= {1'b0, 1'b0};
+			T_data [213] <= {1'b0, 1'b0};
+			T_data [214] <= {1'b0, 1'b0};
+			T_data [215] <= {1'b0, 1'b0};
+			T_data [216] <= {1'b0, 1'b0};
+			T_data [217] <= {1'b0, 1'b0};
+			T_data [218] <= {1'b0, 1'b0};
+			T_data [219] <= {1'b0, 1'b0};
+			T_data [220] <= {1'b0, 1'b0};
+			T_data [221] <= {1'b0, 1'b0};
+			T_data [222] <= {1'b0, 1'b0};
+			T_data [223] <= {1'b0, 1'b0};
+			T_data [224] <= {1'b0, 1'b0};
+			T_data [225] <= {1'b0, 1'b0};
+			T_data [226] <= {1'b0, 1'b0};
+			T_data [227] <= {1'b0, 1'b0};
+			T_data [228] <= {1'b0, 1'b0};
+			T_data [229] <= {1'b0, 1'b0};
+			T_data [230] <= {1'b0, 1'b0};
+			T_data [231] <= {1'b0, 1'b0};
+			T_data [232] <= {1'b0, 1'b0};
+			T_data [233] <= {1'b0, 1'b0};
+			T_data [234] <= {1'b0, 1'b0};
+			T_data [235] <= {1'b0, 1'b0};
+			T_data [236] <= {1'b0, 1'b0};
+			T_data [237] <= {1'b0, 1'b0};
+			T_data [238] <= {1'b0, 1'b0};
+			T_data [239] <= {1'b0, 1'b0};
+			T_data [240] <= {1'b0, 1'b0};
+			T_data [241] <= {1'b0, 1'b0};
+			T_data [242] <= {1'b0, 1'b0};
+			T_data [243] <= {1'b0, 1'b0};
+			T_data [244] <= {1'b0, 1'b0};
+			T_data [245] <= {1'b0, 1'b0};
+			T_data [246] <= {1'b0, 1'b0};
+			T_data [247] <= {1'b0, 1'b0};
+			T_data [248] <= {1'b0, 1'b0};
+			T_data [249] <= {1'b0, 1'b0};
+			T_data [250] <= {1'b0, 1'b0};
+			T_data [251] <= {1'b0, 1'b0};
+			T_data [252] <= {1'b0, 1'b0};
+			T_data [253] <= {1'b0, 1'b0};
+			T_data [254] <= {1'b0, 1'b0};
+			T_data [255] <= {1'b0, 1'b0};
+			T_data [256] <= {1'b0, 1'b0};
+			T_data [257] <= {1'b0, 1'b0};
+			T_data [258] <= {1'b0, 1'b0};
+			T_data [259] <= {1'b0, 1'b0};
+			T_data [260] <= {1'b0, 1'b0};
+			T_data [261] <= {1'b0, 1'b0};
+			T_data [262] <= {1'b0, 1'b0};
+			T_data [263] <= {1'b0, 1'b0};
+			T_data [264] <= {1'b0, 1'b0};
+			T_data [265] <= {1'b0, 1'b0};
+			T_data [266] <= {1'b0, 1'b0};
+			T_data [267] <= {1'b0, 1'b0};
+			T_data [268] <= {1'b0, 1'b0};
+			T_data [269] <= {1'b0, 1'b0};
+			T_data [270] <= {1'b0, 1'b0};
+			T_data [271] <= {1'b0, 1'b0};
+			T_data [272] <= {1'b1, 1'b1};
+			T_data [273] <= {1'b0, 1'b0};
+			T_data [274] <= {1'b1, 1'b0};
+			T_data [275] <= {1'b0, 1'b1};
+			T_data [276] <= {1'b1, 1'b0};
+			T_data [277] <= {1'b1, 1'b0};
+			T_data [278] <= {1'b0, 1'b1};
+			T_data [279] <= {1'b1, 1'b0};
+			T_data [280] <= {1'b0, 1'b0};
+			T_data [281] <= {1'b0, 1'b1};
+			T_data [282] <= {1'b1, 1'b0};
+			T_data [283] <= {1'b1, 1'b0};
+			T_data [284] <= {1'b0, 1'b1};
+			T_data [285] <= {1'b1, 1'b1};
+			T_data [286] <= {1'b1, 1'b1};
+			T_data [287] <= {1'b0, 1'b1};
+
 		end
 	end	
-*/
+
 	//
 	// ETHERNET RX -> UART TX
 	//
@@ -1212,7 +1505,7 @@ module PHY_controller
       .o_Tx_Done(uart_tx_done) // to test driver
 	);
 	
-/**/
+/*
 	//
 	// Ethernet
 	//
@@ -1261,7 +1554,7 @@ module PHY_controller
 		.i_addr_read(w_addr_read),
 		.o_data_out(o_data_out) // ETHERNET-TX onto the phy's to bit interface TX[1:0]
 	);
-
+*/
 	  
 endmodule   
     
