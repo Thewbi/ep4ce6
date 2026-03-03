@@ -41,6 +41,7 @@ module transmitter (
     begin
        
       case (r_SM_Main)
+		
         s_IDLE :
           begin
             o_Tx_Serial   <= 1'b1;         // Drive Line High for Idle

@@ -74,6 +74,15 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to i_clock
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_TX_enab
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_data_out[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_data_out[0]
+set_location_assignment PIN_126 -to o_uart_tx_pin
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_uart_tx_pin
+set_location_assignment PIN_54 -to crs_dv
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to crs_dv
+set_location_assignment PIN_52 -to rx[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx[1]
+set_location_assignment PIN_51 -to rx[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx[0]
+set_global_assignment -name VERILOG_FILE UARTReceiver.v
 set_global_assignment -name VERILOG_FILE clk_divider.v
 set_global_assignment -name VERILOG_FILE UARTTransmitter.v
 set_global_assignment -name VERILOG_FILE static_data.v
@@ -84,12 +93,6 @@ set_global_assignment -name VERILOG_FILE fifo_read_control.v
 set_global_assignment -name VERILOG_FILE fifo.v
 set_global_assignment -name VERILOG_FILE ethernet_define.v
 set_global_assignment -name VERILOG_FILE EthernetRMII.v
-set_location_assignment PIN_126 -to o_uart_tx_pin
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_uart_tx_pin
-set_location_assignment PIN_54 -to crs_dv
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to crs_dv
-set_location_assignment PIN_52 -to rx[1]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx[1]
-set_location_assignment PIN_51 -to rx[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx[0]
+set_location_assignment PIN_127 -to i_uart_rx_pin
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to i_uart_rx_pin
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

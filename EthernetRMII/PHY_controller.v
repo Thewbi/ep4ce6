@@ -22,7 +22,8 @@ module PHY_controller
 	// UART
 	//
 	
-	output wire 		o_uart_tx_pin // PIN 
+	output wire 		o_uart_tx_pin, // PIN 
+	input  wire       i_uart_rx_pin
 	
 );
  
@@ -108,6 +109,7 @@ module PHY_controller
 	reg one_second_toggle = 0;
 	reg one_second_toggle_sensor = 0;
 	
+/*
 	always @(posedge i_clock)
 	begin
 		if (!nrst)
@@ -127,6 +129,7 @@ module PHY_controller
 			end
 		end
 	end
+*/
 	
 	always @(posedge i_clock)
 	begin
@@ -154,7 +157,7 @@ module PHY_controller
 					one_second_toggle_sensor <= one_second_toggle;
 					t_idx <= 0;
 					//led_reg <= 4'b1111;
-					led_reg <= ~led_reg;
+					//led_reg <= ~led_reg;
 				end
 				else
 				begin
@@ -416,7 +419,8 @@ module PHY_controller
 			
 			// 72 byte = 288 * 2 = 576 bits = 576 / 8 = 72 byte == 64 byte + 8 byte preamble
 			*/
-			
+
+	/*		
 			T_data [0] <= {1'b0, 1'b1};
 			T_data [1] <= {1'b0, 1'b1};
 			T_data [2] <= {1'b0, 1'b1};
@@ -705,9 +709,11 @@ module PHY_controller
 			T_data [285] <= {1'b1, 1'b1};
 			T_data [286] <= {1'b1, 1'b1};
 			T_data [287] <= {1'b0, 1'b1};
-
+*/
 		end
-	end	
+		
+	end
+
 
 	//
 	// ETHERNET RX -> UART TX
@@ -1504,6 +1510,158 @@ module PHY_controller
       .o_Tx_Serial(o_uart_tx_pin), // this is the port pin of the design towards the UART output
       .o_Tx_Done(uart_tx_done) // to test driver
 	);
+	
+	wire 			uart_rx_data_valid;
+	wire [7:0] 	uart_rx_byte; // received byte
+	//reg [7:0] uart_rx_byte_reg; // received byte
+	
+	uart_rx uart_rx_instance(
+		.i_Clock(clk_10), // 10 Mhz clock that drives this receiver
+		.i_Rx_Serial(i_uart_rx_pin), // input pin that is connected to the UART line for incoming bits
+      .o_Rx_DV(uart_rx_data_valid), // data valid (asserted when a byte has been received)
+		.o_Rx_Byte(uart_rx_byte) // the byte of received data
+	);
+	
+//	always @(posedge uart_rx_data_valid)
+//	begin
+//		if (!nrst)
+//		begin
+//			led_reg <= 4'b1111;
+//		end
+//		else
+//		begin
+//			led_reg <= ~led_reg;
+//		end
+//	end
+	
+	//
+	// UART reception state machine
+	// It expects a leading uint16_t (2 byte) which describes the length of the data to follow
+	//
+	
+	localparam 	[3:0] UART_RX_IDLE      = 4'b0000;
+	localparam 	[3:0] UART_RX_LEN_MSB   = 4'b0001;
+	localparam 	[3:0] UART_RX_LEN_LSB   = 4'b0010;
+	localparam 	[3:0] UART_RX_DATA      = 4'b0011;
+//	localparam 	[3:0] UART_RX_BUS_3     = 4'b0100;
+//	localparam 	[3:0] RX_BUS_4      		= 4'b0101;
+//	localparam 	[3:0] RX_BUS_1_INIT 		= 4'b0110;
+//	localparam 	[3:0] RX_STOP       		= 4'b0111;
+	
+	reg     		[3:0]       uart_RX_state = UART_RX_IDLE;
+	
+	reg [15:0] uart_rx_msg_len = 16'b0;
+	reg [15:0] uart_rx_idx = 16'b0;
+	
+	always @(posedge clk_10)
+	begin
+		if (!nrst)
+		begin
+			//led_reg <= 4'b1111;
+			//led_reg <= ~led_reg;
+			
+			uart_rx_msg_len <= 16'b0;
+			uart_rx_idx <= 16'b0;
+			
+			// next state
+			uart_RX_state <= UART_RX_IDLE;
+		end
+		else
+		begin
+			
+			case (uart_RX_state)
+			
+				UART_RX_IDLE:
+				begin
+					uart_rx_msg_len <= 16'b0;
+					uart_rx_idx <= 16'b0;
+					
+					// next state
+					uart_RX_state <= UART_RX_LEN_MSB;
+				end
+				
+				// wait for the MSB of the uint16_t (2 byte) length
+				// every message has a 2 byte header that contains the amount of bytes to follow
+				UART_RX_LEN_MSB:
+				begin
+					if (uart_rx_data_valid == 1)
+					begin
+						// store MSB 
+						uart_rx_msg_len[15:8] <= uart_rx_byte;
+						
+ 						// next state
+						uart_RX_state <= UART_RX_LEN_LSB;
+					end
+					else
+					begin
+						// next state
+						uart_RX_state <= UART_RX_LEN_MSB;
+					end
+				end
+				
+				// wait for the LSB of the uint16_t (2 byte) length
+				UART_RX_LEN_LSB:
+				begin
+					if (uart_rx_data_valid == 1)
+					begin
+						// store MSB 
+						uart_rx_msg_len[7:0] <= uart_rx_byte;
+						
+ 						// next state
+						uart_RX_state <= UART_RX_DATA;
+					end
+					else
+					begin
+						// next state
+						uart_RX_state <= UART_RX_LEN_LSB;
+					end
+				end
+				
+				// read data
+				UART_RX_DATA:
+				begin
+					if (uart_rx_msg_len > 0)
+					begin
+					
+						if (uart_rx_data_valid == 1)
+						begin
+					
+							// store one byte
+							//uart_rx_buffer[] = uart_rx_byte;
+							
+							T_data[uart_rx_idx + 0] <= { uart_rx_byte[1], uart_rx_byte[0] };
+							T_data[uart_rx_idx + 1] <= { uart_rx_byte[3], uart_rx_byte[2] };
+							T_data[uart_rx_idx + 2] <= { uart_rx_byte[5], uart_rx_byte[4] };
+							T_data[uart_rx_idx + 3] <= { uart_rx_byte[7], uart_rx_byte[6] };
+							
+							uart_rx_idx <= uart_rx_idx + 4;
+						
+							// one byte received
+							uart_rx_msg_len <= uart_rx_msg_len - 1;
+							
+						end
+						
+						// next state
+						uart_RX_state <= UART_RX_DATA;
+					end
+					else
+					begin
+					
+						// DEBUG
+						led_reg <= ~led_reg;
+						
+						// transmit over ethernet
+						one_second_toggle <= ~one_second_toggle;
+						
+						// next state
+						uart_RX_state <= UART_RX_IDLE;
+					end
+				end
+				
+			endcase
+			
+		end
+	end
 	
 /*
 	//
